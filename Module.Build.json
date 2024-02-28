@@ -1,0 +1,18 @@
+{
+    "Resources": {
+	  "NoComponents": true,
+      "CoreServicesDlls": [
+        "./Decisions.Exchange365/obj/Decisions.Exchange365.dll"
+      ],
+      "CliDlls": "",
+      "WebPages": "",
+      "InstallScript": "",
+      "SqlScripts": "",
+      "ObjectsToImport": "",
+      "MsSqlScript": "",
+      "CustomImages": ""
+    },
+    "Version": "8.19.0",
+    "ImagePath": "../../Content/Images/Modules/modules_logo_exchange.svg",
+    "Description": ""
+}
