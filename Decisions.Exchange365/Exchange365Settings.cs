@@ -1,6 +1,5 @@
 using System.ComponentModel;
 using System.Runtime.Serialization;
-using Azure.Identity;
 using DecisionsFramework;
 using DecisionsFramework.Data.ORMapper;
 using DecisionsFramework.Design.ConfigurationStorage.Attributes;
@@ -12,7 +11,6 @@ using DecisionsFramework.ServiceLayer.Services.Accounts;
 using DecisionsFramework.ServiceLayer.Services.Administration;
 using DecisionsFramework.ServiceLayer.Services.Folder;
 using DecisionsFramework.ServiceLayer.Utilities;
-using Microsoft.Graph;
 
 namespace Decisions.Exchange365
 {

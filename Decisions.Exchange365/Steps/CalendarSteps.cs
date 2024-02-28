@@ -1,42 +1,63 @@
 using Decisions.Exchange365.Data;
 using DecisionsFramework;
 using DecisionsFramework.Design.Flow;
-using DecisionsFramework.Design.Flow.StepImplementations;
+using DecisionsFramework.Utilities;
 using Microsoft.Graph.Models;
 
 namespace Decisions.Exchange365.Steps
 {
     [AutoRegisterMethodsOnClass(true, "Integration/Exchange365/Calendar")]
-    [ShapeImageAndColorProvider(null, Exchange365Constants.EXCHANGE365_IMAGES_PATH)]
     public class CalendarSteps
     {
-        public Task<Event?> CreateCalendarEvent(Event eventDetails, string? preferredTimeZone)
+        public void CreateCalendarEvent(string subject, string body, DateTime startTime, DateTime endTime, string? timeZone, string location, DecisionsFramework.Design.Flow.CoreSteps.EMail.EmailAddress[] attendees, bool allowNewTimeProposals)
         {
-            try
+            List<Attendee> eventAttendees = new List<Attendee>();
+            foreach (var attendee in attendees)
             {
-                return Exchange365Auth.GraphClient.Me.Events.PostAsync(eventDetails, (requestConfiguration) =>
+                eventAttendees.Add(new Attendee
                 {
-                    if (!string.IsNullOrEmpty(preferredTimeZone))
+                    EmailAddress = new EmailAddress()
                     {
-                        requestConfiguration.Headers.Add("Prefer", $"outlook.timezone=\"{preferredTimeZone}\"");
+                        Address = attendee.Address,
+                        Name = attendee.DisplayName
                     }
                 });
             }
-            catch (Exception ex)
+            
+            Event requestBody = new Event
             {
-                throw new BusinessRuleException("The request was unsuccessful.", ex);
-            }
-        }
-        
-        public Task<Event?> DeleteCalendarEvent(Event eventDetails, string? preferredTimeZone)
-        {
+                Subject = subject,
+                Body = new ItemBody
+                {
+                    ContentType = BodyType.Html,
+                    Content = body,
+                },
+                Start = new DateTimeTimeZone
+                {
+                    DateTime = startTime.ToString(),
+                    TimeZone = timeZone,
+                },
+                End = new DateTimeTimeZone
+                {
+                    DateTime = endTime.ToString(),
+                    TimeZone = timeZone,
+                },
+                Location = new Location
+                {
+                    DisplayName = location,
+                },
+                Attendees = eventAttendees,
+                AllowNewTimeProposals = allowNewTimeProposals,
+                TransactionId = IDUtility.GetNewIdString()
+            };
+            
             try
             {
-                return Exchange365Auth.GraphClient.Me.Events.PostAsync(eventDetails, (requestConfiguration) =>
+                Task<Event?> response = Exchange365Auth.GraphClient.Me.Events.PostAsync(requestBody, (requestConfiguration) =>
                 {
-                    if (!string.IsNullOrEmpty(preferredTimeZone))
+                    if (!string.IsNullOrEmpty(timeZone))
                     {
-                        requestConfiguration.Headers.Add("Prefer", $"outlook.timezone=\"{preferredTimeZone}\"");
+                        requestConfiguration.Headers.Add("Prefer", $"outlook.timezone=\"{timeZone}\"");
                     }
                 });
             }
