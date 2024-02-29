@@ -6,22 +6,22 @@ namespace Decisions.Exchange365.Data;
 
 public class Exchange365Auth
 {
-    private static DeviceCodeCredentialOptions options = new()
+    private static string clientId = ModuleSettingsAccessor<Exchange365Settings>.GetSettings().ClientId;
+    private static string tenantId = ModuleSettingsAccessor<Exchange365Settings>.GetSettings().TenantId;
+    private static string[] scopes = ModuleSettingsAccessor<Exchange365Settings>.GetSettings().Scopes;
+
+    private static string clientSecret = ModuleSettingsAccessor<Exchange365Settings>.GetSettings().ClientSecret;
+    private static string authorizationCode = ModuleSettingsAccessor<Exchange365Settings>.GetSettings().AuthorizationCode;
+
+    // using Azure.Identity;
+    static AuthorizationCodeCredentialOptions options = new AuthorizationCodeCredentialOptions
     {
         AuthorityHost = AzureAuthorityHosts.AzurePublicCloud,
-        ClientId = ModuleSettingsAccessor<Exchange365Settings>.GetSettings().ClientId,
-        TenantId = ModuleSettingsAccessor<Exchange365Settings>.GetSettings().TenantId,
-        // Callback function that receives the user prompt
-        // Prompt contains the generated device code that user must
-        // enter during the auth process in the browser
-        DeviceCodeCallback = (code, cancellation) =>
-        {
-            Console.WriteLine(code.Message);
-            return Task.FromResult(0);
-        },
     };
 
-    static DeviceCodeCredential deviceCodeCredential = new(options);
+    // https://learn.microsoft.com/dotnet/api/azure.identity.authorizationcodecredential
+    static AuthorizationCodeCredential authCodeCredential = new AuthorizationCodeCredential(
+        tenantId, clientId, clientSecret, authorizationCode, options);
 
-    internal static GraphServiceClient GraphClient = new(deviceCodeCredential, ModuleSettingsAccessor<Exchange365Settings>.GetSettings().Scopes);
+    internal static GraphServiceClient GraphClient = new GraphServiceClient(authCodeCredential, scopes);
 }

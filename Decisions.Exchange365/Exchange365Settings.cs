@@ -1,5 +1,9 @@
+using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Runtime.Serialization;
+using System.Runtime.Serialization.DataContracts;
+using Azure.Identity;
 using DecisionsFramework;
 using DecisionsFramework.Data.ORMapper;
 using DecisionsFramework.Design.ConfigurationStorage.Attributes;
@@ -24,17 +28,48 @@ namespace Decisions.Exchange365
             this.EntityName = "Exchange 365 Settings";
         }
         
-        [ORMField(typeof(StringArrayFieldConverter))]
-        private string[] scopes;
-
-        // Multi-tenant apps can use "common",
+        // Value from app registration
+        [ORMField]
+        private string clientId;
+        
         // single-tenant apps must use the tenant ID from the Azure portal
         [ORMField]
         private string tenantId = "common";
 
-        // Value from app registration
+        [ORMField(typeof(StringArrayFieldConverter))]
+        private string[] scopes;
+        
         [ORMField]
-        private string clientId;
+        private string clientSecret;
+
+        [ORMField]
+        private string authorizationCode;
+
+        [PropertyClassification(0, "Client ID", "Exchange 365 Settings")]
+        [DataMember]
+        [WritableValue]
+        public string ClientId
+        {
+            get => clientId;
+            set
+            {
+                clientId = value;
+                OnPropertyChanged(nameof(ClientId));
+            }
+        }
+        
+        [PropertyClassification(1, "Tenant ID", "Exchange 365 Settings")]
+        [DataMember]
+        [WritableValue]
+        public string TenantId
+        {
+            get => tenantId;
+            set
+            {
+                tenantId = value;
+                OnPropertyChanged(nameof(TenantId));
+            }
+        }
         
         [PropertyClassification(2, "Scopes", "Exchange 365 Settings")]
         [DataMember]
@@ -49,29 +84,29 @@ namespace Decisions.Exchange365
             }
         }
         
-        [PropertyClassification(0, "Tenant ID", "Exchange 365 Settings")]
+        [PropertyClassification(3, "Client Secret", "Exchange 365 Settings")]
         [DataMember]
         [WritableValue]
-        public string TenantId
+        public string ClientSecret
         {
-            get => tenantId;
+            get => clientSecret;
             set
             {
-                tenantId = value;
-                OnPropertyChanged(nameof(TenantId));
+                clientSecret = value;
+                OnPropertyChanged(nameof(ClientSecret));
             }
         }
         
-        [PropertyClassification(1, "Client ID", "Exchange 365 Settings")]
+        [PropertyClassification(4, "Authorization Code", "Exchange 365 Settings")]
         [DataMember]
         [WritableValue]
-        public string ClientId
+        public string AuthorizationCode
         {
-            get => clientId;
+            get => authorizationCode;
             set
             {
-                clientId = value;
-                OnPropertyChanged(nameof(ClientId));
+                authorizationCode = value;
+                OnPropertyChanged(nameof(AuthorizationCode));
             }
         }
 
