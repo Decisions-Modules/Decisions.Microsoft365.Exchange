@@ -1,9 +1,5 @@
-using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.Runtime.Serialization;
-using System.Runtime.Serialization.DataContracts;
-using Azure.Identity;
 using DecisionsFramework;
 using DecisionsFramework.Data.ORMapper;
 using DecisionsFramework.Design.ConfigurationStorage.Attributes;
@@ -34,16 +30,13 @@ namespace Decisions.Exchange365
         
         // single-tenant apps must use the tenant ID from the Azure portal
         [ORMField]
-        private string tenantId = "common";
-
-        [ORMField(typeof(StringArrayFieldConverter))]
-        private string[] scopes;
-        
-        [ORMField]
-        private string clientSecret;
+        private string tenantId;
 
         [ORMField]
-        private string authorizationCode;
+        private string clientSecretValue;
+
+        [ORMField]
+        private string token;
 
         [PropertyClassification(0, "Client ID", "Exchange 365 Settings")]
         [DataMember]
@@ -70,46 +63,33 @@ namespace Decisions.Exchange365
                 OnPropertyChanged(nameof(TenantId));
             }
         }
-        
-        [PropertyClassification(2, "Scopes", "Exchange 365 Settings")]
-        [DataMember]
-        [WritableValue]
-        public string[] Scopes
-        {
-            get => scopes;
-            set
-            {
-                scopes = value;
-                OnPropertyChanged(nameof(Scopes));
-            }
-        }
-        
-        [PropertyClassification(3, "Client Secret", "Exchange 365 Settings")]
-        [DataMember]
-        [WritableValue]
-        public string ClientSecret
-        {
-            get => clientSecret;
-            set
-            {
-                clientSecret = value;
-                OnPropertyChanged(nameof(ClientSecret));
-            }
-        }
-        
-        [PropertyClassification(4, "Authorization Code", "Exchange 365 Settings")]
-        [DataMember]
-        [WritableValue]
-        public string AuthorizationCode
-        {
-            get => authorizationCode;
-            set
-            {
-                authorizationCode = value;
-                OnPropertyChanged(nameof(AuthorizationCode));
-            }
-        }
 
+        [PropertyClassification(2, "Client Secret", "Exchange 365 Settings")]
+        [DataMember]
+        [WritableValue]
+        public string ClientSecretValue
+        {
+            get => clientSecretValue;
+            set
+            {
+                clientSecretValue = value;
+                OnPropertyChanged(nameof(ClientSecretValue));
+            }
+        }
+        
+        [PropertyHidden]
+        [DataMember]
+        [WritableValue]
+        public string Token
+        {
+            get => token;
+            set
+            {
+                token = value;
+                OnPropertyChanged(nameof(Token));
+            }
+        }
+        
         public event PropertyChangedEventHandler PropertyChanged;
 
         private void OnPropertyChanged(string propertyName)

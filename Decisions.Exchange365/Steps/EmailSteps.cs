@@ -13,6 +13,8 @@ namespace Decisions.Exchange365.Steps
         {
             try
             {
+                GraphHelper.InitializeGraphForAppOnlyAuth();
+                
                 //return Exchange365Auth.GraphClient.Me.SendMail.PostAsync(messageBody).Status.ToString();
                 
                 var requestBody = new SendMailPostRequestBody

@@ -12,6 +12,8 @@ namespace Decisions.Exchange365.Steps
     {
         public Event? CreateCalendarEvent(Event calendarEvent)
         {
+            GraphHelper.InitializeGraphForAppOnlyAuth();
+            
             try
             {
                 return Exchange365Auth.GraphClient.Me.Events.PostAsync(calendarEvent, (requestConfiguration) =>
