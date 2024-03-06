@@ -1,8 +1,8 @@
 using Azure.Core;
 using Azure.Identity;
+using DecisionsFramework;
 using DecisionsFramework.ServiceLayer;
 using Microsoft.Graph;
-using Microsoft.Graph.Models;
 
 namespace Decisions.Exchange365.Data
 {
@@ -10,6 +10,7 @@ namespace Decisions.Exchange365.Data
     {
         // App-ony auth token credential
         private static ClientSecretCredential? _clientSecretCredential;
+        
         // Client configured with app-only authentication
         private static GraphServiceClient? _appClient;
         
@@ -19,7 +20,7 @@ namespace Decisions.Exchange365.Data
         
         private static string clientSecret = ModuleSettingsAccessor<Exchange365Settings>.GetSettings().ClientSecretValue;
 
-        public static void InitializeGraphForAppOnlyAuth()
+        public static async Task InitializeGraphForAppOnlyAuth()
         {
             if (_clientSecretCredential == null)
             {
@@ -32,17 +33,19 @@ namespace Decisions.Exchange365.Data
                 _appClient = new GraphServiceClient(_clientSecretCredential,
                     // Use the default scope, which will request the scopes
                     // configured on the app registration
-                    new[] {"https://graph.microsoft.com/.default"});
+                    new[] {"/.default"});
             }
 
-            StoreAccessTokenAsync();
+            await StoreAccessTokenAsync();
         }
         
         public static async Task<string> GetAppOnlyTokenAsync()
         {
             // Ensure credential isn't null
-            _ = _clientSecretCredential ??
-                throw new System.NullReferenceException("Graph has not been initialized for app-only auth");
+            if (_clientSecretCredential == null)
+            {
+                throw new NullReferenceException("Graph has not been initialized for app-only auth");
+            }
 
             // Request token with given scopes
             var context = new TokenRequestContext(new[] {"https://graph.microsoft.com/.default"});
@@ -54,14 +57,14 @@ namespace Decisions.Exchange365.Data
         {
             try
             {
-                string appOnlyToken = await GraphHelper.GetAppOnlyTokenAsync();
+                string appOnlyToken = await GetAppOnlyTokenAsync();
 
                 ModuleSettingsAccessor<Exchange365Settings>.GetSettings().Token = appOnlyToken;
                 ModuleSettingsAccessor<Exchange365Settings>.SaveSettings();
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error getting app-only access token: {ex.Message}");
+                throw new BusinessRuleException($"Error getting app-only access token.", ex);
             }
         }
     }

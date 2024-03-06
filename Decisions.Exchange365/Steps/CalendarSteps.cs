@@ -1,28 +1,37 @@
-using System;
-using System.Threading.Tasks;
 using Decisions.Exchange365.Data;
 using DecisionsFramework;
 using DecisionsFramework.Design.Flow;
 using Microsoft.Graph.Models;
+using Newtonsoft.Json;
 
 namespace Decisions.Exchange365.Steps
 {
     [AutoRegisterMethodsOnClass(true, "Integration/Exchange365/Calendar")]
     public class CalendarSteps
     {
+        public Calendar[] ListCalendars(string userEmail)
+        {
+            string url = $"{Exchange365Constants.GRAPH_URL}/users/{userEmail}/calendars";
+
+            try
+            {
+                Task<string> result = GraphREST.Get(url);
+                Calendar[] response = JsonConvert.DeserializeObject<Calendar[]>(result.Result) ?? Array.Empty<Calendar>();
+                return response;
+            }
+            catch (Exception ex)
+            {
+                throw new BusinessRuleException("The request was unsuccessful.", ex);
+            }
+        }
+        
         public Event? CreateCalendarEvent(Event calendarEvent)
         {
-            GraphHelper.InitializeGraphForAppOnlyAuth();
+            string url = $"{Exchange365Constants.GRAPH_URL}/";
             
             try
             {
-                return Exchange365Auth.GraphClient.Me.Events.PostAsync(calendarEvent, (requestConfiguration) =>
-                {
-                    if (!string.IsNullOrEmpty(calendarEvent.OriginalStartTimeZone))
-                    {
-                        requestConfiguration.Headers.Add("Prefer", $"outlook.timezone=\"{calendarEvent.OriginalStartTimeZone}\"");
-                    }
-                }).Result;
+                return null;
             }
             catch (Exception ex)
             {

@@ -8,7 +8,7 @@ public class Exchange365Auth
 {
     private static string clientId = ModuleSettingsAccessor<Exchange365Settings>.GetSettings().ClientId;
     private static string tenantId = ModuleSettingsAccessor<Exchange365Settings>.GetSettings().TenantId;
-    private static string[] scopes = new[] {""};//ModuleSettingsAccessor<Exchange365Settings>.GetSettings().Scopes;
+    private static string[] scopes = {"https://graph.microsoft.com/.default"};//ModuleSettingsAccessor<Exchange365Settings>.GetSettings().Scopes;
 
     private static string clientSecret = ModuleSettingsAccessor<Exchange365Settings>.GetSettings().ClientSecretValue;
 

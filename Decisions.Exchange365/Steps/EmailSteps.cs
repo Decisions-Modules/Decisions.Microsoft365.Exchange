@@ -1,48 +1,23 @@
+using System.Net.Http.Json;
 using Decisions.Exchange365.Data;
 using DecisionsFramework;
 using DecisionsFramework.Design.Flow;
 using Microsoft.Graph.Me.SendMail;
-using Microsoft.Graph.Models;
 
 namespace Decisions.Exchange365.Steps
 {
     [AutoRegisterMethodsOnClass(true, "Integration/Exchange365/Email")]
     public class EmailSteps
     {
-        public async void SendEmail(/*SendMailPostRequestBody messageBody*/)
+        public void SendEmail(string userEmail, SendMailPostRequestBody messageBody)
         {
+            string url = $"{Exchange365Constants.GRAPH_URL}/users/{userEmail}/messages";
+            
             try
             {
-                GraphHelper.InitializeGraphForAppOnlyAuth();
-                
-                //return Exchange365Auth.GraphClient.Me.SendMail.PostAsync(messageBody).Status.ToString();
-                
-                var requestBody = new SendMailPostRequestBody
-                {
-                    Message = new Message
-                    {
-                        Subject = "Hey Jerry",
-                        Body = new ItemBody
-                        {
-                            ContentType = BodyType.Text,
-                            Content = "These pretzels are making me thirsty!",
-                        },
-                        ToRecipients = new List<Recipient>
-                        {
-                            new Recipient
-                            {
-                                EmailAddress = new EmailAddress
-                                {
-                                    Address = "shawn.lirette@decisions.com",
-                                },
-                            },
-                        },
-                        CcRecipients = null,
-                    },
-                    SaveToSentItems = false,
-                };
-                
-                await Exchange365Auth.GraphClient.Me.SendMail.PostAsync(requestBody);
+                JsonContent content = JsonContent.Create(messageBody);
+
+                GraphREST.Post(url, content);
             }
             catch (Exception ex)
             {

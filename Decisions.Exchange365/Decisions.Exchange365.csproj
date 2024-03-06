@@ -13,4 +13,10 @@
     <PackageReference Include="Microsoft.Graph" Version="5.34.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>..\..\..\Program Files\Decisions\Decisions Server\bin\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
 </Project>
