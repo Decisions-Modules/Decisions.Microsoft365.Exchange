@@ -9,14 +9,33 @@ namespace Decisions.Exchange365.Steps
     [AutoRegisterMethodsOnClass(true, "Integration/Exchange365/Calendar")]
     public class CalendarSteps
     {
-        public Calendar[] ListCalendars(string userEmail)
+        public Event CreateCalendarEvent(Event calendarEvent)
         {
-            string url = $"{Exchange365Constants.GRAPH_URL}/users/{userEmail}/calendars";
-
+            string url = $"{Exchange365Constants.GRAPH_URL}/";
+            
             try
             {
-                Task<string> result = GraphREST.Get(url);
-                Calendar[] response = JsonConvert.DeserializeObject<Calendar[]>(result.Result) ?? Array.Empty<Calendar>();
+                return null;
+            }
+            catch (Exception ex)
+            {
+                throw new BusinessRuleException("The request was unsuccessful.", ex);
+            }
+        }
+
+        public void DeleteCalendarEvent()
+        {
+            string url = $"{Exchange365Constants.GRAPH_URL}/";
+        }
+
+        public Event[] SearchForCalendarEvent()
+        {
+            string url = $"{Exchange365Constants.GRAPH_URL}/";
+            
+            try
+            {
+                Task<string> result = GraphRest.Get(url);
+                Event[] response = JsonConvert.DeserializeObject<Event[]>(result.Result) ?? Array.Empty<Event>();
                 return response;
             }
             catch (Exception ex)
@@ -24,14 +43,21 @@ namespace Decisions.Exchange365.Steps
                 throw new BusinessRuleException("The request was unsuccessful.", ex);
             }
         }
-        
-        public Event? CreateCalendarEvent(Event calendarEvent)
+
+        public void UpdateCalendarEvent()
         {
             string url = $"{Exchange365Constants.GRAPH_URL}/";
-            
+        }
+        
+        public Calendar[] ListCalendars(string userEmail)
+        {
+            string url = $"{Exchange365Constants.GRAPH_URL}/users/{userEmail}/calendars";
+
             try
             {
-                return null;
+                Task<string> result = GraphRest.Get(url);
+                Calendar[] response = JsonConvert.DeserializeObject<Calendar[]>(result.Result) ?? Array.Empty<Calendar>();
+                return response;
             }
             catch (Exception ex)
             {

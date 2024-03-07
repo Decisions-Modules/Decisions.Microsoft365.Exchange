@@ -1,9 +1,9 @@
 using System.ComponentModel;
-using System.Runtime.Serialization;
 using DecisionsFramework;
 using DecisionsFramework.Data.ORMapper;
 using DecisionsFramework.Design.ConfigurationStorage.Attributes;
 using DecisionsFramework.Design.Properties;
+using DecisionsFramework.Design.Properties.Attributes;
 using DecisionsFramework.ServiceLayer;
 using DecisionsFramework.ServiceLayer.Actions;
 using DecisionsFramework.ServiceLayer.Actions.Common;
@@ -15,7 +15,6 @@ using DecisionsFramework.ServiceLayer.Utilities;
 namespace Decisions.Exchange365
 {
     [ORMEntity("exchange365_settings")]
-    [DataContract]
     [Writable]
     public class Exchange365Settings : AbstractModuleSettings, INotifyPropertyChanged, IValidationSource
     {
@@ -23,72 +22,24 @@ namespace Decisions.Exchange365
         {
             this.EntityName = "Exchange 365 Settings";
         }
-        
-        // Value from app registration
-        [ORMField]
-        private string clientId;
-        
-        // single-tenant apps must use the tenant ID from the Azure portal
-        [ORMField]
-        private string tenantId;
 
         [ORMField]
-        private string clientSecretValue;
+        private string tokenId;
 
-        [ORMField]
-        private string token;
-
-        [PropertyClassification(0, "Client ID", "Exchange 365 Settings")]
-        [DataMember]
         [WritableValue]
-        public string ClientId
+        [PropertyClassification(new string[] { "Credentials" }, "OAuth Token", 0)]
+        [TokenPicker]
+        public string TokenId
         {
-            get => clientId;
+            get => tokenId;
             set
             {
-                clientId = value;
-                OnPropertyChanged(nameof(ClientId));
+                tokenId = value;
+                OnPropertyChanged(nameof(TokenId));
             }
         }
         
-        [PropertyClassification(1, "Tenant ID", "Exchange 365 Settings")]
-        [DataMember]
-        [WritableValue]
-        public string TenantId
-        {
-            get => tenantId;
-            set
-            {
-                tenantId = value;
-                OnPropertyChanged(nameof(TenantId));
-            }
-        }
-
-        [PropertyClassification(2, "Client Secret", "Exchange 365 Settings")]
-        [DataMember]
-        [WritableValue]
-        public string ClientSecretValue
-        {
-            get => clientSecretValue;
-            set
-            {
-                clientSecretValue = value;
-                OnPropertyChanged(nameof(ClientSecretValue));
-            }
-        }
         
-        [PropertyHidden]
-        [DataMember]
-        [WritableValue]
-        public string Token
-        {
-            get => token;
-            set
-            {
-                token = value;
-                OnPropertyChanged(nameof(Token));
-            }
-        }
         
         public event PropertyChangedEventHandler PropertyChanged;
 
