@@ -34,8 +34,8 @@ namespace Decisions.Exchange365.Steps
             
             try
             {
-                Task<string> result = GraphRest.Get(url);
-                Event[] response = JsonConvert.DeserializeObject<Event[]>(result.Result) ?? Array.Empty<Event>();
+                string result = GraphRest.Get(url);
+                Event[] response = JsonConvert.DeserializeObject<Event[]>(result) ?? Array.Empty<Event>();
                 return response;
             }
             catch (Exception ex)
@@ -55,8 +55,8 @@ namespace Decisions.Exchange365.Steps
 
             try
             {
-                Task<string> result = GraphRest.Get(url);
-                Calendar[] response = JsonConvert.DeserializeObject<Calendar[]>(result.Result) ?? Array.Empty<Calendar>();
+                string result = GraphRest.Get(url);
+                Calendar[] response = JsonConvert.DeserializeObject<Calendar[]>(result) ?? Array.Empty<Calendar>();
                 return response;
             }
             catch (Exception ex)

@@ -1,3 +1,5 @@
+using System;
+using System.Threading.Tasks;
 using Decisions.Exchange365.Data;
 using DecisionsFramework;
 using DecisionsFramework.Design.Flow;
@@ -30,8 +32,8 @@ namespace Decisions.Exchange365.Steps
             
             try
             {
-                Task<string> result = GraphRest.Get(url);
-                Contact[] response = JsonConvert.DeserializeObject<Contact[]>(result.Result) ?? Array.Empty<Contact>();
+                string result = GraphRest.Get(url);
+                Contact[] response = JsonConvert.DeserializeObject<Contact[]>(result) ?? Array.Empty<Contact>();
                 return response;
             }
             catch (Exception ex)

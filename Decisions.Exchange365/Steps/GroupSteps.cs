@@ -1,3 +1,5 @@
+using System.Net;
+using System.Net.Http.Json;
 using Decisions.Exchange365.Data;
 using DecisionsFramework;
 using DecisionsFramework.Design.Flow;
@@ -9,14 +11,16 @@ namespace Decisions.Exchange365.Steps
     [AutoRegisterMethodsOnClass(true, "Integration/Exchange365/Groups")]
     public class GroupSteps
     {
-        public Group[] ListGroups()
+        private const string Url = $"{Exchange365Constants.GRAPH_URL}/groups";
+        
+        public Group[] ListGroups(bool filterUnified)
         {
-            string url = $"{Exchange365Constants.GRAPH_URL}/groups";
+            string url = (filterUnified) ? $"{Url}$filter=groupTypes/any(c:c+eq+'Unified')" : Url;
             
             try
             {
-                Task<string> result = GraphRest.Get(url);
-                Group[] response = JsonConvert.DeserializeObject<Group[]>(result.Result) ?? Array.Empty<Group>();
+                string result = GraphRest.Get(url);
+                Group[] response = JsonConvert.DeserializeObject<Group[]>(result) ?? Array.Empty<Group>();
                 return response;
             }
             catch (Exception ex)
@@ -27,42 +31,53 @@ namespace Decisions.Exchange365.Steps
         
         public void CreateGroup()
         {
-            string url = $"{Exchange365Constants.GRAPH_URL}/";
+            
         }
         
-        public void GetGroup()
+        public Group? GetGroup(string groupName)
         {
-            string url = $"{Exchange365Constants.GRAPH_URL}/";
+            try
+            {
+                string result = GraphRest.Get($"{Url}/{groupName}");
+                Group? response = JsonConvert.DeserializeObject<Group>(result);
+                return response;
+            }
+            catch (Exception ex)
+            {
+                throw new BusinessRuleException("The request was unsuccessful.", ex);
+            }
         }
         
-        public void UpdateGroup()
+        public HttpStatusCode UpdateGroup(string groupId, string groupContext)
         {
-            string url = $"{Exchange365Constants.GRAPH_URL}/";
+            JsonContent content = JsonContent.Create(groupContext);
+
+            return GraphRest.HttpResponsePost($"{Url}/{groupId}", content).StatusCode;
         }
         
-        public void DeleteGroup()
+        public HttpStatusCode DeleteGroup(string groupId)
         {
-            string url = $"{Exchange365Constants.GRAPH_URL}/";
+            return GraphRest.Delete($"{Url}/{groupId}").StatusCode;
         }
         
         public void ListMembers()
         {
-            string url = $"{Exchange365Constants.GRAPH_URL}/";
+            
         }
         
         public void AddMember()
         {
-            string url = $"{Exchange365Constants.GRAPH_URL}/";
+            
         }
         
         public void RemoveMember()
         {
-            string url = $"{Exchange365Constants.GRAPH_URL}/";
+            
         }
         
         public void ListMembersOfGroup()
         {
-            string url = $"{Exchange365Constants.GRAPH_URL}/";
+            
         }
     }
 }

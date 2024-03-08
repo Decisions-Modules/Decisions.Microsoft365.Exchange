@@ -1,7 +1,10 @@
+using System;
+using System.Net;
 using System.Net.Http.Json;
 using Decisions.Exchange365.Data;
 using DecisionsFramework;
 using DecisionsFramework.Design.Flow;
+using Newtonsoft.Json;
 
 namespace Decisions.Exchange365.Steps
 {
@@ -20,11 +23,13 @@ namespace Decisions.Exchange365.Steps
             }
         }
         
-        public void ListEmails(string userEmail)
+        public EmailDataList ListEmails(string userEmail)
         {
             try
             {
-                GraphRest.Get(GetEmailUrl(userEmail));
+                string result = GraphRest.Get(GetEmailUrl(userEmail));
+                EmailDataList? response = JsonConvert.DeserializeObject<EmailDataList>(result);
+                return response;
             }
             catch (Exception ex)
             {
@@ -32,13 +37,13 @@ namespace Decisions.Exchange365.Steps
             }
         }
         
-        public void ForwardEmail(string userEmail)
+        public HttpStatusCode ForwardEmail(string userEmail, string emailContext)
         {
             try
             {
-                JsonContent content = JsonContent.Create("messageBody");
+                JsonContent content = JsonContent.Create(emailContext);
 
-                GraphRest.Post(GetEmailUrl(userEmail), content);
+                return GraphRest.HttpResponsePost(GetEmailUrl(userEmail), content).StatusCode;
             }
             catch (Exception ex)
             {
@@ -46,13 +51,13 @@ namespace Decisions.Exchange365.Steps
             }
         }
         
-        public void ListUnreadEmails(string userEmail)
+        public EmailDataList ListUnreadEmails(string userEmail)
         {
             try
             {
-                JsonContent content = JsonContent.Create("messageBody");
-
-                GraphRest.Post(GetEmailUrl(userEmail), content);
+                string result = GraphRest.Get(GetEmailUrl(userEmail));
+                EmailDataList? response = JsonConvert.DeserializeObject<EmailDataList>(result);
+                return response;
             }
             catch (Exception ex)
             {
@@ -60,13 +65,13 @@ namespace Decisions.Exchange365.Steps
             }
         }
         
-        public void MarkEmailAsRead(string userEmail)
+        public HttpStatusCode MarkEmailAsRead(string userEmail, string emailContext)
         {
             try
             {
-                JsonContent content = JsonContent.Create("messageBody");
+                JsonContent content = JsonContent.Create(emailContext);
 
-                GraphRest.Post(GetEmailUrl(userEmail), content);
+                return GraphRest.HttpResponsePost(GetEmailUrl(userEmail), content).StatusCode;
             }
             catch (Exception ex)
             {
@@ -74,13 +79,13 @@ namespace Decisions.Exchange365.Steps
             }
         }
         
-        public void SendEmail(string userEmail)
+        public HttpStatusCode SendEmail(string userEmail)
         {
             try
             {
                 JsonContent content = JsonContent.Create("messageBody");
 
-                GraphRest.Post(GetEmailUrl(userEmail), content);
+                return GraphRest.HttpResponsePost(GetEmailUrl(userEmail), content).StatusCode;
             }
             catch (Exception ex)
             {
@@ -88,13 +93,27 @@ namespace Decisions.Exchange365.Steps
             }
         }
         
-        public void SendReply(string userEmail)
+        public HttpStatusCode SendReply(string userEmail, string emailContext)
         {
             try
             {
-                JsonContent content = JsonContent.Create("messageBody");
+                JsonContent content = JsonContent.Create(emailContext);
 
-                GraphRest.Post(GetEmailUrl(userEmail), content);
+                return GraphRest.HttpResponsePost(GetEmailUrl(userEmail), content).StatusCode;
+            }
+            catch (Exception ex)
+            {
+                throw new BusinessRuleException("The request was unsuccessful.", ex);
+            }
+        }
+        
+        public HttpStatusCode SendReplyToAll(string userEmail, string emailContext)
+        {
+            try
+            {
+                JsonContent content = JsonContent.Create(emailContext);
+
+                return GraphRest.HttpResponsePost(GetEmailUrl(userEmail), content).StatusCode;
             }
             catch (Exception ex)
             {
