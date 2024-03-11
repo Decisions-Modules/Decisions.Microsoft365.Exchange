@@ -1,7 +1,6 @@
 using System.Net;
 using System.Net.Http.Json;
 using Decisions.Exchange365.Data;
-using DecisionsFramework;
 using DecisionsFramework.Design.Flow;
 using Microsoft.Graph.Models;
 using Newtonsoft.Json;
@@ -17,40 +16,33 @@ namespace Decisions.Exchange365.Steps
         {
             string url = (filterUnified) ? $"{Url}$filter=groupTypes/any(c:c+eq+'Unified')" : Url;
             
-            try
-            {
-                string result = GraphRest.Get(url);
-                Group[] response = JsonConvert.DeserializeObject<Group[]>(result) ?? Array.Empty<Group>();
-                return response;
-            }
-            catch (Exception ex)
-            {
-                throw new BusinessRuleException("The request was unsuccessful.", ex);
-            }
+            string result = GraphRest.Get(url);
+            Group[] response = JsonConvert.DeserializeObject<Group[]>(result) ?? Array.Empty<Group>();
+            
+            return response;
         }
         
-        public void CreateGroup()
+        public HttpStatusCode CreateGroup(Group group)
         {
+            JsonContent content = JsonContent.Create(group);
             
+            return GraphRest.HttpResponsePost(Url, content).StatusCode;
         }
         
         public Group? GetGroup(string groupName)
         {
-            try
-            {
-                string result = GraphRest.Get($"{Url}/{groupName}");
-                Group? response = JsonConvert.DeserializeObject<Group>(result);
-                return response;
-            }
-            catch (Exception ex)
-            {
-                throw new BusinessRuleException("The request was unsuccessful.", ex);
-            }
+            
+            string result = GraphRest.Get($"{Url}/{groupName}");
+            Group? response = JsonConvert.DeserializeObject<Group>(result);
+            
+            return response;
         }
         
         public HttpStatusCode UpdateGroup(string groupId, string groupContext)
         {
             JsonContent content = JsonContent.Create(groupContext);
+            
+            /* TODO: Utilize UpdateODataEntityStep features to dynamically build request data */
 
             return GraphRest.HttpResponsePost($"{Url}/{groupId}", content).StatusCode;
         }
@@ -65,14 +57,16 @@ namespace Decisions.Exchange365.Steps
             
         }
         
-        public void AddMember()
+        public HttpStatusCode AddMember(string groupId, User user)
         {
-            
+            JsonContent content = JsonContent.Create(user);
+
+            return GraphRest.HttpResponsePost($"{Url}/{groupId}/{user}", content).StatusCode;
         }
         
-        public void RemoveMember()
+        public HttpStatusCode RemoveMember(string groupId, string userId)
         {
-            
+            return GraphRest.Delete($"{Url}/{groupId}/members{userId}").StatusCode;
         }
         
         public void ListMembersOfGroup()
