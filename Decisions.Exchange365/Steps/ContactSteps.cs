@@ -37,8 +37,8 @@ namespace Decisions.Exchange365.Steps
             string url = $"{Exchange365Constants.GRAPH_URL}/users/{userIdentifier}/contacts";
             
             string result = GraphRest.Get(url);
-            Contact[] response = JsonConvert.DeserializeObject<Contact[]>(result) ?? Array.Empty<Contact>();
-            return response;
+            
+            return JsonConvert.DeserializeObject<Contact[]>(result) ?? Array.Empty<Contact>();;
         }
 
         public void SearchGlobalContacts()

@@ -1,14 +1,10 @@
 using System.Net;
 using System.Net.Http.Json;
-using System.Text;
 using Decisions.Exchange365.Data;
-using Decisions.Utilities.OpenXmlPowerTools;
-using DecisionsFramework.Design.DataStructure;
 using DecisionsFramework.Design.Flow;
 using DecisionsFramework.Design.Properties;
 using Microsoft.Graph.Models;
 using Newtonsoft.Json;
-using FieldInfo = System.Reflection.FieldInfo;
 
 namespace Decisions.Exchange365.Steps
 {

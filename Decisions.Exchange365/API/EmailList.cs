@@ -1,10 +1,10 @@
 using DecisionsFramework.Design.ConfigurationStorage.Attributes;
 using Newtonsoft.Json;
 
-namespace Decisions.Exchange365.Data
+namespace Decisions.Exchange365.API
 {
     [Writable]
-    public partial class EmailDataList
+    public class EmailList
     {
         [WritableValue]
         [JsonProperty("@odata.context")]
@@ -12,11 +12,11 @@ namespace Decisions.Exchange365.Data
 
         [WritableValue]
         [JsonProperty("value")]
-        public Value[] Value { get; set; }
+        public EmailValue[] Value { get; set; }
     }
 
     [Writable]
-    public class Value
+    public class EmailValue
     {
         [WritableValue]
         [JsonProperty("@odata.etag")]
@@ -24,7 +24,7 @@ namespace Decisions.Exchange365.Data
 
         [WritableValue]
         [JsonProperty("id")]
-        public string Id { get; set; }
+        public Guid Id { get; set; }
 
         [WritableValue]
         [JsonProperty("subject")]
