@@ -10,23 +10,23 @@ namespace Decisions.Exchange365;
 
 public class GraphRest
 {
-    public static HttpResponseMessage HttpResponsePost(string url, JsonContent? content)
+    public static HttpResponseMessage HttpResponsePost(string url, JsonContent content)
     {
         try
         {
             OAuthToken token = new ORM<OAuthToken>().Fetch(ModuleSettingsAccessor<Exchange365Settings>.GetSettings().TokenId);
             string tokenHeader = OAuth2Utility.GetOAuth2HeaderValue(token.TokenData, "Bearer");
-        
+            
             HttpClient client = HttpClients.GetHttpClient(HttpClientAuthType.Normal);
-        
+            
             HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Post, url);
             request.Headers.Add("Authorization", tokenHeader);
-        
+            
             request.Content = content;
-        
+            
             HttpResponseMessage response = client.Send(request);
             response.EnsureSuccessStatusCode();
-
+            
             return response;
         }
         catch (Exception ex)

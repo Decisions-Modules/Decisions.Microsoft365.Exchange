@@ -21,11 +21,11 @@ namespace Decisions.Exchange365.Steps
             return JsonConvert.DeserializeObject<GroupList>(result) ?? new GroupList();
         }
         
-        public HttpStatusCode CreateGroup(Group group)
+        public string CreateGroup(Group group)
         {
             JsonContent content = JsonContent.Create(group);
             
-            return GraphRest.HttpResponsePost(Url, content).StatusCode;
+            return GraphRest.HttpResponsePost(Url, content).StatusCode.ToString();
         }
         
         public Group? GetGroup(string groupId)
@@ -36,21 +36,21 @@ namespace Decisions.Exchange365.Steps
             return JsonConvert.DeserializeObject<Group>(result);
         }
         
-        public HttpStatusCode UpdateGroup(string groupId, string groupContext)
+        public string UpdateGroup(string groupId, string groupContext)
         {
             string url = $"{Url}/{groupId}";
             JsonContent content = JsonContent.Create(groupContext);
             
             /* TODO: Utilize UpdateODataEntityStep features to dynamically build request data */
 
-            return GraphRest.HttpResponsePost(url, content).StatusCode;
+            return GraphRest.HttpResponsePost(url, content).StatusCode.ToString();
         }
         
-        public HttpStatusCode DeleteGroup(string groupId)
+        public string DeleteGroup(string groupId)
         {
             string url = $"{Url}/{groupId}";
             
-            return GraphRest.Delete(url).StatusCode;
+            return GraphRest.Delete(url).StatusCode.ToString();
         }
         
         public MemberList ListMembers(string groupId)
@@ -61,7 +61,7 @@ namespace Decisions.Exchange365.Steps
             return JsonConvert.DeserializeObject<MemberList>(result) ?? new MemberList();
         }
         
-        public HttpStatusCode AddMember(string groupId, string directoryObjectId)
+        public string AddMember(string groupId, string directoryObjectId)
         {
             string url = $"{Url}/{groupId}/members/";
             
@@ -72,14 +72,14 @@ namespace Decisions.Exchange365.Steps
 
             JsonContent content = JsonContent.Create(reference);
 
-            return GraphRest.HttpResponsePost(url, content).StatusCode;
+            return GraphRest.HttpResponsePost(url, content).StatusCode.ToString();
         }
         
-        public HttpStatusCode RemoveMember(string groupId, string userId)
+        public string RemoveMember(string groupId, string userId)
         {
             string url = $"{Url}/{groupId}/members{userId}";
             
-            return GraphRest.Delete(url).StatusCode;
+            return GraphRest.Delete(url).StatusCode.ToString();
         }
         
         public DirectoryObject[] ListMemberOf(string userIdentifier)

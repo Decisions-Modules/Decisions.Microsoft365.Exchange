@@ -1,5 +1,6 @@
 using System.Net;
 using System.Net.Http.Json;
+using Decisions.Exchange365.API;
 using Decisions.Exchange365.Data;
 using DecisionsFramework.Design.Flow;
 using DecisionsFramework.Design.Properties;
@@ -19,30 +20,34 @@ namespace Decisions.Exchange365.Steps
             }
         }
         
-        public HttpStatusCode CreateCalendarEvent(Event calendarEvent)
+        public string CreateCalendarEvent(Event calendarEvent)
         {
             string url = $"{Exchange365Constants.GRAPH_URL}/";
             
             JsonContent content = JsonContent.Create(calendarEvent);
             
-            return GraphRest.HttpResponsePost(url, content).StatusCode;
+            return GraphRest.HttpResponsePost(url, content).StatusCode.ToString();
         }
 
-        public HttpStatusCode DeleteCalendarEvent(string userIdentifier, string eventId)
+        public string DeleteCalendarEvent(string userIdentifier, string eventId)
         {
             string url = $"{Exchange365Constants.GRAPH_URL}/users/{userIdentifier}/events/{eventId}";
 
-            return GraphRest.Delete(url).StatusCode;
+            return GraphRest.Delete(url).StatusCode.ToString();
         }
 
-        public Event[] SearchForCalendarEvent(string userIdentifier, string? calendarId)
+        public EventList SearchForCalendarEvent(string userIdentifier, string? calendarId, string? calendarGroupId)
         {
             string url = $"{Exchange365Constants.GRAPH_URL}/users/{userIdentifier}";
-            url = (!string.IsNullOrEmpty(calendarId)) ? $"{url}/calendars/{calendarId}/events" : $"{url}/events";
-            
+            if (!string.IsNullOrEmpty(calendarId))
+            {
+                url = (!string.IsNullOrEmpty(calendarGroupId)) ? $"{url}/calendarGroups/{calendarGroupId}/calendars/{calendarId}"
+                    : $"{url}/calendars/{calendarId}";
+            }
+            url += "/events";
+
             string result = GraphRest.Get(url);
-            Event[] response = JsonConvert.DeserializeObject<Event[]>(result) ?? Array.Empty<Event>();
-            return response;
+            return JsonConvert.DeserializeObject<EventList>(result) ?? new EventList();
         }
 
         /* TODO: Rework input data. Check next comment for details. */
@@ -56,13 +61,12 @@ namespace Decisions.Exchange365.Steps
             /* TODO: Utilize UpdateODataEntityStep features to dynamically build request data */
         }
         
-        public Calendar[] ListCalendars(string userIdentifier)
+        public CalendarList ListCalendars(string userIdentifier)
         {
             string url = $"{Exchange365Constants.GRAPH_URL}/users/{userIdentifier}/calendars";
 
             string result = GraphRest.Get(url);
-            Calendar[] response = JsonConvert.DeserializeObject<Calendar[]>(result) ?? Array.Empty<Calendar>();
-            return response;
+            return JsonConvert.DeserializeObject<CalendarList>(result) ?? new CalendarList();
         }
     }
 }

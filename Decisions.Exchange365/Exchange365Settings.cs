@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using System.ComponentModel;
 using DecisionsFramework;
 using DecisionsFramework.Data.ORMapper;
@@ -39,8 +38,6 @@ namespace Decisions.Exchange365
                 OnPropertyChanged(nameof(TokenId));
             }
         }
-        
-        
         
         public event PropertyChangedEventHandler PropertyChanged;
 

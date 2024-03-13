@@ -5,7 +5,7 @@ using Newtonsoft.Json;
 namespace Decisions.Exchange365.API
 {
     [Writable]
-    public class EmailList
+    public class ContactList
     {
         [WritableValue]
         [JsonProperty("@odata.context")]
@@ -13,6 +13,6 @@ namespace Decisions.Exchange365.API
 
         [WritableValue]
         [JsonProperty("value")]
-        public Message[] Value { get; set; }
+        public Contact[] Value { get; set; }
     }
 }
