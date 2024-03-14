@@ -34,6 +34,10 @@ namespace Decisions.Exchange365.API
         [WritableValue]
         [JsonProperty("ccRecipients")]
         public Recipient[] CcRecipients { get; set; }
+
+        [WritableValue]
+        [JsonProperty("attachments")]
+        public Attachment[] Attachments { get; set; }
     }
 
     [Writable]

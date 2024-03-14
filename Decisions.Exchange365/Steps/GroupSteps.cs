@@ -1,4 +1,3 @@
-using System.Net;
 using System.Net.Http.Json;
 using Decisions.Exchange365.API;
 using Decisions.Exchange365.Data;
