@@ -10,7 +10,7 @@ namespace Decisions.Exchange365;
 
 public class GraphRest
 {
-    public static HttpResponseMessage HttpResponsePost(string url, JsonContent content)
+    public static HttpResponseMessage HttpResponsePost(string url, HttpContent content)
     {
         try
         {

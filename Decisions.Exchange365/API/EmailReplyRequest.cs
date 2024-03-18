@@ -1,5 +1,4 @@
 using DecisionsFramework.Design.ConfigurationStorage.Attributes;
-using Microsoft.Graph.Models;
 using Newtonsoft.Json;
 
 namespace Decisions.Exchange365.API
@@ -8,11 +7,11 @@ namespace Decisions.Exchange365.API
     public class EmailReplyRequest
     {
         [WritableValue]
-        [JsonProperty("Message")]
-        public Message Message { get; set; }
+        [JsonProperty("message")]
+        public SendEmailRequest Message { get; set; }
 
         [WritableValue]
-        [JsonProperty("Comment")]
+        [JsonProperty("comment")]
         public string Comment { get; set; }
     }
 }

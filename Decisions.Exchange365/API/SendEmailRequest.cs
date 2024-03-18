@@ -29,15 +29,11 @@ namespace Decisions.Exchange365.API
 
         [WritableValue]
         [JsonProperty("toRecipients")]
-        public Recipient[] ToRecipients { get; set; }
+        public Recipient[]? ToRecipients { get; set; }
 
         [WritableValue]
         [JsonProperty("ccRecipients")]
-        public Recipient[] CcRecipients { get; set; }
-
-        [WritableValue]
-        [JsonProperty("attachments")]
-        public Attachment[] Attachments { get; set; }
+        public Recipient[]? CcRecipients { get; set; }
     }
 
     [Writable]
@@ -57,7 +53,7 @@ namespace Decisions.Exchange365.API
     {
         [WritableValue]
         [JsonProperty("emailAddress")]
-        public EmailAddress EmailAddress { get; set; }
+        public EmailAddress? EmailAddress { get; set; }
     }
 
     [Writable]
@@ -65,6 +61,6 @@ namespace Decisions.Exchange365.API
     {
         [WritableValue]
         [JsonProperty("address")]
-        public string Address { get; set; }
+        public string? Address { get; set; }
     }
 }

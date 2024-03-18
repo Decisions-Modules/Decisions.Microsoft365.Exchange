@@ -1,7 +1,6 @@
 using System.Net.Http.Json;
 using Decisions.Exchange365.API;
 using Decisions.Exchange365.Data;
-using DecisionsFramework.Data.DataTypes;
 using DecisionsFramework.Design.Flow;
 using Microsoft.Graph.Models;
 using Newtonsoft.Json;
@@ -22,11 +21,12 @@ namespace Decisions.Exchange365.Steps
         }
         
         // TODO: configure to SEARCH for email
-        private const string Url = $"{Exchange365Constants.GRAPH_URL}/users";
-        public void SearchForEmail(string userIdentifier, string messageId)
+        public EmailList SearchForEmail(string userIdentifier, string messageId)
         {
-            string url = $"{GetUrl(userIdentifier)}/messages/{messageId}";
+            string url = $"{GetUrl(userIdentifier)}/messages";
             string result = GraphRest.Get(url);
+
+            return JsonConvert.DeserializeObject<EmailList>(result) ?? new EmailList();
         }
         
         public EmailList ListEmails(string userIdentifier)
@@ -41,7 +41,7 @@ namespace Decisions.Exchange365.Steps
         public string ForwardEmail(string userIdentifier, string? mailFolderId, string messageId, string[] to, string comment)
         {
             string url = (!string.IsNullOrEmpty(mailFolderId))
-                ? $"{GetUrl(userIdentifier)}/mailFolders/{mailFolderId}/messages/{messageId}/reply"
+                ? $"{GetUrl(userIdentifier)}/mailFolders/{mailFolderId}/messages/{messageId}/forward"
                 : $"{GetUrl(userIdentifier)}/messages/{messageId}/forward";
 
             Recipient[] recipients = GetRecipients(to);
@@ -52,53 +52,68 @@ namespace Decisions.Exchange365.Steps
                 ToRecipients = recipients
             };
             
-            JsonContent content = JsonContent.Create(comment);
+            JsonContent content = JsonContent.Create(forwardRequest);
 
             return GraphRest.HttpResponsePost(GetUrl(userIdentifier), content).StatusCode.ToString();
         }
         
-        // TODO: configure to find UNREAD emails
         public EmailList ListUnreadEmails(string userIdentifier)
         {
             string url = $"{GetUrl(userIdentifier)}/messages";
             string result = GraphRest.Get(url);
             EmailList? response = JsonConvert.DeserializeObject<EmailList>(result);
+
+            List<Message>? messages = new List<Message>();
+            foreach (Message email in response.Value)
+            {
+                if (email.IsRead is false or null)
+                {
+                    messages.Add(email);
+                }
+            }
+
+            EmailList? unreadEmails = new EmailList
+            {
+                OdataContext = response.OdataContext,
+                Value = messages.ToArray()
+            };
             
-            return response;
+            return unreadEmails;
         }
         
-        /* TODO: configure to mark email as READ */
-        public string MarkEmailAsRead(string userIdentifier)
+        public string MarkEmailAsRead(string userIdentifier, string messageId)
         {
-            string url = $"{GetUrl(userIdentifier)}/???";
-            JsonContent content = JsonContent.Create("???");
-            
-            return GraphRest.HttpResponsePost(url, content).StatusCode.ToString();
+            string url = $"{GetUrl(userIdentifier)}/messages/{messageId}";
+            JsonContent content = JsonContent.Create(new EmailIsReadRequest{IsRead = true});
+
+            return GraphRest.Patch(url, content).StatusCode.ToString();
         }
         
-        // TODO: test attachments
         public string SendEmail(string userIdentifier, string[] to, string[]? cc, string subject, string? body,
-            BodyType? contentType, FileData[]? fileAttachments, bool saveToSentItems)
+            BodyType? contentType, bool saveToSentItems)
         {
             string url = $"{GetUrl(userIdentifier)}/sendMail";
-
+            
             Recipient[] recipients = GetRecipients(to);
-            Recipient[]? ccRecipients = GetRecipients(cc);
-            Attachment[]? attachments = GetAttachments(fileAttachments);
+            Recipient[]? ccRecipients = Array.Empty<Recipient>();
+
+            if (cc != null)
+            {
+                ccRecipients = GetRecipients(cc);
+            }
 
             SendEmailRequest emailMessage = new()
             {
                 Message = new()
                 {
-                    Attachments = attachments,
                     Body = new Body
                     {
                         ContentType = contentType.ToString() ?? BodyType.Text.ToString(),
                         Content = body
                     },
-                    CcRecipients = ccRecipients,
                     Subject = subject,
-                    ToRecipients = recipients
+                    ToRecipients = recipients,
+                    CcRecipients = ccRecipients
                 },
                 SaveToSentItems = saveToSentItems
             };
@@ -108,32 +123,34 @@ namespace Decisions.Exchange365.Steps
             return GraphRest.HttpResponsePost(url, content).StatusCode.ToString();
         }
         
-        // TODO: test
         public string SendReply(string userIdentifier, string? mailFolderId, string messageId,
             string[] to, string[]? cc, string subject, string? body,
-            BodyType? contentType, FileData[]? fileAttachments, bool saveToSentItems)
+            BodyType? contentType, bool saveToSentItems)
         {
             string url = (!string.IsNullOrEmpty(mailFolderId))
                 ? $"{GetUrl(userIdentifier)}/mailFolders/{mailFolderId}/messages/{messageId}/reply"
                 : $"{GetUrl(userIdentifier)}/messages/{messageId}/reply";
             
             Recipient[] recipients = GetRecipients(to);
-            Recipient[]? ccRecipients = GetRecipients(cc);
-            Attachment[]? attachments = GetAttachments(fileAttachments);
+            Recipient[]? ccRecipients = Array.Empty<Recipient>();
+
+            if (cc != null)
+            {
+                ccRecipients = GetRecipients(cc);
+            }
 
             SendEmailRequest emailMessage = new()
             {
                 Message = new()
                 {
-                    Attachments = attachments,
                     Body = new Body
                     {
                         ContentType = contentType.ToString() ?? BodyType.Text.ToString(),
                         Content = body
                     },
-                    CcRecipients = ccRecipients,
                     Subject = subject,
-                    ToRecipients = recipients
+                    ToRecipients = recipients,
+                    CcRecipients = ccRecipients
                 },
                 SaveToSentItems = saveToSentItems
             };
@@ -143,37 +160,14 @@ namespace Decisions.Exchange365.Steps
             return GraphRest.HttpResponsePost(url, content).StatusCode.ToString();
         }
         
-        // TODO: test
         public string SendReplyToAll(string userIdentifier, string? mailFolderId, string messageId,
-            string[] to, string[]? cc, string subject, string? body,
-            BodyType? contentType, FileData[]? fileAttachments, bool saveToSentItems)
+            string? comment)
         {
             string url = (!string.IsNullOrEmpty(mailFolderId))
                 ? $"{GetUrl(userIdentifier)}/mailFolders/{mailFolderId}/messages/{messageId}/replyAll"
                 : $"{GetUrl(userIdentifier)}/messages/{messageId}/replyAll";
             
-            Recipient[] recipients = GetRecipients(to);
-            Recipient[]? ccRecipients = GetRecipients(cc);
-            Attachment[]? attachments = GetAttachments(fileAttachments);
-
-            SendEmailRequest emailMessage = new()
-            {
-                Message = new()
-                {
-                    Attachments = attachments,
-                    Body = new Body
-                    {
-                        ContentType = contentType.ToString() ?? BodyType.Text.ToString(),
-                        Content = body
-                    },
-                    CcRecipients = ccRecipients,
-                    Subject = subject,
-                    ToRecipients = recipients
-                },
-                SaveToSentItems = saveToSentItems
-            };
-            
-            JsonContent content = JsonContent.Create(emailMessage);
+            JsonContent content = JsonContent.Create(new EmailComment{Comment = comment});
 
             return GraphRest.HttpResponsePost(url, content).StatusCode.ToString();
         }
@@ -183,46 +177,35 @@ namespace Decisions.Exchange365.Steps
             return $"{Exchange365Constants.GRAPH_URL}/users/{userIdentifier}";
         }
         
-        private Recipient[] GetRecipients(string[] emailAddresses)
+        private Recipient[]? GetRecipients(string[] emailAddresses)
         {
             List<Recipient> recipients = new List<Recipient>();
-            foreach (string emailAddress in emailAddresses)
+            if (emailAddresses.Length > 0)
             {
-                Recipient recipient = new()
+                foreach (string emailAddress in emailAddresses)
                 {
-                    EmailAddress = new EmailAddress
+                    Recipient recipient = new()
                     {
-                        Address = emailAddress
-                    }
-                };
-                recipients.Add(recipient);
+                        EmailAddress = new EmailAddress
+                        {
+                            Address = emailAddress
+                        }
+                    };
+                    recipients.Add(recipient);
+                }
+                
+                return recipients.ToArray();
             }
+
+            recipients.Add(new Recipient
+            {
+                EmailAddress = new EmailAddress
+                {
+                    Address = String.Empty
+                }
+            });
 
             return recipients.ToArray();
-        }
-
-        private Attachment[] GetAttachments(FileData[]? fileAttachments)
-        {
-            List<Attachment>? attachments = null;
-            if (fileAttachments != null)
-            {
-                foreach (FileData file in fileAttachments)
-                {
-                    Attachment attachment = new Attachment
-                    {
-                        AdditionalData = new Dictionary<string, object>
-                        {
-                            { file.FileName, file.Contents }
-                        },
-                        Id = file.Id,
-                        ContentType = file.FileType,
-                        Name = file.FileName
-                    };
-                    attachments.Add(attachment);
-                }
-            }
-
-            return attachments.ToArray();
         }
     }
 }
