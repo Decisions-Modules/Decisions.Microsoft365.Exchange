@@ -1,6 +1,7 @@
 using System.Net.Http.Json;
 using Decisions.Exchange365.API;
 using Decisions.Exchange365.Data;
+using DecisionsFramework;
 using DecisionsFramework.Design.Flow;
 using Microsoft.Graph.Models;
 using Newtonsoft.Json;
@@ -20,10 +21,14 @@ namespace Decisions.Exchange365.Steps
             return JsonConvert.DeserializeObject<Message>(result) ?? new Message();
         }
         
-        // TODO: configure to SEARCH for email
-        public EmailList SearchForEmail(string userIdentifier, string messageId)
+        public EmailList SearchEmails(string userIdentifier, string searchString)
         {
-            string url = $"{GetUrl(userIdentifier)}/messages";
+            if (string.IsNullOrEmpty(searchString))
+            {
+                throw new BusinessRuleException("Search String cannot be empty.");
+            }
+            
+            string url = $"{GetUrl(userIdentifier)}/messages?$search={searchString}";
             string result = GraphRest.Get(url);
 
             return JsonConvert.DeserializeObject<EmailList>(result) ?? new EmailList();
@@ -35,26 +40,6 @@ namespace Decisions.Exchange365.Steps
             string result = GraphRest.Get(url);
 
             return JsonConvert.DeserializeObject<EmailList>(result) ?? new EmailList();
-        }
-        
-        // TODO: test
-        public string ForwardEmail(string userIdentifier, string? mailFolderId, string messageId, string[] to, string comment)
-        {
-            string url = (!string.IsNullOrEmpty(mailFolderId))
-                ? $"{GetUrl(userIdentifier)}/mailFolders/{mailFolderId}/messages/{messageId}/forward"
-                : $"{GetUrl(userIdentifier)}/messages/{messageId}/forward";
-
-            Recipient[] recipients = GetRecipients(to);
-
-            ForwardRequest forwardRequest = new()
-            {
-                Comment = comment,
-                ToRecipients = recipients
-            };
-            
-            JsonContent content = JsonContent.Create(forwardRequest);
-
-            return GraphRest.HttpResponsePost(GetUrl(userIdentifier), content).StatusCode.ToString();
         }
         
         public EmailList ListUnreadEmails(string userIdentifier)
@@ -168,6 +153,25 @@ namespace Decisions.Exchange365.Steps
                 : $"{GetUrl(userIdentifier)}/messages/{messageId}/replyAll";
             
             JsonContent content = JsonContent.Create(new EmailComment{Comment = comment});
+
+            return GraphRest.HttpResponsePost(url, content).StatusCode.ToString();
+        }
+        
+        public string ForwardEmail(string userIdentifier, string? mailFolderId, string messageId, string[] to, string comment)
+        {
+            string url = (!string.IsNullOrEmpty(mailFolderId))
+                ? $"{GetUrl(userIdentifier)}/mailFolders/{mailFolderId}/messages/{messageId}/forward"
+                : $"{GetUrl(userIdentifier)}/messages/{messageId}/forward";
+
+            Recipient[] recipients = GetRecipients(to);
+
+            ForwardRequest forwardRequest = new()
+            {
+                Comment = comment,
+                ToRecipients = recipients
+            };
+            
+            JsonContent content = JsonContent.Create(forwardRequest);
 
             return GraphRest.HttpResponsePost(url, content).StatusCode.ToString();
         }

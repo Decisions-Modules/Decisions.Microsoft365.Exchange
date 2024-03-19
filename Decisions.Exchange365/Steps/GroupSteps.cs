@@ -20,7 +20,7 @@ namespace Decisions.Exchange365.Steps
             return JsonConvert.DeserializeObject<GroupList>(result) ?? new GroupList();
         }
         
-        public string CreateGroup(Group group)
+        public string CreateGroup(MicrosoftGroup group)
         {
             JsonContent content = JsonContent.Create(group);
             
@@ -62,7 +62,7 @@ namespace Decisions.Exchange365.Steps
         
         public string AddMember(string groupId, string directoryObjectId)
         {
-            string url = $"{Url}/{groupId}/members/";
+            string url = $"{Url}/{groupId}/members/$ref";
             
             ReferenceCreate reference = new ReferenceCreate
             {

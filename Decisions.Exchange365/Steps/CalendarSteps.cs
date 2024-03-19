@@ -1,6 +1,7 @@
 using System.Net.Http.Json;
 using Decisions.Exchange365.API;
 using Decisions.Exchange365.Data;
+using DecisionsFramework;
 using DecisionsFramework.Design.Flow;
 using DecisionsFramework.Design.Properties;
 using Microsoft.Graph.Models;
@@ -19,7 +20,7 @@ namespace Decisions.Exchange365.Steps
             }
         }
         
-        public string CreateCalendarEvent(Event calendarEvent)
+        public string CreateCalendarEvent(CalendarEvent calendarEvent)
         {
             string url = $"{Exchange365Constants.GRAPH_URL}/";
             
@@ -34,8 +35,8 @@ namespace Decisions.Exchange365.Steps
 
             return GraphRest.Delete(url).StatusCode.ToString();
         }
-
-        public EventList SearchForCalendarEvent(string userIdentifier, string? calendarId, string? calendarGroupId)
+        
+        public EventList ListCalendarEvents(string userIdentifier, string? calendarId, string? calendarGroupId)
         {
             string url = $"{Exchange365Constants.GRAPH_URL}/users/{userIdentifier}";
             if (!string.IsNullOrEmpty(calendarId))
@@ -49,10 +50,27 @@ namespace Decisions.Exchange365.Steps
             return JsonConvert.DeserializeObject<EventList>(result) ?? new EventList();
         }
 
+        public EventList SearchCalendarEvents(string userIdentifier, string? calendarId, string? calendarGroupId, string searchString)
+        {
+            if (string.IsNullOrEmpty(searchString))
+            {
+                throw new BusinessRuleException("Search String cannot be empty.");
+            }
+            
+            string url = $"{Exchange365Constants.GRAPH_URL}/users/{userIdentifier}?$search={searchString}";
+            if (!string.IsNullOrEmpty(calendarId))
+            {
+                url = (!string.IsNullOrEmpty(calendarGroupId)) ? $"{url}/calendarGroups/{calendarGroupId}/calendars/{calendarId}"
+                    : $"{url}/calendars/{calendarId}";
+            }
+            url += "/events";
+
+            string result = GraphRest.Get(url);
+            return JsonConvert.DeserializeObject<EventList>(result) ?? new EventList();
+        }
+
         /* TODO: Rework input data. Check next comment for details. */
-        public void UpdateCalendarEvent(
-            [PropertyClassification(0, "User Identifier", "Required")] string userIdentifier,
-            [PropertyClassification(1, "Event ID", "Required")] string eventId,
+        public void UpdateCalendarEvent(string userIdentifier, string eventId,
             [CheckboxListEditor(nameof(EventClassFields))] string[] eventDetails)
         {
             string url = $"{Exchange365Constants.GRAPH_URL}/users/{userIdentifier}/events/{eventId}";
