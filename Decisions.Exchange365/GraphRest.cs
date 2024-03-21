@@ -34,6 +34,31 @@ public class GraphRest
             throw new BusinessRuleException("The request was unsuccessful.", ex);
         }
     }
+    
+    public static HttpResponseMessage HttpResponsePost(string url, string content)
+    {
+        try
+        {
+            OAuthToken token = new ORM<OAuthToken>().Fetch(ModuleSettingsAccessor<Exchange365Settings>.GetSettings().TokenId);
+            string tokenHeader = OAuth2Utility.GetOAuth2HeaderValue(token.TokenData, "Bearer");
+            
+            HttpClient client = HttpClients.GetHttpClient(HttpClientAuthType.Normal);
+            
+            HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Post, url);
+            request.Headers.Add("Authorization", tokenHeader);
+            
+            request.Content = JsonContent.Create(content);
+            
+            HttpResponseMessage response = client.Send(request);
+            response.EnsureSuccessStatusCode();
+            
+            return response;
+        }
+        catch (Exception ex)
+        {
+            throw new BusinessRuleException("The request was unsuccessful.", ex);
+        }
+    }
 
     public static string Post(string url, JsonContent? content)
     {

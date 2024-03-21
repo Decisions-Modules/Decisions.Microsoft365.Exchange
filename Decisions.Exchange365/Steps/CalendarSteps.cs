@@ -69,13 +69,18 @@ namespace Decisions.Exchange365.Steps
             return JsonConvert.DeserializeObject<EventList>(result) ?? new EventList();
         }
 
-        /* TODO: Rework input data. Check next comment for details. */
-        public void UpdateCalendarEvent(string userIdentifier, string eventId,
-            [CheckboxListEditor(nameof(EventClassFields))] string[] eventDetails)
+        /* TODO: test */
+        public string UpdateCalendarEvent(string userIdentifier, string eventId,
+            [CheckboxListEditor(nameof(EventClassFields))] CalendarEvent calendarEventUpdate)
         {
             string url = $"{Exchange365Constants.GRAPH_URL}/users/{userIdentifier}/events/{eventId}";
             
-            /* TODO: Utilize UpdateODataEntityStep features to dynamically build request data */
+            string content = JsonConvert.SerializeObject(calendarEventUpdate, Formatting.Indented, new JsonSerializerSettings
+            {
+                NullValueHandling = NullValueHandling.Ignore
+            });
+            
+            return GraphRest.HttpResponsePost(url, content).StatusCode.ToString();
         }
         
         public CalendarList ListCalendars(string userIdentifier)

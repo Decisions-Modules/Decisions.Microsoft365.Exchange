@@ -79,13 +79,8 @@ namespace Decisions.Exchange365.Steps
         {
             string url = $"{GetUrl(userIdentifier)}/sendMail";
             
-            Recipient[] recipients = GetRecipients(to);
-            Recipient[]? ccRecipients = Array.Empty<Recipient>();
-
-            if (cc != null)
-            {
-                ccRecipients = GetRecipients(cc);
-            }
+            Recipient[] recipients = GetRecipients(to) ?? Array.Empty<Recipient>();
+            Recipient[]? ccRecipients = (cc == null) ? Array.Empty<Recipient>() : GetRecipients(cc);
 
             SendEmailRequest emailMessage = new()
             {

@@ -35,12 +35,15 @@ namespace Decisions.Exchange365.Steps
             return JsonConvert.DeserializeObject<Group>(result);
         }
         
-        public string UpdateGroup(string groupId, string groupContext)
+        /* TODO: test */
+        public string UpdateGroup(string groupId, MicrosoftGroup group)
         {
             string url = $"{Url}/{groupId}";
-            JsonContent content = JsonContent.Create(groupContext);
             
-            /* TODO: Utilize UpdateODataEntityStep features to dynamically build request data */
+            string content = JsonConvert.SerializeObject(group, Formatting.Indented, new JsonSerializerSettings
+            {
+                NullValueHandling = NullValueHandling.Ignore
+            });
 
             return GraphRest.HttpResponsePost(url, content).StatusCode.ToString();
         }
