@@ -1,25 +1,45 @@
+using DecisionsFramework.Design.ConfigurationStorage.Attributes;
 using Newtonsoft.Json;
 
 namespace Decisions.Exchange365.API
 {
-    public partial class MicrosoftGroup
+    [Writable]
+    public class MicrosoftGroup
     {
+        [WritableValue]
         [JsonProperty("description")]
-        public string Description { get; set; }
+        public string? Description { get; set; }
 
+        [WritableValue]
         [JsonProperty("displayName")]
-        public string DisplayName { get; set; }
+        public string? DisplayName { get; set; }
 
+        [WritableValue]
         [JsonProperty("groupTypes")]
-        public string[] GroupTypes { get; set; }
+        public string[]? GroupTypes { get; set; }
+        
+        [WritableValue]
+        [JsonProperty("isAssignableToRole")]
+        public bool? IsAssignableToRole { get; set; }
 
+        [WritableValue]
         [JsonProperty("mailEnabled")]
-        public bool MailEnabled { get; set; }
+        public bool? MailEnabled { get; set; }
 
+        [WritableValue]
         [JsonProperty("mailNickname")]
-        public string MailNickname { get; set; }
+        public string? MailNickname { get; set; }
 
+        [WritableValue]
         [JsonProperty("securityEnabled")]
-        public bool SecurityEnabled { get; set; }
+        public bool? SecurityEnabled { get; set; }
+        
+        [WritableValue]
+        [JsonProperty("owners@odata.bind")]
+        public string[]? Owners { get; set; }
+        
+        [WritableValue]
+        [JsonProperty("members@odata.bind")]
+        public string[]? Members { get; set; }
     }
 }

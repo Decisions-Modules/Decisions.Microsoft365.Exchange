@@ -31,7 +31,7 @@ namespace Decisions.Exchange365.API
         public Microsoft.Graph.Models.ResponseStatus ResponseStatus { get; set; }
         
         [JsonProperty("recurrence")]
-        public PatternedRecurrence Recurrence { get; set; }
+        public Recurrence Recurrence { get; set; }
         
         [JsonProperty("reminderMinutesBeforeStart")]
         public int ReminderMinutesBeforeStart { get; set; }
@@ -115,7 +115,7 @@ namespace Decisions.Exchange365.API
         public Pattern Pattern { get; set; }
 
         [JsonProperty("range")]
-        public System.Range Range { get; set; }
+        public Range Range { get; set; }
     }
     
     public class Pattern

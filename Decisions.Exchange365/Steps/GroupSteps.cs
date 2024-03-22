@@ -20,8 +20,35 @@ namespace Decisions.Exchange365.Steps
             return JsonConvert.DeserializeObject<GroupList>(result) ?? new GroupList();
         }
         
-        public string CreateGroup(MicrosoftGroup group)
+        // TODO: update request
+        public string CreateGroup(string description, string displayName, string[] groupTypes, bool isAssignableToRole,
+            bool mailEnabled, string mailNickname, bool securityEnabled, string[] ownerIds, string[] memberIds)
         {
+            List<string> owners = new List<string>();
+            foreach (string ownerId in ownerIds)
+            {
+                owners.Add($"https://graph.microsoft.com/v1.0/users/{ownerId}");
+            }
+
+            List<string> members = new List<string>();
+            foreach (string memberId in memberIds)
+            {
+                members.Add($"{Exchange365Constants.GRAPH_URL}/users/{memberId}");
+            }
+            
+            MicrosoftGroup group = new MicrosoftGroup
+            {
+                Description = description,
+                DisplayName = displayName,
+                GroupTypes = groupTypes,
+                IsAssignableToRole = isAssignableToRole,
+                MailEnabled = mailEnabled,
+                MailNickname = mailNickname,
+                SecurityEnabled = securityEnabled,
+                Owners = owners.ToArray(),
+                Members = members.ToArray()
+            };
+            
             JsonContent content = JsonContent.Create(group);
             
             return GraphRest.HttpResponsePost(Url, content).StatusCode.ToString();
@@ -45,7 +72,7 @@ namespace Decisions.Exchange365.Steps
                 NullValueHandling = NullValueHandling.Ignore
             });
 
-            return GraphRest.HttpResponsePost(url, content).StatusCode.ToString();
+            return GraphRest.Patch(url, content).StatusCode.ToString();
         }
         
         public string DeleteGroup(string groupId)
@@ -63,33 +90,39 @@ namespace Decisions.Exchange365.Steps
             return JsonConvert.DeserializeObject<MemberList>(result) ?? new MemberList();
         }
         
-        public string AddMember(string groupId, string directoryObjectId)
+        public string AddMembers(string groupId, string[] directoryObjectIds)
         {
-            string url = $"{Url}/{groupId}/members/$ref";
-            
-            ReferenceCreate reference = new ReferenceCreate
+            string url = $"{Url}/{groupId}";
+
+            List<string> memberList = new();
+            foreach (string directoryObjectId in directoryObjectIds)
             {
-                OdataId = $"{Exchange365Constants.GRAPH_URL}/directoryObjects/{directoryObjectId}"
+                memberList.Add($"{Exchange365Constants.GRAPH_URL}/directoryObjects/{directoryObjectId}");
+            }
+
+            MicrosoftMembers members = new MicrosoftMembers
+            {
+                Members = memberList.ToArray()
             };
 
-            JsonContent content = JsonContent.Create(reference);
+            JsonContent content = JsonContent.Create(members);
 
-            return GraphRest.HttpResponsePost(url, content).StatusCode.ToString();
+            return GraphRest.Patch(url, content).StatusCode.ToString();
         }
         
-        public string RemoveMember(string groupId, string userId)
+        public string RemoveMember(string groupId, string directoryObjectId)
         {
-            string url = $"{Url}/{groupId}/members{userId}";
+            string url = $"{Url}/{groupId}/members/{directoryObjectId}/$ref";
             
             return GraphRest.Delete(url).StatusCode.ToString();
         }
         
-        public DirectoryObject[] ListMemberOf(string userIdentifier)
+        public DirectoryObject ListMemberOf(string userIdentifier)
         {
             string url = $"{Exchange365Constants.GRAPH_URL}/users/{userIdentifier}/memberOf";
             string result = GraphRest.Get(url);
             
-            return JsonConvert.DeserializeObject<DirectoryObject[]>(result) ?? Array.Empty<DirectoryObject>();
+            return JsonConvert.DeserializeObject<DirectoryObject>(result);
         }
     }
 }
