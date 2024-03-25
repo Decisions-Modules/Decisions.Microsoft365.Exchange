@@ -3,6 +3,7 @@ using Decisions.Exchange365.API;
 using Decisions.Exchange365.Data;
 using DecisionsFramework;
 using DecisionsFramework.Design.Flow;
+using Microsoft.Graph.Models;
 using Newtonsoft.Json;
 
 namespace Decisions.Exchange365.Steps
@@ -54,10 +55,17 @@ namespace Decisions.Exchange365.Steps
             return JsonConvert.DeserializeObject<ContactList>(result) ?? new ContactList();
         }
 
-        /* TODO: Configure to search GLOBAL CONTACTS */
-        public void SearchGlobalContacts()
+        public PeopleList SearchGlobalContacts(string userIdentifier, string searchString)
         {
-            string url = $"{Exchange365Constants.GRAPH_URL}/";
+            if (string.IsNullOrEmpty(searchString))
+            {
+                throw new BusinessRuleException("Search String cannot be empty.");
+            }
+            
+            string url = $"{Exchange365Constants.GRAPH_URL}/users/{userIdentifier}/people?$search={searchString}";
+            
+            string result = GraphRest.Get(url);
+            return JsonConvert.DeserializeObject<PeopleList>(result) ?? new PeopleList();
         }
     }
 }

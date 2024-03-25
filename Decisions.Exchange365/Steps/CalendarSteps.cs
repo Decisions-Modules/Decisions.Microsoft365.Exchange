@@ -6,29 +6,22 @@ using DecisionsFramework.Design.Flow;
 using DecisionsFramework.Design.Properties;
 using Microsoft.Graph.Models;
 using Newtonsoft.Json;
+using Request = Decisions.Exchange365.API.Request;
 
 namespace Decisions.Exchange365.Steps
 {
     [AutoRegisterMethodsOnClass(true, "Integration/Exchange365/Calendar")]
     public class CalendarSteps
     {
-        public string[] EventClassFields
-        {
-            get
-            {
-                return new Event().GetType().GetFields().Select(field => field.Name).ToArray();
-            }
-        }
-        
-        public string CreateCalendarEvent(CalendarEvent calendarEvent, string userIdentifier, string? calendarId)
+        public Event? CreateCalendarEvent(CalendarEvent calendarEvent, string userIdentifier, string? calendarId)
         {
             string url = $"{Exchange365Constants.GRAPH_URL}/users/{userIdentifier}";
             url = (!string.IsNullOrEmpty(calendarId)) ? $"{url}/calendars/{calendarId}/events"
-                    : $"{url}/events";
+                    : $"{url}/calendar/events";
             
             JsonContent content = JsonContent.Create(calendarEvent);
             
-            return GraphRest.HttpResponsePost(url, content).StatusCode.ToString();
+            return JsonConvert.DeserializeObject<Event>(GraphRest.Post(url, content));
         }
 
         public string DeleteCalendarEvent(string userIdentifier, string eventId, string? calendarId, string? calendarGroupId)
@@ -56,37 +49,53 @@ namespace Decisions.Exchange365.Steps
             return JsonConvert.DeserializeObject<EventList>(result) ?? new EventList();
         }
 
-        public EventList SearchCalendarEvents(string userIdentifier, string? calendarId, string? calendarGroupId, string searchString)
+        // TODO: test
+        public EventList SearchCalendarEvents(string userIdentifier, string query, int? numberOfResults)
         {
-            if (string.IsNullOrEmpty(searchString))
+            if (string.IsNullOrEmpty(query))
             {
                 throw new BusinessRuleException("Search String cannot be empty.");
             }
             
-            string url = $"{Exchange365Constants.GRAPH_URL}/users/{userIdentifier}?$search={searchString}";
-            if (!string.IsNullOrEmpty(calendarId))
-            {
-                url = (!string.IsNullOrEmpty(calendarGroupId)) ? $"{url}/calendarGroups/{calendarGroupId}/calendars/{calendarId}"
-                    : $"{url}/calendars/{calendarId}";
-            }
-            url += "/events";
+            string url = $"{Exchange365Constants.GRAPH_URL}/users/{userIdentifier}/search/query";
 
-            string result = GraphRest.Get(url);
+            SearchRequests request = new SearchRequests
+            {
+                Requests = new []
+                {
+                    new Request
+                    {
+                        EntityTypes = new []{"event"},
+                        Query = new Query
+                        {
+                            QueryString = $"{query}"
+                        },
+                        From = 0,
+                        Size = numberOfResults ?? 100
+                    }
+                }
+            };
+
+            JsonContent content = JsonContent.Create(request);
+{}
+            string result = GraphRest.Post(url, content);
+            
             return JsonConvert.DeserializeObject<EventList>(result) ?? new EventList();
         }
 
         /* TODO: test */
-        public string UpdateCalendarEvent(string userIdentifier, string eventId,
-            [CheckboxListEditor(nameof(EventClassFields))] CalendarEvent calendarEventUpdate)
+        public Event? UpdateCalendarEvent(string userIdentifier, string eventId, UpdateCalendarEvent calendarEventUpdate)
         {
-            string url = $"{Exchange365Constants.GRAPH_URL}/users/{userIdentifier}/events/{eventId}";
+            string url = $"{Exchange365Constants.GRAPH_URL}/users/{userIdentifier}/calendar/events/{eventId}";
             
-            string content = JsonConvert.SerializeObject(calendarEventUpdate, Formatting.Indented, new JsonSerializerSettings
+            string contentString = JsonConvert.SerializeObject(calendarEventUpdate, Formatting.None, new JsonSerializerSettings
             {
                 NullValueHandling = NullValueHandling.Ignore
             });
             
-            return GraphRest.Patch(url, content).StatusCode.ToString();
+            JsonContent content = JsonContent.Create(contentString);
+
+            return JsonConvert.DeserializeObject<Event>(GraphRest.Patch(url, content));
         }
         
         public CalendarList ListCalendars(string userIdentifier)

@@ -35,7 +35,7 @@ public class GraphRest
         }
     }
     
-    public static string Post(string url, JsonContent? content)
+    public static string Post(string url, JsonContent content)
     {
         HttpResponseMessage response = HttpResponsePost(url, content);
         Task<string> resultTask = response.Content.ReadAsStringAsync();
@@ -70,7 +70,7 @@ public class GraphRest
         }
     }
     
-    public static HttpResponseMessage Patch(string url, JsonContent? content)
+    public static HttpResponseMessage HttpResponsePatch(string url, JsonContent content)
     {
         try
         {
@@ -81,7 +81,7 @@ public class GraphRest
         
             HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Patch, url);
             request.Headers.Add("Authorization", tokenHeader);
-        
+            
             request.Content = content;
         
             HttpResponseMessage response = client.Send(request);
@@ -95,29 +95,13 @@ public class GraphRest
         }
     }
     
-    public static HttpResponseMessage Patch(string url, string? content)
+    public static string Patch(string url, JsonContent content)
     {
-        try
-        {
-            OAuthToken token = new ORM<OAuthToken>().Fetch(ModuleSettingsAccessor<Exchange365Settings>.GetSettings().TokenId);
-            string tokenHeader = OAuth2Utility.GetOAuth2HeaderValue(token.TokenData, "Bearer");
+        HttpResponseMessage response = HttpResponsePatch(url, content);
+        Task<string> resultTask = response.Content.ReadAsStringAsync();
+        resultTask.Wait();
         
-            HttpClient client = HttpClients.GetHttpClient(HttpClientAuthType.Normal);
-        
-            HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Patch, url);
-            request.Headers.Add("Authorization", tokenHeader);
-        
-            request.Content = JsonContent.Create(content);
-        
-            HttpResponseMessage response = client.Send(request);
-            response.EnsureSuccessStatusCode();
-
-            return response;
-        }
-        catch (Exception ex)
-        {
-            throw new BusinessRuleException("The request was unsuccessful.", ex);
-        }
+        return resultTask.Result;
     }
     
     public static HttpResponseMessage Delete(string url)

@@ -71,7 +71,7 @@ namespace Decisions.Exchange365.Steps
             string url = $"{GetUrl(userIdentifier)}/messages/{messageId}";
             JsonContent content = JsonContent.Create(new EmailIsReadRequest{IsRead = true});
 
-            return GraphRest.Patch(url, content).StatusCode.ToString();
+            return GraphRest.HttpResponsePatch(url, content).StatusCode.ToString();
         }
         
         public string SendEmail(string userIdentifier, string[] to, string[]? cc, string subject, string? body,
@@ -80,7 +80,7 @@ namespace Decisions.Exchange365.Steps
             string url = $"{GetUrl(userIdentifier)}/sendMail";
             
             Recipient[] recipients = GetRecipients(to) ?? Array.Empty<Recipient>();
-            Recipient[]? ccRecipients = (cc == null) ? Array.Empty<Recipient>() : GetRecipients(cc);
+            Recipient[]? ccRecipients = (cc != null) ? GetRecipients(cc) : Array.Empty<Recipient>();
 
             SendEmailRequest emailMessage = new()
             {
@@ -111,13 +111,8 @@ namespace Decisions.Exchange365.Steps
                 ? $"{GetUrl(userIdentifier)}/mailFolders/{mailFolderId}/messages/{messageId}/reply"
                 : $"{GetUrl(userIdentifier)}/messages/{messageId}/reply";
             
-            Recipient[] recipients = GetRecipients(to);
-            Recipient[]? ccRecipients = Array.Empty<Recipient>();
-
-            if (cc != null)
-            {
-                ccRecipients = GetRecipients(cc);
-            }
+            Recipient[] recipients = GetRecipients(to) ?? Array.Empty<Recipient>();
+            Recipient[]? ccRecipients = (cc != null) ? GetRecipients(cc) : Array.Empty<Recipient>();
 
             SendEmailRequest emailMessage = new()
             {

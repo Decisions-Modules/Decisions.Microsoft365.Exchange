@@ -1,10 +1,11 @@
 using DecisionsFramework.Design.ConfigurationStorage.Attributes;
+using Microsoft.Graph.Models;
 using Newtonsoft.Json;
 
 namespace Decisions.Exchange365.API
 {
     [Writable]
-    public class MicrosoftGroup
+    public class UpdateMicrosoftGroup
     {
         [WritableValue]
         [JsonProperty("description")]
@@ -31,11 +32,23 @@ namespace Decisions.Exchange365.API
         public bool? SecurityEnabled { get; set; }
         
         [WritableValue]
-        [JsonProperty("owners@odata.bind")]
-        public string[]? Owners { get; set; }
+        [JsonProperty("visibility")]
+        public string? Visibility { get; set; }
         
         [WritableValue]
-        [JsonProperty("members@odata.bind")]
-        public string[]? Members { get; set; }
+        [JsonProperty("allowExternalSenders")]
+        public bool? AllowExternalSenders { get; set; }
+        
+        [WritableValue]
+        [JsonProperty("assignedLabels")]
+        public AssignedLabel[]? AssignedLabels { get; set; }
+        
+        [WritableValue]
+        [JsonProperty("autoSubscribeNewMembers")]
+        public bool? AutoSubscribeNewMembers { get; set; }
+        
+        [WritableValue]
+        [JsonProperty("preferredDataLocation")]
+        public string? PreferredDataLocation { get; set; }
     }
 }

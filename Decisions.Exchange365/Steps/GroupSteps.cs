@@ -21,32 +21,22 @@ namespace Decisions.Exchange365.Steps
         }
         
         // TODO: update request
-        public string CreateGroup(string description, string displayName, string[] groupTypes, bool isAssignableToRole,
-            bool mailEnabled, string mailNickname, bool securityEnabled, string[] ownerIds, string[] memberIds)
+        public string CreateGroup(string description, string displayName, string[] groupTypes,
+            bool mailEnabled, string mailNickname, bool securityEnabled, string[]? ownerIds, string[]? memberIds)
         {
-            List<string> owners = new List<string>();
-            foreach (string ownerId in ownerIds)
-            {
-                owners.Add($"https://graph.microsoft.com/v1.0/users/{ownerId}");
-            }
-
-            List<string> members = new List<string>();
-            foreach (string memberId in memberIds)
-            {
-                members.Add($"{Exchange365Constants.GRAPH_URL}/users/{memberId}");
-            }
+            string[]? owners = (ownerIds != null) ? GetUserUrls(ownerIds) : Array.Empty<string>();
+            string[]? members = (memberIds != null) ? GetUserUrls(memberIds) : Array.Empty<string>();
             
             MicrosoftGroup group = new MicrosoftGroup
             {
                 Description = description,
                 DisplayName = displayName,
                 GroupTypes = groupTypes,
-                IsAssignableToRole = isAssignableToRole,
                 MailEnabled = mailEnabled,
                 MailNickname = mailNickname,
                 SecurityEnabled = securityEnabled,
-                Owners = owners.ToArray(),
-                Members = members.ToArray()
+                Owners = owners,
+                Members = members
             };
             
             JsonContent content = JsonContent.Create(group);
@@ -63,16 +53,32 @@ namespace Decisions.Exchange365.Steps
         }
         
         /* TODO: test */
-        public string UpdateGroup(string groupId, MicrosoftGroup group)
+        public string UpdateGroup(string groupId, string? description, string? displayName, string[]? groupTypes,
+            bool? mailEnabled, bool? securityEnabled, string? visibility, bool? allowExternalSenders,
+            AssignedLabel[]? assignedLabels, bool? autoSubscribeNewMembers, string? preferredDataLocation)
         {
             string url = $"{Url}/{groupId}";
+
+            UpdateMicrosoftGroup group = new UpdateMicrosoftGroup
+            {
+                Description = description,
+                DisplayName = displayName,
+                GroupTypes = groupTypes,
+                MailEnabled = mailEnabled,
+                SecurityEnabled = securityEnabled,
+                Visibility = visibility,
+                AllowExternalSenders = allowExternalSenders,
+                AssignedLabels = assignedLabels,
+                AutoSubscribeNewMembers = autoSubscribeNewMembers,
+                PreferredDataLocation = preferredDataLocation
+            };
             
-            string content = JsonConvert.SerializeObject(group, Formatting.Indented, new JsonSerializerSettings
+            string content = JsonConvert.SerializeObject(group, Formatting.None, new JsonSerializerSettings
             {
                 NullValueHandling = NullValueHandling.Ignore
             });
 
-            return GraphRest.Patch(url, content).StatusCode.ToString();
+            return GraphRest.HttpResponsePatch(url, JsonContent.Create(content)).StatusCode.ToString();
         }
         
         public string DeleteGroup(string groupId)
@@ -107,7 +113,7 @@ namespace Decisions.Exchange365.Steps
 
             JsonContent content = JsonContent.Create(members);
 
-            return GraphRest.Patch(url, content).StatusCode.ToString();
+            return GraphRest.HttpResponsePatch(url, content).StatusCode.ToString();
         }
         
         public string RemoveMember(string groupId, string directoryObjectId)
@@ -123,6 +129,17 @@ namespace Decisions.Exchange365.Steps
             string result = GraphRest.Get(url);
             
             return JsonConvert.DeserializeObject<DirectoryObject>(result);
+        }
+
+        private string[]? GetUserUrls(string[] users)
+        {
+            List<string> userUrls = new List<string>();
+            foreach (string user in users)
+            {
+                userUrls.Add($"{Exchange365Constants.GRAPH_URL}/users/{user}");
+            }
+
+            return userUrls.ToArray();
         }
     }
 }
