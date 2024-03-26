@@ -25,10 +25,10 @@ namespace Decisions.Exchange365.Steps
         {
             if (string.IsNullOrEmpty(searchString))
             {
-                throw new BusinessRuleException("Search String cannot be empty.");
+                throw new BusinessRuleException("searchString cannot be empty.");
             }
             
-            string url = $"{GetUrl(userIdentifier)}/messages?$search={searchString}";
+            string url = $"{GetUrl(userIdentifier)}/messages?$search=\"{searchString}\"";
             string result = GraphRest.Get(url);
 
             return JsonConvert.DeserializeObject<EmailList>(result) ?? new EmailList();

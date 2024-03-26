@@ -28,10 +28,23 @@ namespace Decisions.Exchange365.Steps
             return GraphRest.Delete(url).StatusCode.ToString();
         }
 
-        /* TODO: Configure to RESOLVE CONTACT */
-        public void ResolveContact()
+        /* TODO: test */
+        public Contact ResolveContact(string userIdentifier, string contactId,
+            string? contactFolderId, string? childFolderId, string? expandQuery)
         {
-            string url = $"{Exchange365Constants.GRAPH_URL}/";
+            if (string.IsNullOrEmpty(expandQuery))
+            {
+                throw new BusinessRuleException("expandQuery cannot be empty.");
+            }
+            
+            string url = $"{Exchange365Constants.GRAPH_URL}/users/{userIdentifier}";
+            url = (!string.IsNullOrEmpty(contactFolderId) && !string.IsNullOrEmpty(childFolderId))
+                ? $"{url}/contactFolders/{contactFolderId}/childFolders/{childFolderId}"
+                : (!string.IsNullOrEmpty(contactFolderId)) ? $"{url}/contactFolders/{contactFolderId}" : url;
+            url = (!string.IsNullOrEmpty(expandQuery)) ? $"{url}/contacts/{contactId}?$expand={expandQuery}" : $"{url}/contacts/{contactId}";
+            
+            string result = GraphRest.Get(url);
+            return JsonConvert.DeserializeObject<Contact>(result) ?? new Contact();
         }
 
         public ContactList ListContacts(string userIdentifier)
@@ -46,10 +59,10 @@ namespace Decisions.Exchange365.Steps
         {
             if (string.IsNullOrEmpty(searchString))
             {
-                throw new BusinessRuleException("Search String cannot be empty.");
+                throw new BusinessRuleException("searchString cannot be empty.");
             }
             
-            string url = $"{Exchange365Constants.GRAPH_URL}/users/{userIdentifier}/contacts?$search={searchString}";
+            string url = $"{Exchange365Constants.GRAPH_URL}/users/{userIdentifier}/contacts?$search=\"{searchString}\"";
             
             string result = GraphRest.Get(url);
             return JsonConvert.DeserializeObject<ContactList>(result) ?? new ContactList();
@@ -59,10 +72,10 @@ namespace Decisions.Exchange365.Steps
         {
             if (string.IsNullOrEmpty(searchString))
             {
-                throw new BusinessRuleException("Search String cannot be empty.");
+                throw new BusinessRuleException("searchString cannot be empty.");
             }
             
-            string url = $"{Exchange365Constants.GRAPH_URL}/users/{userIdentifier}/people?$search={searchString}";
+            string url = $"{Exchange365Constants.GRAPH_URL}/users/{userIdentifier}/people?$search=\"{searchString}\"";
             
             string result = GraphRest.Get(url);
             return JsonConvert.DeserializeObject<PeopleList>(result) ?? new PeopleList();

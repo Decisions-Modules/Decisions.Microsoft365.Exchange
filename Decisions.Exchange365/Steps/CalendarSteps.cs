@@ -54,7 +54,7 @@ namespace Decisions.Exchange365.Steps
         {
             if (string.IsNullOrEmpty(query))
             {
-                throw new BusinessRuleException("Search String cannot be empty.");
+                throw new BusinessRuleException("query cannot be empty.");
             }
             
             string url = $"{Exchange365Constants.GRAPH_URL}/users/{userIdentifier}/search/query";
