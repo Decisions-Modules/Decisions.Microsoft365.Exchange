@@ -5,6 +5,7 @@ using DecisionsFramework.Data.ORMapper;
 using DecisionsFramework.ServiceLayer;
 using DecisionsFramework.ServiceLayer.Services.OAuth.OAuth2;
 using DecisionsFramework.Utilities.Data;
+using Newtonsoft.Json;
 
 namespace Decisions.Exchange365;
 
@@ -35,7 +36,7 @@ public class GraphRest
         }
     }
     
-    public static string Post(string url, JsonContent content)
+    public static string Post(string url, HttpContent content)
     {
         HttpResponseMessage response = HttpResponsePost(url, content);
         Task<string> resultTask = response.Content.ReadAsStringAsync();
@@ -70,7 +71,7 @@ public class GraphRest
         }
     }
     
-    public static HttpResponseMessage HttpResponsePatch(string url, JsonContent content)
+    public static HttpResponseMessage HttpResponsePatch(string url, HttpContent content)
     {
         try
         {
@@ -95,7 +96,7 @@ public class GraphRest
         }
     }
     
-    public static string Patch(string url, JsonContent content)
+    public static string Patch(string url, HttpContent content)
     {
         HttpResponseMessage response = HttpResponsePatch(url, content);
         Task<string> resultTask = response.Content.ReadAsStringAsync();

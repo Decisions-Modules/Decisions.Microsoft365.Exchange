@@ -1,9 +1,9 @@
 using System.Net.Http.Json;
+using System.Text;
 using Decisions.Exchange365.API;
 using Decisions.Exchange365.Data;
 using DecisionsFramework;
 using DecisionsFramework.Design.Flow;
-using DecisionsFramework.Design.Properties;
 using Microsoft.Graph.Models;
 using Newtonsoft.Json;
 using Request = Decisions.Exchange365.API.Request;
@@ -77,23 +77,19 @@ namespace Decisions.Exchange365.Steps
             };
 
             JsonContent content = JsonContent.Create(request);
-{}
             string result = GraphRest.Post(url, content);
             
             return JsonConvert.DeserializeObject<EventList>(result) ?? new EventList();
         }
 
-        /* TODO: test */
         public Event? UpdateCalendarEvent(string userIdentifier, string eventId, UpdateCalendarEvent calendarEventUpdate)
         {
             string url = $"{Exchange365Constants.GRAPH_URL}/users/{userIdentifier}/calendar/events/{eventId}";
             
-            string contentString = JsonConvert.SerializeObject(calendarEventUpdate, Formatting.None, new JsonSerializerSettings
+            HttpContent content = new StringContent(JsonConvert.SerializeObject(calendarEventUpdate, new JsonSerializerSettings
             {
                 NullValueHandling = NullValueHandling.Ignore
-            });
-            
-            JsonContent content = JsonContent.Create(contentString);
+            }), Encoding.UTF8, "application/json");
 
             return JsonConvert.DeserializeObject<Event>(GraphRest.Patch(url, content));
         }
