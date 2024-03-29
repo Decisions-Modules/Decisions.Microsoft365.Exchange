@@ -28,7 +28,6 @@ namespace Decisions.Exchange365.Steps
             return GraphRest.Delete(url).StatusCode.ToString();
         }
 
-        /* TODO: test */
         public Contact ResolveContact(string userIdentifier, string contactId,
             string? contactFolderId, string? childFolderId, string? expandQuery)
         {
@@ -55,27 +54,27 @@ namespace Decisions.Exchange365.Steps
             return JsonConvert.DeserializeObject<ContactList>(result) ?? new ContactList();
         }
         
-        public ContactList SearchContacts(string userIdentifier, string searchString)
+        public ContactList SearchContacts(string userIdentifier, string searchQuery)
         {
-            if (string.IsNullOrEmpty(searchString))
+            if (string.IsNullOrEmpty(searchQuery))
             {
-                throw new BusinessRuleException("searchString cannot be empty.");
+                throw new BusinessRuleException("searchQuery cannot be empty.");
             }
             
-            string url = $"{Exchange365Constants.GRAPH_URL}/users/{userIdentifier}/contacts?$search=\"{searchString}\"";
+            string url = $"{Exchange365Constants.GRAPH_URL}/users/{userIdentifier}/contacts?$search={searchQuery}";
             
             string result = GraphRest.Get(url);
             return JsonConvert.DeserializeObject<ContactList>(result) ?? new ContactList();
         }
 
-        public PeopleList SearchGlobalContacts(string userIdentifier, string searchString)
+        public PeopleList SearchGlobalContacts(string userIdentifier, string searchQuery)
         {
-            if (string.IsNullOrEmpty(searchString))
+            if (string.IsNullOrEmpty(searchQuery))
             {
-                throw new BusinessRuleException("searchString cannot be empty.");
+                throw new BusinessRuleException("searchQuery cannot be empty.");
             }
             
-            string url = $"{Exchange365Constants.GRAPH_URL}/users/{userIdentifier}/people?$search=\"{searchString}\"";
+            string url = $"{Exchange365Constants.GRAPH_URL}/users/{userIdentifier}/people?$search={searchQuery}";
             
             string result = GraphRest.Get(url);
             return JsonConvert.DeserializeObject<PeopleList>(result) ?? new PeopleList();

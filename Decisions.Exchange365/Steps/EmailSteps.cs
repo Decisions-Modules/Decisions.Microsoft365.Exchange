@@ -21,14 +21,14 @@ namespace Decisions.Exchange365.Steps
             return JsonConvert.DeserializeObject<Message>(result) ?? new Message();
         }
         
-        public EmailList SearchEmails(string userIdentifier, string searchString)
+        public EmailList SearchEmails(string userIdentifier, string searchQuery)
         {
-            if (string.IsNullOrEmpty(searchString))
+            if (string.IsNullOrEmpty(searchQuery))
             {
-                throw new BusinessRuleException("searchString cannot be empty.");
+                throw new BusinessRuleException("searchQuery cannot be empty.");
             }
             
-            string url = $"{GetUrl(userIdentifier)}/messages?$search=\"{searchString}\"";
+            string url = $"{GetUrl(userIdentifier)}/messages?$search={searchQuery}";
             string result = GraphRest.Get(url);
 
             return JsonConvert.DeserializeObject<EmailList>(result) ?? new EmailList();

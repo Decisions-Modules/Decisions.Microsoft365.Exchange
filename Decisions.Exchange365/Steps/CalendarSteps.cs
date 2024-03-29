@@ -2,11 +2,11 @@ using System.Net.Http.Json;
 using System.Text;
 using Decisions.Exchange365.API;
 using Decisions.Exchange365.Data;
-using DecisionsFramework;
 using DecisionsFramework.Design.Flow;
 using Microsoft.Graph.Models;
 using Newtonsoft.Json;
-using Request = Decisions.Exchange365.API.Request;
+using Attendee = Decisions.Exchange365.API.Attendee;
+using Location = Decisions.Exchange365.API.Location;
 
 namespace Decisions.Exchange365.Steps
 {
@@ -49,42 +49,38 @@ namespace Decisions.Exchange365.Steps
             return JsonConvert.DeserializeObject<EventList>(result) ?? new EventList();
         }
 
-        // TODO: test
-        public EventList SearchCalendarEvents(string userIdentifier, string query, int? numberOfResults)
-        {
-            if (string.IsNullOrEmpty(query))
-            {
-                throw new BusinessRuleException("query cannot be empty.");
-            }
-            
-            string url = $"{Exchange365Constants.GRAPH_URL}/users/{userIdentifier}/search/query";
-
-            SearchRequests request = new SearchRequests
-            {
-                Requests = new []
-                {
-                    new Request
-                    {
-                        EntityTypes = new []{"event"},
-                        Query = new Query
-                        {
-                            QueryString = $"{query}"
-                        },
-                        From = 0,
-                        Size = numberOfResults ?? 100
-                    }
-                }
-            };
-
-            JsonContent content = JsonContent.Create(request);
-            string result = GraphRest.Post(url, content);
-            
-            return JsonConvert.DeserializeObject<EventList>(result) ?? new EventList();
-        }
-
-        public Event? UpdateCalendarEvent(string userIdentifier, string eventId, UpdateCalendarEvent calendarEventUpdate)
+        public Event? UpdateCalendarEvent(string userIdentifier, string eventId, string? subject, EventBody? body, DateTimeZone? startTime,
+            DateTimeZone? endTime, Location? location, Attendee[]? attendees, bool? allowNewTimeProposals, int? reminderMinutesBeforeStart,
+            bool? isOnlineMeeting, string onlineMeetingProvider, bool? isAllDay, bool? isReminderOn, bool? hideAttendees,
+            string[]? categories, Sensitivity? sensitivity, Importance? importance, AttendeeStatus? showAs, bool? responseRequested)
         {
             string url = $"{Exchange365Constants.GRAPH_URL}/users/{userIdentifier}/calendar/events/{eventId}";
+
+            string? sensitivityString = (sensitivity != null) ? sensitivity.ToString() : null;
+            string? importanceString = (importance != null) ? importance.ToString() : null;
+            string? statusString = (showAs != null) ? showAs.ToString() : null;
+
+            UpdateCalendarEvent calendarEventUpdate = new()
+            {
+                Subject = subject,
+                Body = body,
+                Start = startTime,
+                End = endTime,
+                Location = location,
+                Attendees = attendees,
+                AllowNewTimeProposals = allowNewTimeProposals,
+                ReminderMinutesBeforeStart = reminderMinutesBeforeStart,
+                IsOnlineMeeting = isOnlineMeeting,
+                OnlineMeetingProvider = onlineMeetingProvider,
+                IsAllDay = isAllDay,
+                IsReminderOn = isReminderOn,
+                HideAttendees = hideAttendees,
+                Categories = categories,
+                Sensitivity = sensitivityString,
+                Importance = importanceString,
+                ShowAs = statusString,
+                ResponseRequested = responseRequested
+            };
             
             HttpContent content = new StringContent(JsonConvert.SerializeObject(calendarEventUpdate, new JsonSerializerSettings
             {
