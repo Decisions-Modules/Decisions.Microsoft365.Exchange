@@ -2,7 +2,7 @@ using System.Runtime.Serialization;
 
 namespace Decisions.Microsoft365.Exchange.API
 {
-    public enum AttendeeStatus
+    public enum ExchangeAttendeeStatus
     {
         [EnumMember(Value = "free")]
         Free,

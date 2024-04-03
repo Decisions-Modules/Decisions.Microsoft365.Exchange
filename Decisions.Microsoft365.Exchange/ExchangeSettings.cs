@@ -35,7 +35,7 @@ namespace Decisions.Microsoft365.Exchange
             get => graphUrl;
             set
             {
-                graphUrl = value;
+                graphUrl = value.TrimEnd('/', '\\');
                 OnPropertyChanged(nameof(GraphUrl));
             }
         }

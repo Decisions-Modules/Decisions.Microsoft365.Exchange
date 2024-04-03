@@ -6,7 +6,7 @@ using Newtonsoft.Json;
 namespace Decisions.Microsoft365.Exchange.API
 {
     [Writable]
-    public class CalendarEvent
+    public class ExchangeCalendarEvent
     {
         [WritableValue]
         [JsonProperty("subject")]

@@ -12,23 +12,29 @@ namespace Decisions.Microsoft365.Exchange.Steps
     [AutoRegisterMethodsOnClass(true, "Integration/Microsoft365/Exchange/Groups")]
     public class GroupSteps
     {
-        private const string GROUPS_URL = $"/groups";
+        private const string GROUPS_URL = "/groups";
         
-        public GroupList ListGroups(bool filterUnified)
+        private static JsonSerializerSettings IgnoreNullValues = new()
+        {
+            NullValueHandling = NullValueHandling.Ignore
+        };
+        
+        public ExchangeGroupList? ListGroups(bool filterUnified)
         {
             string urlExtension = (filterUnified) ? $"{GROUPS_URL}$filter=groupTypes/any(c:c+eq+'Unified')" : GROUPS_URL;
             string result = GraphRest.Get(urlExtension);
             
-            return JsonConvert.DeserializeObject<GroupList>(result) ?? new GroupList();
+            return ExchangeGroupList.JsonDeserialize(result);
         }
         
+        // TODO: create new Group class called "ExchangeGroup"
         public Group CreateGroup(string? description, string displayName, string[]? groupTypes,
             bool mailEnabled, string mailNickname, bool securityEnabled, string[]? ownerIds, string[]? memberIds)
         {
             string[]? owners = (ownerIds != null) ? GetUserUrls(ownerIds) : Array.Empty<string>();
             string[]? members = (memberIds != null) ? GetUserUrls(memberIds) : Array.Empty<string>();
             
-            MicrosoftGroup group = new MicrosoftGroup
+            ExchangeGroupRequest groupRequest = new ExchangeGroupRequest
             {
                 Description = description,
                 DisplayName = displayName,
@@ -40,18 +46,21 @@ namespace Decisions.Microsoft365.Exchange.Steps
                 Members = members
             };
             
-            HttpContent content = new StringContent(JsonConvert.SerializeObject(group), Encoding.UTF8, "application/json");
+            HttpContent content = new StringContent(groupRequest.JsonSerialize(), Encoding.UTF8, "application/json");
             
             string result = GraphRest.Post(GROUPS_URL, content);
             
+            // TODO: return ExchangeGroup.JsonDeserialize(result);
             return JsonConvert.DeserializeObject<Group>(result) ?? throw new BusinessRuleException("Could not deserialize result");
         }
         
+        // TODO: create new Group class called "ExchangeGroup"
         public Group? GetGroup(string groupId)
         {
             string urlExtension = $"{GROUPS_URL}/{groupId}";
             string result = GraphRest.Get(urlExtension);
             
+            // TODO: return ExchangeGroup.JsonDeserialize(result);
             return JsonConvert.DeserializeObject<Group>(result);
         }
         
@@ -61,7 +70,7 @@ namespace Decisions.Microsoft365.Exchange.Steps
         {
             string urlExtension = $"{GROUPS_URL}/{groupId}";
 
-            UpdateMicrosoftGroup group = new UpdateMicrosoftGroup
+            ExchangeUpdateMicrosoftGroup group = new ExchangeUpdateMicrosoftGroup
             {
                 Description = description,
                 DisplayName = displayName,
@@ -75,10 +84,8 @@ namespace Decisions.Microsoft365.Exchange.Steps
                 PreferredDataLocation = preferredDataLocation
             };
             
-            HttpContent content = new StringContent(JsonConvert.SerializeObject(group, new JsonSerializerSettings
-            {
-                NullValueHandling = NullValueHandling.Ignore
-            }), Encoding.UTF8, "application/json");
+            HttpContent content = new StringContent(JsonConvert.SerializeObject(group, IgnoreNullValues), Encoding.UTF8,
+                "application/json");
             
             return GraphRest.HttpResponsePatch(urlExtension, content).StatusCode.ToString();
         }
@@ -90,12 +97,12 @@ namespace Decisions.Microsoft365.Exchange.Steps
             return GraphRest.Delete(urlExtension).StatusCode.ToString();
         }
         
-        public MemberList ListMembers(string groupId)
+        public ExchangeMemberList ListMembers(string groupId)
         {
             string urlExtension = $"{GROUPS_URL}/{groupId}/members";
             string result = GraphRest.Get(urlExtension);
             
-            return JsonConvert.DeserializeObject<MemberList>(result) ?? new MemberList();
+            return ExchangeMemberList.JsonDeserialize(result) ?? new ExchangeMemberList();
         }
         
         public string AddMembers(string groupId, string[] directoryObjectIds)
@@ -108,12 +115,12 @@ namespace Decisions.Microsoft365.Exchange.Steps
                 memberList.Add($"{ModuleSettingsAccessor<ExchangeSettings>.GetSettings().GraphUrl}/directoryObjects/{directoryObjectId}");
             }
 
-            MicrosoftMembers members = new MicrosoftMembers
+            ExchangeMembersRequest membersRequest = new ExchangeMembersRequest
             {
                 Members = memberList.ToArray()
             };
 
-            JsonContent content = JsonContent.Create(members);
+            JsonContent content = JsonContent.Create(membersRequest);
 
             return GraphRest.HttpResponsePatch(urlExtension, content).StatusCode.ToString();
         }
@@ -125,11 +132,13 @@ namespace Decisions.Microsoft365.Exchange.Steps
             return GraphRest.Delete(urlExtension).StatusCode.ToString();
         }
         
-        public DirectoryObject ListMemberOf(string userIdentifier)
+        // TODO: create new DirectoryObject class called "ExchangeDirectoryObject"
+        public DirectoryObject? ListMemberOf(string userIdentifier)
         {
             string urlExtension = $"/users/{userIdentifier}/memberOf";
             string result = GraphRest.Get(urlExtension);
             
+            // TODO: return ExchangeDirectoryObject.JsonDeserialize(result);
             return JsonConvert.DeserializeObject<DirectoryObject>(result);
         }
 

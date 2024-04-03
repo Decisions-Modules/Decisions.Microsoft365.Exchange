@@ -4,7 +4,7 @@ using Newtonsoft.Json;
 namespace Decisions.Microsoft365.Exchange.API
 {
     [Writable]
-    public class MicrosoftMembers
+    public class ExchangeMembersRequest
     {
         [WritableValue]
         [JsonProperty("members@odata.bind")]

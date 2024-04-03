@@ -4,11 +4,11 @@ using Newtonsoft.Json;
 namespace Decisions.Microsoft365.Exchange.API
 {
     [Writable]
-    public class EmailReplyRequest
+    public class ExchangeEmailReplyRequest
     {
         [WritableValue]
         [JsonProperty("message")]
-        public SendEmailRequest Message { get; set; }
+        public ExchangeSendEmailRequest Message { get; set; }
 
         [WritableValue]
         [JsonProperty("comment")]

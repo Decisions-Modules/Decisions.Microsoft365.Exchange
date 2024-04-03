@@ -1,10 +1,11 @@
+using DecisionsFramework;
 using DecisionsFramework.Design.ConfigurationStorage.Attributes;
 using Newtonsoft.Json;
 
 namespace Decisions.Microsoft365.Exchange.API
 {
     [Writable]
-    public class MicrosoftGroup
+    public class ExchangeGroupRequest
     {
         [WritableValue]
         [JsonProperty("description")]
@@ -37,5 +38,18 @@ namespace Decisions.Microsoft365.Exchange.API
         [WritableValue]
         [JsonProperty("members@odata.bind")]
         public string[]? Members { get; set; }
+        
+        public string JsonSerialize()
+        {
+            try
+            {
+                string request = JsonConvert.SerializeObject(this);
+                return request;
+            }
+            catch (Exception ex)
+            {
+                throw new BusinessRuleException("There was a problem serializing request.", ex);
+            }
+        }
     }
 }

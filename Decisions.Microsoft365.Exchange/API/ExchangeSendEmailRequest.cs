@@ -4,7 +4,7 @@ using Newtonsoft.Json;
 namespace Decisions.Microsoft365.Exchange.API
 {
     [Writable]
-    public class SendEmailRequest
+    public class ExchangeSendEmailRequest
     {
         [WritableValue]
         [JsonProperty("message")]
@@ -28,11 +28,11 @@ namespace Decisions.Microsoft365.Exchange.API
 
         [WritableValue]
         [JsonProperty("toRecipients")]
-        public Recipient[]? ToRecipients { get; set; }
+        public ExchangeRecipient[]? ToRecipients { get; set; }
 
         [WritableValue]
         [JsonProperty("ccRecipients")]
-        public Recipient[]? CcRecipients { get; set; }
+        public ExchangeRecipient[]? CcRecipients { get; set; }
     }
 
     [Writable]
@@ -48,15 +48,15 @@ namespace Decisions.Microsoft365.Exchange.API
     }
 
     [Writable]
-    public class Recipient
+    public class ExchangeRecipient
     {
         [WritableValue]
         [JsonProperty("emailAddress")]
-        public EmailAddress? EmailAddress { get; set; }
+        public ExchangeEmailAddress? EmailAddress { get; set; }
     }
 
     [Writable]
-    public class EmailAddress
+    public class ExchangeEmailAddress
     {
         [WritableValue]
         [JsonProperty("address")]

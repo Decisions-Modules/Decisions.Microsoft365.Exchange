@@ -8,7 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="DecisionsSDK" Version="8.18.0" />
+    <PackageReference Include="DecisionsSDK" Version="8.19.0" />
     <PackageReference Include="Microsoft.Graph" Version="5.34.0" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
   </ItemGroup>

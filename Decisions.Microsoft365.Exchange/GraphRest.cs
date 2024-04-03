@@ -15,27 +15,7 @@ public class GraphRest
     
     public static HttpResponseMessage HttpResponsePost(string urlExtension, HttpContent content)
     {
-        string url = $"{settings.GraphUrl}{urlExtension}";
-        string tokenHeader = OAuth2Utility.GetOAuth2HeaderValue(token.TokenData, "Bearer");
-            
-        HttpClient client = HttpClients.GetHttpClient(HttpClientAuthType.Normal);
-            
-        HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Post, url);
-        request.Headers.Add("Authorization", tokenHeader);
-            
-        request.Content = content;
-        
-        try
-        {
-            HttpResponseMessage response = client.Send(request);
-            response.EnsureSuccessStatusCode();
-            
-            return response;
-        }
-        catch (Exception ex)
-        {
-            throw new BusinessRuleException("The request was unsuccessful.", ex);
-        }
+        return SendHttpRequest(urlExtension, content, HttpMethod.Post);
     }
     
     public static string Post(string urlExtension, HttpContent content)
@@ -49,19 +29,10 @@ public class GraphRest
 
     public static string Get(string urlExtension)
     {
-        string url = $"{settings.GraphUrl}{urlExtension}";
-        string tokenHeader = OAuth2Utility.GetOAuth2HeaderValue(token.TokenData, "Bearer");
-        
-        HttpClient client = HttpClients.GetHttpClient(HttpClientAuthType.Normal);
-        
-        HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, url);
-        request.Headers.Add("Authorization", tokenHeader);
+        HttpResponseMessage response = SendHttpRequest(urlExtension, null, HttpMethod.Get);
         
         try
         {
-            HttpResponseMessage response = client.Send(request);
-            response.EnsureSuccessStatusCode();
-
             Task<string> resultTask = response.Content.ReadAsStringAsync();
             resultTask.Wait();
 
@@ -69,33 +40,13 @@ public class GraphRest
         }
         catch (Exception ex)
         {
-            throw new BusinessRuleException("The request was unsuccessful.", ex);
+            throw new BusinessRuleException("Could not read response content.", ex);
         }
     }
     
     public static HttpResponseMessage HttpResponsePatch(string urlExtension, HttpContent content)
     {
-        string url = $"{settings.GraphUrl}{urlExtension}";
-        string tokenHeader = OAuth2Utility.GetOAuth2HeaderValue(token.TokenData, "Bearer");
-        
-        HttpClient client = HttpClients.GetHttpClient(HttpClientAuthType.Normal);
-        
-        HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Patch, url);
-        request.Headers.Add("Authorization", tokenHeader);
-            
-        request.Content = content;
-        
-        try
-        {
-            HttpResponseMessage response = client.Send(request);
-            response.EnsureSuccessStatusCode();
-
-            return response;
-        }
-        catch (Exception ex)
-        {
-            throw new BusinessRuleException("The request was unsuccessful.", ex);
-        }
+        return SendHttpRequest(urlExtension, content, HttpMethod.Patch);
     }
     
     public static string Patch(string urlExtension, HttpContent content)
@@ -109,19 +60,29 @@ public class GraphRest
     
     public static HttpResponseMessage Delete(string urlExtension)
     {
+        return SendHttpRequest(urlExtension, null, HttpMethod.Delete);
+    }
+    
+    private static HttpResponseMessage SendHttpRequest(string urlExtension, HttpContent? content, HttpMethod httpMethod)
+    {
         string url = $"{settings.GraphUrl}{urlExtension}";
         string tokenHeader = OAuth2Utility.GetOAuth2HeaderValue(token.TokenData, "Bearer");
-        
+            
         HttpClient client = HttpClients.GetHttpClient(HttpClientAuthType.Normal);
-        
-        HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Delete, url);
+            
+        HttpRequestMessage request = new HttpRequestMessage(httpMethod, url);
         request.Headers.Add("Authorization", tokenHeader);
-        
+
+        if (content != null)
+        {
+            request.Content = content;
+        }
+
         try
         {
             HttpResponseMessage response = client.Send(request);
             response.EnsureSuccessStatusCode();
-
+            
             return response;
         }
         catch (Exception ex)

@@ -1,10 +1,11 @@
+using DecisionsFramework;
 using DecisionsFramework.Design.ConfigurationStorage.Attributes;
 using Newtonsoft.Json;
 
 namespace Decisions.Microsoft365.Exchange.API
 {
     [Writable]
-    public class UpdateCalendarEvent
+    public class ExchangeUpdateCalendarEvent
     {
         [WritableValue]
         [JsonProperty("subject")]

@@ -10,12 +10,12 @@ namespace Decisions.Microsoft365.Exchange.Steps
     [AutoRegisterMethodsOnClass(true, "Integration/Microsoft365/Exchange/Contacts")]
     public class ContactSteps
     {
-        public string CreateContact(string userIdentifier, string? contactFolderId, MicrosoftContact contact)
+        public string CreateContact(string userIdentifier, string? contactFolderId, ExchangeContactRequest contactRequest)
         {
             string urlExtension = $"/users/{userIdentifier}";
             urlExtension = (!string.IsNullOrEmpty(contactFolderId)) ? $"{urlExtension}/contactFolders/{contactFolderId}/contacts" : $"{urlExtension}/contacts";
             
-            JsonContent content = JsonContent.Create(contact);
+            JsonContent content = JsonContent.Create(contactRequest);
             
             return GraphRest.HttpResponsePost(urlExtension, content).StatusCode.ToString();
         }
@@ -27,7 +27,8 @@ namespace Decisions.Microsoft365.Exchange.Steps
             return GraphRest.Delete(urlExtension).StatusCode.ToString();
         }
 
-        public Contact ResolveContact(string userIdentifier, string contactId,
+        // TODO: create new Contact class called "ExchangeContact"
+        public Contact? ResolveContact(string userIdentifier, string contactId,
             string? contactFolderId, string? childFolderId, string? expandQuery)
         {
             if (string.IsNullOrEmpty(expandQuery))
@@ -42,18 +43,21 @@ namespace Decisions.Microsoft365.Exchange.Steps
             urlExtension = (!string.IsNullOrEmpty(expandQuery)) ? $"{urlExtension}/contacts/{contactId}?$expand={expandQuery}" : $"{urlExtension}/contacts/{contactId}";
             
             string result = GraphRest.Get(urlExtension);
-            return JsonConvert.DeserializeObject<Contact>(result) ?? new Contact();
+            
+            // TODO: return ExchangeContact.JsonDeserialize(result);
+            return JsonConvert.DeserializeObject<Contact>(result);
         }
 
-        public ContactList ListContacts(string userIdentifier)
+        public ExchangeContactList? ListContacts(string userIdentifier)
         {
             string urlExtension = $"/users/{userIdentifier}/contacts";
             
             string result = GraphRest.Get(urlExtension);
-            return JsonConvert.DeserializeObject<ContactList>(result) ?? new ContactList();
+            
+            return ExchangeContactList.JsonDeserialize(result);
         }
         
-        public ContactList SearchContacts(string userIdentifier, string searchQuery)
+        public ExchangeContactList? SearchContacts(string userIdentifier, string searchQuery)
         {
             if (string.IsNullOrEmpty(searchQuery))
             {
@@ -63,10 +67,10 @@ namespace Decisions.Microsoft365.Exchange.Steps
             string urlExtension = $"/users/{userIdentifier}/contacts?$search={searchQuery}";
             
             string result = GraphRest.Get(urlExtension);
-            return JsonConvert.DeserializeObject<ContactList>(result) ?? new ContactList();
+            return ExchangeContactList.JsonDeserialize(result);
         }
 
-        public PeopleList SearchGlobalContacts(string userIdentifier, string searchQuery)
+        public ExchangePeopleList? SearchGlobalContacts(string userIdentifier, string searchQuery)
         {
             if (string.IsNullOrEmpty(searchQuery))
             {
@@ -76,7 +80,8 @@ namespace Decisions.Microsoft365.Exchange.Steps
             string urlExtension = $"/users/{userIdentifier}/people?$search={searchQuery}";
             
             string result = GraphRest.Get(urlExtension);
-            return JsonConvert.DeserializeObject<PeopleList>(result) ?? new PeopleList();
+            
+            return ExchangePeopleList.JsonDeserialize(result);
         }
     }
 }
