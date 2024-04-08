@@ -2,7 +2,6 @@ using System.Net.Http.Json;
 using Decisions.Microsoft365.Exchange.API;
 using DecisionsFramework;
 using DecisionsFramework.Design.Flow;
-using Microsoft.Graph.Models;
 using Newtonsoft.Json;
 
 namespace Decisions.Microsoft365.Exchange.Steps
@@ -27,25 +26,24 @@ namespace Decisions.Microsoft365.Exchange.Steps
             return GraphRest.Delete(urlExtension).StatusCode.ToString();
         }
 
-        // TODO: create new Contact class called "ExchangeContact"
-        public Contact? ResolveContact(string userIdentifier, string contactId,
+        public MicrosoftContact? ResolveContact(string userIdentifier, string contactId,
             string? contactFolderId, string? childFolderId, string? expandQuery)
         {
-            if (string.IsNullOrEmpty(expandQuery))
-            {
-                throw new BusinessRuleException("expandQuery cannot be empty.");
-            }
-            
             string urlExtension = $"/users/{userIdentifier}";
+            
             urlExtension = (!string.IsNullOrEmpty(contactFolderId) && !string.IsNullOrEmpty(childFolderId))
                 ? $"{urlExtension}/contactFolders/{contactFolderId}/childFolders/{childFolderId}"
-                : (!string.IsNullOrEmpty(contactFolderId)) ? $"{urlExtension}/contactFolders/{contactFolderId}" : urlExtension;
-            urlExtension = (!string.IsNullOrEmpty(expandQuery)) ? $"{urlExtension}/contacts/{contactId}?$expand={expandQuery}" : $"{urlExtension}/contacts/{contactId}";
+                : (!string.IsNullOrEmpty(contactFolderId))
+                    ? $"{urlExtension}/contactFolders/{contactFolderId}"
+                    : urlExtension;
+            
+            urlExtension = (!string.IsNullOrEmpty(expandQuery))
+                ? $"{urlExtension}/contacts/{contactId}?$expand={expandQuery}"
+                : $"{urlExtension}/contacts/{contactId}";
             
             string result = GraphRest.Get(urlExtension);
             
-            // TODO: return ExchangeContact.JsonDeserialize(result);
-            return JsonConvert.DeserializeObject<Contact>(result);
+            return JsonConvert.DeserializeObject<MicrosoftContact>(result);
         }
 
         public ExchangeContactList? ListContacts(string userIdentifier)

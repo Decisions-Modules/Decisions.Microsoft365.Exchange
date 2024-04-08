@@ -1,6 +1,6 @@
+using System.Runtime.Serialization;
 using DecisionsFramework.Data.DataTypes;
 using DecisionsFramework.Design.ConfigurationStorage.Attributes;
-using Microsoft.Graph.Models;
 using Newtonsoft.Json;
 
 namespace Decisions.Microsoft365.Exchange.API
@@ -10,7 +10,7 @@ namespace Decisions.Microsoft365.Exchange.API
     {
         [WritableValue]
         [JsonProperty("subject")]
-        public string Subject { get; set; }
+        public string? Subject { get; set; }
 
         [WritableValue]
         [JsonProperty("body")]
@@ -29,7 +29,7 @@ namespace Decisions.Microsoft365.Exchange.API
         public Location? Location { get; set; }
         [WritableValue]
         [JsonProperty("attendees")]
-        public Attendee[]? Attendees { get; set; }
+        public MicrosoftEventAttendee[]? Attendees { get; set; }
         
         [WritableValue]
         [JsonProperty("allowNewTimeProposals")]
@@ -39,27 +39,15 @@ namespace Decisions.Microsoft365.Exchange.API
         public string? TransactionId { get; set; }
     }
 
-    [Writable]
-    public class Attendee
-    {
-        [WritableValue]
-        [JsonProperty("emailAddress")]
-        public EmailAddressName EmailAddress { get; set; }
-
-        [WritableValue]
-        [JsonProperty("type")]
-        public string Type { get; set; }
-    }
-
     public class EventBody
     {
         [WritableValue]
         [JsonProperty("contentType")]
-        public string ContentType { get; set; }
+        public string? ContentType { get; set; }
 
         [WritableValue]
         [JsonProperty("content")]
-        public string Content { get; set; }
+        public string? Content { get; set; }
     }
 
     [Writable]
@@ -67,11 +55,11 @@ namespace Decisions.Microsoft365.Exchange.API
     {
         [WritableValue]
         [JsonProperty("dateTime")]
-        public DateTime DateTime { get; set; }
+        public DateTime? DateTime { get; set; }
 
         [WritableValue]
         [JsonProperty("timeZone")]
-        public string TimeZone { get; set; }
+        public string? TimeZone { get; set; }
     }
 
     [Writable]
@@ -79,7 +67,7 @@ namespace Decisions.Microsoft365.Exchange.API
     {
         [WritableValue]
         [JsonProperty("displayName")]
-        public string DisplayName { get; set; }
+        public string? DisplayName { get; set; }
     }
     
     [Writable]
@@ -87,11 +75,11 @@ namespace Decisions.Microsoft365.Exchange.API
     {
         [WritableValue]
         [JsonProperty("response")]
-        public string Response { get; set; }
+        public string? Response { get; set; }
 
         [WritableValue]
         [JsonProperty("time")]
-        public DateTime Time { get; set; }
+        public DateTime? Time { get; set; }
     }
 
     [Writable]
@@ -99,66 +87,106 @@ namespace Decisions.Microsoft365.Exchange.API
     {
         [WritableValue]
         [JsonProperty("pattern")]
-        public Pattern Pattern { get; set; }
+        public MicrosoftPattern? Pattern { get; set; }
 
         [WritableValue]
         [JsonProperty("range")]
-        public Range Range { get; set; }
+        public MicrosoftRange? Range { get; set; }
     }
     
     [Writable]
-    public class Pattern
+    public class MicrosoftPattern
     {
         [WritableValue]
         [JsonProperty("dayOfMonth")]
-        public int DayOfMonth { get; set; }
+        public int? DayOfMonth { get; set; }
 
         [WritableValue]
         [JsonProperty("daysOfWeek")]
-        public DayOfWeek[] DaysOfWeek { get; set; }
+        public DayOfWeek[]? DaysOfWeek { get; set; }
         
         [WritableValue]
         [JsonProperty("firstDayOfWeek")]
-        public DayOfWeek FirstDayOfWeek { get; set; }
+        public DayOfWeek? FirstDayOfWeek { get; set; }
 
         [WritableValue]
         [JsonProperty("index")]
-        public WeekIndex Index { get; set; }
+        public MicrosoftWeekIndex? Index { get; set; }
         
         [WritableValue]
         [JsonProperty("interval")]
-        public int Interval { get; set; }
+        public int? Interval { get; set; }
 
         [WritableValue]
         [JsonProperty("month")]
-        public int Month { get; set; }
+        public int? Month { get; set; }
         
         [WritableValue]
         [JsonProperty("type")]
-        public RecurrencePatternType Type { get; set; }
+        public MicrosoftRecurrencePatternType? Type { get; set; }
     }
     
     [Writable]
-    public class Range
+    public class MicrosoftRange
     {
         [WritableValue]
         [JsonProperty("endDate")]
-        public Date EndDate { get; set; }
+        public Date? EndDate { get; set; }
 
         [WritableValue]
         [JsonProperty("numberOfOccurrences")]
-        public int NumberOfOccurrences { get; set; }
+        public int? NumberOfOccurrences { get; set; }
         
         [WritableValue]
         [JsonProperty("recurrenceTimeZone")]
-        public string RecurrenceTimeZone { get; set; }
+        public string? RecurrenceTimeZone { get; set; }
         
         [WritableValue]
         [JsonProperty("startDate")]
-        public Date StartDate { get; set; }
+        public Date? StartDate { get; set; }
         
         [WritableValue]
         [JsonProperty("type")]
-        public RecurrenceRangeType Type { get; set; }
+        public MicrosoftRecurrenceRangeType? Type { get; set; }
+    }
+    
+    public enum MicrosoftWeekIndex
+    {
+        [EnumMember(Value = "first")]
+        First,
+        [EnumMember(Value = "second")]
+        Second,
+        [EnumMember(Value = "third")]
+        Third,
+        [EnumMember(Value = "fourth")]
+        Fourth,
+        [EnumMember(Value = "last")]
+        Last
+    }
+    
+    public enum MicrosoftRecurrencePatternType
+    {
+        [EnumMember(Value = "daily")]
+        Daily,
+        [EnumMember(Value = "weekly")]
+        Weekly,
+        [EnumMember(Value = "absoluteMonthly")]
+        AbsoluteMonthly,
+        [EnumMember(Value = "relativeMonthly")]
+        RelativeMonthly,
+        [EnumMember(Value = "absoluteYearly")]
+        AbsoluteYearly,
+        [EnumMember(Value = "relativeYearly")]
+        RelativeYearly
+    }
+
+    public enum MicrosoftRecurrenceRangeType
+    {
+        [EnumMember(Value = "endDate")]
+        EndDate,
+        [EnumMember(Value = "noEnd")]
+        NoEnd,
+        [EnumMember(Value = "numbered")]
+        Numbered
     }
 }

@@ -4,7 +4,6 @@ using Decisions.Microsoft365.Exchange.API;
 using DecisionsFramework;
 using DecisionsFramework.Design.Flow;
 using DecisionsFramework.ServiceLayer;
-using Microsoft.Graph.Models;
 using Newtonsoft.Json;
 
 namespace Decisions.Microsoft365.Exchange.Steps
@@ -27,8 +26,7 @@ namespace Decisions.Microsoft365.Exchange.Steps
             return ExchangeGroupList.JsonDeserialize(result);
         }
         
-        // TODO: create new Group class called "ExchangeGroup"
-        public Group CreateGroup(string? description, string displayName, string[]? groupTypes,
+        public MicrosoftGroup CreateGroup(string? description, string displayName, string[]? groupTypes,
             bool mailEnabled, string mailNickname, bool securityEnabled, string[]? ownerIds, string[]? memberIds)
         {
             string[]? owners = (ownerIds != null) ? GetUserUrls(ownerIds) : Array.Empty<string>();
@@ -50,23 +48,20 @@ namespace Decisions.Microsoft365.Exchange.Steps
             
             string result = GraphRest.Post(GROUPS_URL, content);
             
-            // TODO: return ExchangeGroup.JsonDeserialize(result);
-            return JsonConvert.DeserializeObject<Group>(result) ?? throw new BusinessRuleException("Could not deserialize result");
+            return JsonConvert.DeserializeObject<MicrosoftGroup>(result) ?? throw new BusinessRuleException("Could not deserialize result");
         }
         
-        // TODO: create new Group class called "ExchangeGroup"
-        public Group? GetGroup(string groupId)
+        public MicrosoftGroup GetGroup(string groupId)
         {
             string urlExtension = $"{GROUPS_URL}/{groupId}";
             string result = GraphRest.Get(urlExtension);
             
-            // TODO: return ExchangeGroup.JsonDeserialize(result);
-            return JsonConvert.DeserializeObject<Group>(result);
+            return JsonConvert.DeserializeObject<MicrosoftGroup>(result) ?? throw new BusinessRuleException("Could not deserialize result");
         }
         
         public string UpdateGroup(string groupId, string? description, string? displayName, string[]? groupTypes,
             bool? mailEnabled, bool? securityEnabled, string? visibility, bool? allowExternalSenders,
-            AssignedLabel[]? assignedLabels, bool? autoSubscribeNewMembers, string? preferredDataLocation)
+            MicrosoftAssignedLabel[]? assignedLabels, bool? autoSubscribeNewMembers, string? preferredDataLocation)
         {
             string urlExtension = $"{GROUPS_URL}/{groupId}";
 
@@ -132,14 +127,12 @@ namespace Decisions.Microsoft365.Exchange.Steps
             return GraphRest.Delete(urlExtension).StatusCode.ToString();
         }
         
-        // TODO: create new DirectoryObject class called "ExchangeDirectoryObject"
-        public DirectoryObject? ListMemberOf(string userIdentifier)
+        public MicrosoftGroupCollection? ListMemberOf(string userIdentifier)
         {
             string urlExtension = $"/users/{userIdentifier}/memberOf";
             string result = GraphRest.Get(urlExtension);
             
-            // TODO: return ExchangeDirectoryObject.JsonDeserialize(result);
-            return JsonConvert.DeserializeObject<DirectoryObject>(result);
+            return JsonConvert.DeserializeObject<MicrosoftGroupCollection>(result);
         }
 
         private string[]? GetUserUrls(string[] users)

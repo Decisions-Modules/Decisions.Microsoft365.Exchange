@@ -8,5 +8,5 @@ public class ExchangeEmailIsReadRequest
 {
     [WritableValue]
     [JsonProperty("isRead")]
-    public bool IsRead { get; set; }
+    public bool? IsRead { get; set; }
 }

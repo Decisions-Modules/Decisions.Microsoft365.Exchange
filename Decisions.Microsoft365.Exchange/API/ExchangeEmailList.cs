@@ -1,6 +1,5 @@
 using DecisionsFramework;
 using DecisionsFramework.Design.ConfigurationStorage.Attributes;
-using Microsoft.Graph.Models;
 using Newtonsoft.Json;
 
 namespace Decisions.Microsoft365.Exchange.API
@@ -10,11 +9,11 @@ namespace Decisions.Microsoft365.Exchange.API
     {
         [WritableValue]
         [JsonProperty("@odata.context")]
-        public Uri OdataContext { get; set; }
+        public string? OdataContext { get; set; }
 
         [WritableValue]
         [JsonProperty("value")]
-        public Message[] Value { get; set; }
+        public MicrosoftMessage[]? Value { get; set; }
         
         public static ExchangeEmailList? JsonDeserialize(string content)
         {

@@ -1,4 +1,3 @@
-using DecisionsFramework;
 using DecisionsFramework.Design.ConfigurationStorage.Attributes;
 using Newtonsoft.Json;
 
@@ -33,7 +32,7 @@ namespace Decisions.Microsoft365.Exchange.API
 
         [WritableValue]
         [JsonProperty("attendees")]
-        public Attendee[]? Attendees { get; set; }
+        public MicrosoftEventAttendee[]? Attendees { get; set; }
         
         [WritableValue]
         [JsonProperty("allowNewTimeProposals")]

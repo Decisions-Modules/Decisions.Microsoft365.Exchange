@@ -27,7 +27,7 @@ namespace Decisions.Microsoft365.Exchange
         [ORMField]
         private string graphUrl = "https://graph.microsoft.com/v1.0";
 
-        [PropertyClassification(1, "Graph URL", "Exchange Settings")]
+        [PropertyClassification(0, "Graph URL", "Exchange Settings")]
         [DataMember]
         [WritableValue]
         public string GraphUrl
@@ -44,7 +44,7 @@ namespace Decisions.Microsoft365.Exchange
         private string tokenId;
 
         [WritableValue]
-        [PropertyClassification(new string[] { "Credentials" }, "OAuth Token", 0)]
+        [PropertyClassification(new string[] { "Credentials" }, "OAuth Token", 1)]
         [TokenPicker]
         public string TokenId
         {

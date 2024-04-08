@@ -8,6 +8,6 @@ namespace Decisions.Microsoft365.Exchange.API
     {
         [WritableValue]
         [JsonProperty("members@odata.bind")]
-        public string[] Members;
+        public string[]? Members;
     }
 }

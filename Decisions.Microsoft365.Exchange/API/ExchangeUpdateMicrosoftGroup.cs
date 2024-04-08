@@ -1,5 +1,4 @@
 using DecisionsFramework.Design.ConfigurationStorage.Attributes;
-using Microsoft.Graph.Models;
 using Newtonsoft.Json;
 
 namespace Decisions.Microsoft365.Exchange.API
@@ -41,7 +40,7 @@ namespace Decisions.Microsoft365.Exchange.API
         
         [WritableValue]
         [JsonProperty("assignedLabels")]
-        public AssignedLabel[]? AssignedLabels { get; set; }
+        public MicrosoftAssignedLabel[]? AssignedLabels { get; set; }
         
         [WritableValue]
         [JsonProperty("autoSubscribeNewMembers")]
@@ -50,5 +49,17 @@ namespace Decisions.Microsoft365.Exchange.API
         [WritableValue]
         [JsonProperty("preferredDataLocation")]
         public string? PreferredDataLocation { get; set; }
+    }
+
+    [Writable]
+    public class MicrosoftAssignedLabel
+    {
+        [WritableValue]
+        [JsonProperty("displayName")]
+        public string? DisplayName;
+        
+        [WritableValue]
+        [JsonProperty("labelId")]
+        public string? LabelId;
     }
 }

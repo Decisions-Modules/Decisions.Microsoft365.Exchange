@@ -10,11 +10,12 @@ namespace Decisions.Microsoft365.Exchange.API
     {
         [WritableValue]
         [JsonProperty("@odata.context")]
-        public Uri OdataContext { get; set; }
+        public string? OdataContext { get; set; }
 
+        /* TODO: Replace with own MicrosoftCalendar class */
         [WritableValue]
         [JsonProperty("value")]
-        public Calendar[] Value { get; set; }
+        public Calendar[]? Value { get; set; }
         
         public static ExchangeCalendarList? JsonDeserialize(string content)
         {

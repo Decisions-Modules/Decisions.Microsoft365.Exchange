@@ -8,9 +8,9 @@ public class ExchangeForwardRequest
 {
     [WritableValue]
     [JsonProperty("comment")]
-    public string Comment { get; set; }
+    public string? Comment { get; set; }
 
     [WritableValue]
     [JsonProperty("toRecipients")]
-    public ExchangeRecipient[] ToRecipients { get; set; }
+    public ExchangeRecipient[]? ToRecipients { get; set; }
 }

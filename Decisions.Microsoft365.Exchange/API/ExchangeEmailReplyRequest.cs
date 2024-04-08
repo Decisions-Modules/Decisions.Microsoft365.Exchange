@@ -8,10 +8,10 @@ namespace Decisions.Microsoft365.Exchange.API
     {
         [WritableValue]
         [JsonProperty("message")]
-        public ExchangeSendEmailRequest Message { get; set; }
+        public ExchangeSendEmailRequest? Message { get; set; }
 
         [WritableValue]
         [JsonProperty("comment")]
-        public string Comment { get; set; }
+        public string? Comment { get; set; }
     }
 }

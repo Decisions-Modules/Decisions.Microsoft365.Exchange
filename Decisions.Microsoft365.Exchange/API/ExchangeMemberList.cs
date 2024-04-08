@@ -10,11 +10,12 @@ namespace Decisions.Microsoft365.Exchange.API
     {
         [WritableValue]
         [JsonProperty("@odata.context")]
-        public Uri OdataContext { get; set; }
+        public string? OdataContext { get; set; }
 
+        /* TODO: Replace with own DirectoryObject class */
         [WritableValue]
         [JsonProperty("value")]
-        public DirectoryObject[] Value { get; set; }
+        public DirectoryObject[]? Value { get; set; }
         
         public static ExchangeMemberList? JsonDeserialize(string content)
         {

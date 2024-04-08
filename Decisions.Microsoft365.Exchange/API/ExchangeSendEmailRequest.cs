@@ -8,11 +8,11 @@ namespace Decisions.Microsoft365.Exchange.API
     {
         [WritableValue]
         [JsonProperty("message")]
-        public EmailMessage Message { get; set; }
+        public EmailMessage? Message { get; set; }
 
         [WritableValue]
         [JsonProperty("saveToSentItems")]
-        public bool SaveToSentItems { get; set; }
+        public bool? SaveToSentItems { get; set; }
     }
 
     [Writable]
@@ -20,11 +20,11 @@ namespace Decisions.Microsoft365.Exchange.API
     {
         [WritableValue]
         [JsonProperty("subject")]
-        public string Subject { get; set; }
+        public string? Subject { get; set; }
 
         [WritableValue]
         [JsonProperty("body")]
-        public Body Body { get; set; }
+        public MicrosoftEmailBody? Body { get; set; }
 
         [WritableValue]
         [JsonProperty("toRecipients")]
@@ -33,18 +33,6 @@ namespace Decisions.Microsoft365.Exchange.API
         [WritableValue]
         [JsonProperty("ccRecipients")]
         public ExchangeRecipient[]? CcRecipients { get; set; }
-    }
-
-    [Writable]
-    public class Body
-    {
-        [WritableValue]
-        [JsonProperty("contentType")]
-        public string ContentType { get; set; }
-
-        [WritableValue]
-        [JsonProperty("content")]
-        public string? Content { get; set; }
     }
 
     [Writable]

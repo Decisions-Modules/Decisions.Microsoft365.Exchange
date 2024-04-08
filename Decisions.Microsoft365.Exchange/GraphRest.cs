@@ -9,10 +9,6 @@ namespace Decisions.Microsoft365.Exchange;
 
 public class GraphRest
 {
-    private static ExchangeSettings settings = ModuleSettingsAccessor<ExchangeSettings>.GetSettings();
-    
-    private static OAuthToken token = new ORM<OAuthToken>().Fetch(settings.TokenId);
-    
     public static HttpResponseMessage HttpResponsePost(string urlExtension, HttpContent content)
     {
         return SendHttpRequest(urlExtension, content, HttpMethod.Post);
@@ -65,6 +61,9 @@ public class GraphRest
     
     private static HttpResponseMessage SendHttpRequest(string urlExtension, HttpContent? content, HttpMethod httpMethod)
     {
+        ExchangeSettings settings = ModuleSettingsAccessor<ExchangeSettings>.GetSettings();
+        OAuthToken token = new ORM<OAuthToken>().Fetch(settings.TokenId);
+    
         string url = $"{settings.GraphUrl}{urlExtension}";
         string tokenHeader = OAuth2Utility.GetOAuth2HeaderValue(token.TokenData, "Bearer");
             

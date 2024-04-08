@@ -2,7 +2,6 @@ using System.Net.Http.Json;
 using Decisions.Microsoft365.Exchange.API;
 using DecisionsFramework;
 using DecisionsFramework.Design.Flow;
-using Microsoft.Graph.Models;
 using Newtonsoft.Json;
 
 namespace Decisions.Microsoft365.Exchange.Steps
@@ -10,14 +9,12 @@ namespace Decisions.Microsoft365.Exchange.Steps
     [AutoRegisterMethodsOnClass(true, "Integration/Microsoft365/Exchange/Email")]
     public class EmailSteps
     {
-        // TODO: create new Message class called "ExchangeMessage"
-        public Message? GetEmail(string userIdentifier, string messageId)
+        public MicrosoftMessage? GetEmail(string userIdentifier, string messageId)
         {
             string urlExtension = $"{GetUrlExtension(userIdentifier)}/messages/{messageId}";
             string result = GraphRest.Get(urlExtension);
             
-            // TODO: return ExchangeMessageResponse.JsonDeserialize(result);
-            return JsonConvert.DeserializeObject<Message>(result);
+            return JsonConvert.DeserializeObject<MicrosoftMessage>(result);
         }
         
         public ExchangeEmailList? SearchEmails(string userIdentifier, string searchQuery)
@@ -47,9 +44,8 @@ namespace Decisions.Microsoft365.Exchange.Steps
             string result = GraphRest.Get(urlExtension);
             ExchangeEmailList? response = ExchangeEmailList.JsonDeserialize(result);
 
-            // TODO: create new Message class called "ExchangeMessage"
-            List<Message>? messages = new List<Message>();
-            foreach (Message email in response.Value)
+            List<MicrosoftMessage>? messages = new List<MicrosoftMessage>();
+            foreach (MicrosoftMessage email in response.Value)
             {
                 if (email.IsRead is false or null)
                 {
@@ -75,7 +71,7 @@ namespace Decisions.Microsoft365.Exchange.Steps
         }
         
         public string SendEmail(string userIdentifier, string[] to, string[]? cc, string subject, string? body,
-            BodyType? contentType, bool saveToSentItems)
+            MicrosoftBodyType? contentType, bool saveToSentItems)
         {
             string urlExtension = $"{GetUrlExtension(userIdentifier)}/sendMail";
             
@@ -86,9 +82,9 @@ namespace Decisions.Microsoft365.Exchange.Steps
             {
                 Message = new()
                 {
-                    Body = new Body
+                    Body = new MicrosoftEmailBody
                     {
-                        ContentType = contentType.ToString() ?? BodyType.Text.ToString(),
+                        ContentType = contentType.ToString() ?? MicrosoftBodyType.Text.ToString(),
                         Content = body
                     },
                     Subject = subject,
@@ -105,7 +101,7 @@ namespace Decisions.Microsoft365.Exchange.Steps
         
         public string SendReply(string userIdentifier, string? mailFolderId, string messageId,
             string[] to, string[]? cc, string subject, string? body,
-            BodyType? contentType, bool saveToSentItems)
+            MicrosoftBodyType? contentType, bool saveToSentItems)
         {
             string urlExtension = (!string.IsNullOrEmpty(mailFolderId))
                 ? $"{GetUrlExtension(userIdentifier)}/mailFolders/{mailFolderId}/messages/{messageId}/reply"
@@ -118,9 +114,9 @@ namespace Decisions.Microsoft365.Exchange.Steps
             {
                 Message = new()
                 {
-                    Body = new Body
+                    Body = new MicrosoftEmailBody
                     {
-                        ContentType = contentType.ToString() ?? BodyType.Text.ToString(),
+                        ContentType = contentType.ToString() ?? MicrosoftBodyType.Text.ToString(),
                         Content = body
                     },
                     Subject = subject,

@@ -2,7 +2,6 @@ using System.Net.Http.Json;
 using System.Text;
 using Decisions.Microsoft365.Exchange.API;
 using DecisionsFramework.Design.Flow;
-using Microsoft.Graph.Models;
 using Newtonsoft.Json;
 
 namespace Decisions.Microsoft365.Exchange.Steps
@@ -15,8 +14,7 @@ namespace Decisions.Microsoft365.Exchange.Steps
             NullValueHandling = NullValueHandling.Ignore
         };
         
-        // TODO: create new Event class called "ExchangeEvent"
-        public Event? CreateCalendarEvent(ExchangeCalendarEvent exchangeCalendarEvent, string userIdentifier, string? calendarId)
+        public MicrosoftEvent? CreateCalendarEvent(ExchangeCalendarEvent exchangeCalendarEvent, string userIdentifier, string? calendarId)
         {
             string urlExtension = $"/users/{userIdentifier}";
             urlExtension = (!string.IsNullOrEmpty(calendarId)) ? $"{urlExtension}/calendars/{calendarId}/events"
@@ -24,8 +22,7 @@ namespace Decisions.Microsoft365.Exchange.Steps
             
             JsonContent content = JsonContent.Create(exchangeCalendarEvent);
             
-            // TODO: return ExchangeEvent.JsonDeserialize(result);
-            return JsonConvert.DeserializeObject<Event>(GraphRest.Post(urlExtension, content));
+            return JsonConvert.DeserializeObject<MicrosoftEvent>(GraphRest.Post(urlExtension, content));
         }
 
         public string DeleteCalendarEvent(string userIdentifier, string eventId, string? calendarId, string? calendarGroupId)
@@ -53,16 +50,14 @@ namespace Decisions.Microsoft365.Exchange.Steps
             return ExchangeEventList.JsonDeserialize(result);
         }
 
-        // TODO: create new Event class called "ExchangeEvent"
-        public Event? UpdateCalendarEvent(string userIdentifier, string eventId, ExchangeUpdateCalendarEvent calendarEventExchangeUpdate)
+        public MicrosoftEvent? UpdateCalendarEvent(string userIdentifier, string eventId, ExchangeUpdateCalendarEvent calendarEventExchangeUpdate)
         {
             string urlExtension = $"/users/{userIdentifier}/calendar/events/{eventId}";
             
             HttpContent content = new StringContent(JsonConvert.SerializeObject(calendarEventExchangeUpdate, IgnoreNullValues),
                 Encoding.UTF8, "application/json");
             
-            // TODO: return ExchangeEvent.JsonDeserialize(result);
-            return JsonConvert.DeserializeObject<Event>(GraphRest.Patch(urlExtension, content));
+            return JsonConvert.DeserializeObject<MicrosoftEvent>(GraphRest.Patch(urlExtension, content));
         }
         
         public ExchangeCalendarList? ListCalendars(string userIdentifier)

@@ -8,5 +8,5 @@ public class ExchangeEmailComment
 {
     [WritableValue]
     [JsonProperty("comment")]
-    public string Comment { get; set; }
+    public string? Comment { get; set; }
 }
