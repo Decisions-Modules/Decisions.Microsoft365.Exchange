@@ -1,11 +1,12 @@
+using System;
 using DecisionsFramework;
 using DecisionsFramework.Design.ConfigurationStorage.Attributes;
 using Newtonsoft.Json;
 
-namespace Decisions.Microsoft365.Exchange.API
+namespace Decisions.Microsoft365.Exchange.API.Email
 {
     [Writable]
-    public class ExchangeContactList
+    public class Microsoft365EmailList
     {
         [WritableValue]
         [JsonProperty("@odata.context")]
@@ -13,13 +14,13 @@ namespace Decisions.Microsoft365.Exchange.API
 
         [WritableValue]
         [JsonProperty("value")]
-        public MicrosoftContact[]? Value { get; set; }
+        public Microsoft365Message[]? Value { get; set; }
         
-        public static ExchangeContactList? JsonDeserialize(string content)
+        public static Microsoft365EmailList? JsonDeserialize(string content)
         {
             try
             {
-                return JsonConvert.DeserializeObject<ExchangeContactList>(content);
+                return JsonConvert.DeserializeObject<Microsoft365EmailList>(content);
             }
             catch (Exception ex)
             {

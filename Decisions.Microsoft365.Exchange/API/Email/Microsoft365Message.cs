@@ -1,11 +1,13 @@
+using System;
 using System.Runtime.Serialization;
+using DecisionsFramework;
 using DecisionsFramework.Design.ConfigurationStorage.Attributes;
 using Newtonsoft.Json;
 
-namespace Decisions.Microsoft365.Exchange.API
+namespace Decisions.Microsoft365.Exchange.API.Email
 {
     [Writable]
-    public class MicrosoftMessage
+    public class Microsoft365Message
     {
         [WritableValue]
         [JsonProperty("@odata.context")]
@@ -101,19 +103,19 @@ namespace Decisions.Microsoft365.Exchange.API
 
         [WritableValue]
         [JsonProperty("body")]
-        public MicrosoftEmailBody? Body { get; set; }
+        public Microsoft365EmailBody? Body { get; set; }
 
         [WritableValue]
         [JsonProperty("sender")]
-        public MicrosoftEmailFrom? Sender { get; set; }
+        public Microsoft365EmailFrom? Sender { get; set; }
 
         [WritableValue]
         [JsonProperty("from")]
-        public MicrosoftEmailFrom? From { get; set; }
+        public Microsoft365EmailFrom? From { get; set; }
 
         [WritableValue]
         [JsonProperty("toRecipients")]
-        public MicrosoftEmailFrom[]? ToRecipients { get; set; }
+        public Microsoft365EmailFrom[]? ToRecipients { get; set; }
 
         [WritableValue]
         [JsonProperty("ccRecipients")]
@@ -129,11 +131,23 @@ namespace Decisions.Microsoft365.Exchange.API
 
         [WritableValue]
         [JsonProperty("flag")]
-        public MicrosoftEmailFlag? Flag { get; set; }
+        public Microsoft365EmailFlag? Flag { get; set; }
+        
+        public static Microsoft365Message? JsonDeserialize(string content)
+        {
+            try
+            {
+                return JsonConvert.DeserializeObject<Microsoft365Message>(content);
+            }
+            catch (Exception ex)
+            {
+                throw new BusinessRuleException("Could not deserialize result.", ex);
+            }
+        }
     }
 
     [Writable]
-    public class MicrosoftEmailBody
+    public class Microsoft365EmailBody
     {
         [WritableValue]
         [JsonProperty("contentType")]
@@ -145,7 +159,7 @@ namespace Decisions.Microsoft365.Exchange.API
     }
 
     [Writable]
-    public class MicrosoftEmailFlag
+    public class Microsoft365EmailFlag
     {
         [WritableValue]
         [JsonProperty("flagStatus")]
@@ -153,15 +167,15 @@ namespace Decisions.Microsoft365.Exchange.API
     }
 
     [Writable]
-    public class MicrosoftEmailFrom
+    public class Microsoft365EmailFrom
     {
         [WritableValue]
         [JsonProperty("emailAddress")]
-        public MicrosoftEmailAddress? EmailAddress { get; set; }
+        public Microsoft365EmailAddress? EmailAddress { get; set; }
     }
 
     [Writable]
-    public class MicrosoftEmailAddress
+    public class Microsoft365EmailAddress
     {
         [WritableValue]
         [JsonProperty("name")]
@@ -172,7 +186,7 @@ namespace Decisions.Microsoft365.Exchange.API
         public string? Address { get; set; }
     }
     
-    public enum MicrosoftBodyType {
+    public enum Microsoft365BodyType {
         [EnumMember(Value = "text")]
         Text,
         [EnumMember(Value = "html")]

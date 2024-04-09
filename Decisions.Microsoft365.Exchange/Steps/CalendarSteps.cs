@@ -1,6 +1,7 @@
+using System.Net.Http;
 using System.Net.Http.Json;
 using System.Text;
-using Decisions.Microsoft365.Exchange.API;
+using Decisions.Microsoft365.Exchange.API.Calendar;
 using DecisionsFramework.Design.Flow;
 using Newtonsoft.Json;
 
@@ -14,58 +15,52 @@ namespace Decisions.Microsoft365.Exchange.Steps
             NullValueHandling = NullValueHandling.Ignore
         };
         
-        public MicrosoftEvent? CreateCalendarEvent(ExchangeCalendarEvent exchangeCalendarEvent, string userIdentifier, string? calendarId)
+        public Microsoft365Event? CreateCalendarEvent(Microsoft365CalendarEvent microsoft365CalendarEvent, string userIdentifier, string? calendarId)
         {
-            string urlExtension = $"/users/{userIdentifier}";
-            urlExtension = (!string.IsNullOrEmpty(calendarId)) ? $"{urlExtension}/calendars/{calendarId}/events"
-                    : $"{urlExtension}/calendar/events";
+            string urlExtension = Microsoft365UrlHelper.GetCalendarEventUrl(userIdentifier, null, calendarId, null);
             
-            JsonContent content = JsonContent.Create(exchangeCalendarEvent);
+            JsonContent content = JsonContent.Create(microsoft365CalendarEvent);
+            string result = GraphRest.Post(urlExtension, content);
             
-            return JsonConvert.DeserializeObject<MicrosoftEvent>(GraphRest.Post(urlExtension, content));
+            return Microsoft365Event.JsonDeserialize(result);
         }
 
         public string DeleteCalendarEvent(string userIdentifier, string eventId, string? calendarId, string? calendarGroupId)
         {
-            string urlExtension = $"/users/{userIdentifier}";
-            urlExtension = (!string.IsNullOrEmpty(calendarId) && !string.IsNullOrEmpty(calendarGroupId))
-                ? $"{urlExtension}/calendarGroups/{calendarGroupId}/calendars/{calendarId}/events/{eventId}"
-                : (!string.IsNullOrEmpty(calendarId)) ? $"{urlExtension}/calendars/{calendarId}/events/{eventId}"
-                    : $"{urlExtension}/events/{eventId}";
+            string urlExtension = Microsoft365UrlHelper.GetCalendarEventUrl(userIdentifier, eventId, calendarId, calendarGroupId);
 
-            return GraphRest.Delete(urlExtension).StatusCode.ToString();
+            HttpResponseMessage response = GraphRest.Delete(urlExtension);
+
+            return response.StatusCode.ToString();
         }
         
-        public ExchangeEventList? ListCalendarEvents(string userIdentifier, string? calendarId, string? calendarGroupId)
+        public Microsoft365EventList? ListCalendarEvents(string userIdentifier, string? calendarId, string? calendarGroupId)
         {
-            string urlExtension = $"/users/{userIdentifier}";
-            if (!string.IsNullOrEmpty(calendarId))
-            {
-                urlExtension = (!string.IsNullOrEmpty(calendarGroupId)) ? $"{urlExtension}/calendarGroups/{calendarGroupId}/calendars/{calendarId}"
-                    : $"{urlExtension}/calendars/{calendarId}";
-            }
-            urlExtension += "/events";
-
+            string urlExtension = Microsoft365UrlHelper.GetCalendarEventUrl(userIdentifier, null, calendarId, calendarGroupId);
             string result = GraphRest.Get(urlExtension);
-            return ExchangeEventList.JsonDeserialize(result);
+            
+            return Microsoft365EventList.JsonDeserialize(result);
         }
 
-        public MicrosoftEvent? UpdateCalendarEvent(string userIdentifier, string eventId, ExchangeUpdateCalendarEvent calendarEventExchangeUpdate)
+        public Microsoft365Event? UpdateCalendarEvent(string userIdentifier, string eventId, string? calendarId,
+            string? calendarGroupId, Microsoft365UpdateCalendarEvent calendarEventMicrosoft365Update)
         {
-            string urlExtension = $"/users/{userIdentifier}/calendar/events/{eventId}";
+            string urlExtension = Microsoft365UrlHelper.GetCalendarEventUrl(userIdentifier, eventId, calendarId, calendarGroupId);
             
-            HttpContent content = new StringContent(JsonConvert.SerializeObject(calendarEventExchangeUpdate, IgnoreNullValues),
+            HttpContent content = new StringContent(JsonConvert.SerializeObject(calendarEventMicrosoft365Update, IgnoreNullValues),
                 Encoding.UTF8, "application/json");
+
+            string result = GraphRest.Patch(urlExtension, content);
             
-            return JsonConvert.DeserializeObject<MicrosoftEvent>(GraphRest.Patch(urlExtension, content));
+            return Microsoft365Event.JsonDeserialize(result);
         }
         
-        public ExchangeCalendarList? ListCalendars(string userIdentifier)
+        public Microsoft365CalendarList? ListCalendars(string userIdentifier)
         {
-            string urlExtension = $"/users/{userIdentifier}/calendars";
-
+            string urlExtension = $"{Microsoft365UrlHelper.GetUserUrl(userIdentifier)}/calendars";
             string result = GraphRest.Get(urlExtension);
-            return ExchangeCalendarList.JsonDeserialize(result);
+            
+            return Microsoft365CalendarList.JsonDeserialize(result);
         }
     }
 }

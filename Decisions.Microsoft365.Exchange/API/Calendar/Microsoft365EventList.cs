@@ -1,27 +1,26 @@
+using System;
 using DecisionsFramework;
 using DecisionsFramework.Design.ConfigurationStorage.Attributes;
-using Microsoft.Graph.Models;
 using Newtonsoft.Json;
 
-namespace Decisions.Microsoft365.Exchange.API
+namespace Decisions.Microsoft365.Exchange.API.Calendar
 {
     [Writable]
-    public class ExchangeMemberList
+    public class Microsoft365EventList
     {
         [WritableValue]
         [JsonProperty("@odata.context")]
         public string? OdataContext { get; set; }
 
-        /* TODO: Replace with own DirectoryObject class */
         [WritableValue]
         [JsonProperty("value")]
-        public DirectoryObject[]? Value { get; set; }
+        public Microsoft365Event[]? Value { get; set; }
         
-        public static ExchangeMemberList? JsonDeserialize(string content)
+        public static Microsoft365EventList? JsonDeserialize(string content)
         {
             try
             {
-                return JsonConvert.DeserializeObject<ExchangeMemberList>(content);
+                return JsonConvert.DeserializeObject<Microsoft365EventList>(content);
             }
             catch (Exception ex)
             {

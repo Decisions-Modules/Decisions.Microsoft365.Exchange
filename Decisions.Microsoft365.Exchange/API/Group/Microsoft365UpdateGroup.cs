@@ -1,10 +1,10 @@
 using DecisionsFramework.Design.ConfigurationStorage.Attributes;
 using Newtonsoft.Json;
 
-namespace Decisions.Microsoft365.Exchange.API
+namespace Decisions.Microsoft365.Exchange.API.Group
 {
     [Writable]
-    public class ExchangeUpdateMicrosoftGroup
+    public class Microsoft365UpdateGroup
     {
         [WritableValue]
         [JsonProperty("description")]
@@ -40,7 +40,7 @@ namespace Decisions.Microsoft365.Exchange.API
         
         [WritableValue]
         [JsonProperty("assignedLabels")]
-        public MicrosoftAssignedLabel[]? AssignedLabels { get; set; }
+        public Microsoft365AssignedLabel[]? AssignedLabels { get; set; }
         
         [WritableValue]
         [JsonProperty("autoSubscribeNewMembers")]
@@ -52,7 +52,7 @@ namespace Decisions.Microsoft365.Exchange.API
     }
 
     [Writable]
-    public class MicrosoftAssignedLabel
+    public class Microsoft365AssignedLabel
     {
         [WritableValue]
         [JsonProperty("displayName")]

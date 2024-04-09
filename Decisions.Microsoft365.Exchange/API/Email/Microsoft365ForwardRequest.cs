@@ -1,10 +1,10 @@
 using DecisionsFramework.Design.ConfigurationStorage.Attributes;
 using Newtonsoft.Json;
 
-namespace Decisions.Microsoft365.Exchange.API;
+namespace Decisions.Microsoft365.Exchange.API.Email;
 
 [Writable]
-public class ExchangeForwardRequest
+public class Microsoft365ForwardRequest
 {
     [WritableValue]
     [JsonProperty("comment")]
@@ -12,5 +12,5 @@ public class ExchangeForwardRequest
 
     [WritableValue]
     [JsonProperty("toRecipients")]
-    public ExchangeRecipient[]? ToRecipients { get; set; }
+    public Microsoft365Recipient[]? ToRecipients { get; set; }
 }

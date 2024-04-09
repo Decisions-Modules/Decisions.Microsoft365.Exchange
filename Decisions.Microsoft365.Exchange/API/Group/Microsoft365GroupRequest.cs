@@ -1,11 +1,12 @@
+using System;
 using DecisionsFramework;
 using DecisionsFramework.Design.ConfigurationStorage.Attributes;
 using Newtonsoft.Json;
 
-namespace Decisions.Microsoft365.Exchange.API
+namespace Decisions.Microsoft365.Exchange.API.Group
 {
     [Writable]
-    public class ExchangeGroupRequest
+    public class Microsoft365GroupRequest
     {
         [WritableValue]
         [JsonProperty("description")]

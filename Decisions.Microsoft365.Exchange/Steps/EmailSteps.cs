@@ -1,51 +1,54 @@
+using System;
+using System.Collections.Generic;
+using System.Net.Http;
 using System.Net.Http.Json;
-using Decisions.Microsoft365.Exchange.API;
+using Decisions.Microsoft365.Exchange.API.Email;
 using DecisionsFramework;
 using DecisionsFramework.Design.Flow;
-using Newtonsoft.Json;
 
 namespace Decisions.Microsoft365.Exchange.Steps
 {
     [AutoRegisterMethodsOnClass(true, "Integration/Microsoft365/Exchange/Email")]
     public class EmailSteps
     {
-        public MicrosoftMessage? GetEmail(string userIdentifier, string messageId)
+        public Microsoft365Message? GetEmail(string userIdentifier, string messageId)
         {
-            string urlExtension = $"{GetUrlExtension(userIdentifier)}/messages/{messageId}";
+            string urlExtension = $"{Microsoft365UrlHelper.GetUserUrl(userIdentifier)}/messages/{messageId}";
             string result = GraphRest.Get(urlExtension);
             
-            return JsonConvert.DeserializeObject<MicrosoftMessage>(result);
+            return Microsoft365Message.JsonDeserialize(result);
         }
         
-        public ExchangeEmailList? SearchEmails(string userIdentifier, string searchQuery)
+        public Microsoft365EmailList? SearchEmails(string userIdentifier, string searchQuery)
         {
             if (string.IsNullOrEmpty(searchQuery))
             {
                 throw new BusinessRuleException("searchQuery cannot be empty.");
             }
             
-            string urlExtension = $"{GetUrlExtension(userIdentifier)}/messages?$search={searchQuery}";
+            string urlExtension = $"{Microsoft365UrlHelper.GetUserUrl(userIdentifier)}/messages?$search={searchQuery}";
             string result = GraphRest.Get(urlExtension);
 
-            return ExchangeEmailList.JsonDeserialize(result);
+            return Microsoft365EmailList.JsonDeserialize(result);
         }
         
-        public ExchangeEmailList? ListEmails(string userIdentifier)
+        public Microsoft365EmailList? ListEmails(string userIdentifier)
         {
-            string urlExtension = $"{GetUrlExtension(userIdentifier)}/messages";
+            string urlExtension = $"{Microsoft365UrlHelper.GetUserUrl(userIdentifier)}/messages";
             string result = GraphRest.Get(urlExtension);
 
-            return ExchangeEmailList.JsonDeserialize(result);
+            return Microsoft365EmailList.JsonDeserialize(result);
         }
         
-        public ExchangeEmailList ListUnreadEmails(string userIdentifier)
+        public Microsoft365EmailList ListUnreadEmails(string userIdentifier)
         {
-            string urlExtension = $"{GetUrlExtension(userIdentifier)}/messages";
+            string urlExtension = $"{Microsoft365UrlHelper.GetUserUrl(userIdentifier)}/messages";
             string result = GraphRest.Get(urlExtension);
-            ExchangeEmailList? response = ExchangeEmailList.JsonDeserialize(result);
+            
+            Microsoft365EmailList? response = Microsoft365EmailList.JsonDeserialize(result);
 
-            List<MicrosoftMessage>? messages = new List<MicrosoftMessage>();
-            foreach (MicrosoftMessage email in response.Value)
+            List<Microsoft365Message>? messages = new List<Microsoft365Message>();
+            foreach (Microsoft365Message email in response.Value)
             {
                 if (email.IsRead is false or null)
                 {
@@ -53,7 +56,7 @@ namespace Decisions.Microsoft365.Exchange.Steps
                 }
             }
 
-            ExchangeEmailList? unreadEmails = new ExchangeEmailList
+            Microsoft365EmailList? unreadEmails = new Microsoft365EmailList
             {
                 OdataContext = response.OdataContext,
                 Value = messages.ToArray()
@@ -64,27 +67,29 @@ namespace Decisions.Microsoft365.Exchange.Steps
         
         public string MarkEmailAsRead(string userIdentifier, string messageId)
         {
-            string urlExtension = $"{GetUrlExtension(userIdentifier)}/messages/{messageId}";
-            JsonContent content = JsonContent.Create(new ExchangeEmailIsReadRequest{IsRead = true});
+            string urlExtension = $"{Microsoft365UrlHelper.GetUserUrl(userIdentifier)}/messages/{messageId}";
+            
+            JsonContent content = JsonContent.Create(new Microsoft365EmailIsReadRequest{IsRead = true});
+            HttpResponseMessage response = GraphRest.HttpResponsePatch(urlExtension, content);
 
-            return GraphRest.HttpResponsePatch(urlExtension, content).StatusCode.ToString();
+            return response.StatusCode.ToString();
         }
         
         public string SendEmail(string userIdentifier, string[] to, string[]? cc, string subject, string? body,
-            MicrosoftBodyType? contentType, bool saveToSentItems)
+            Microsoft365BodyType? contentType, bool saveToSentItems)
         {
-            string urlExtension = $"{GetUrlExtension(userIdentifier)}/sendMail";
+            string urlExtension = $"{Microsoft365UrlHelper.GetUserUrl(userIdentifier)}/sendMail";
             
-            ExchangeRecipient[] recipients = GetRecipients(to) ?? Array.Empty<ExchangeRecipient>();
-            ExchangeRecipient[]? ccRecipients = (cc != null) ? GetRecipients(cc) : Array.Empty<ExchangeRecipient>();
+            Microsoft365Recipient[] recipients = GetRecipients(to) ?? Array.Empty<Microsoft365Recipient>();
+            Microsoft365Recipient[]? ccRecipients = (cc != null) ? GetRecipients(cc) : Array.Empty<Microsoft365Recipient>();
 
-            ExchangeSendEmailRequest emailMessage = new()
+            Microsoft365SendEmailRequest emailMessage = new()
             {
                 Message = new()
                 {
-                    Body = new MicrosoftEmailBody
+                    Body = new Microsoft365EmailBody
                     {
-                        ContentType = contentType.ToString() ?? MicrosoftBodyType.Text.ToString(),
+                        ContentType = contentType.ToString() ?? Microsoft365BodyType.Text.ToString(),
                         Content = body
                     },
                     Subject = subject,
@@ -95,28 +100,27 @@ namespace Decisions.Microsoft365.Exchange.Steps
             };
             
             JsonContent content = JsonContent.Create(emailMessage);
+            HttpResponseMessage response = GraphRest.HttpResponsePost(urlExtension, content);
 
-            return GraphRest.HttpResponsePost(urlExtension, content).StatusCode.ToString();
+            return response.StatusCode.ToString();
         }
         
         public string SendReply(string userIdentifier, string? mailFolderId, string messageId,
             string[] to, string[]? cc, string subject, string? body,
-            MicrosoftBodyType? contentType, bool saveToSentItems)
+            Microsoft365BodyType? contentType, bool saveToSentItems)
         {
-            string urlExtension = (!string.IsNullOrEmpty(mailFolderId))
-                ? $"{GetUrlExtension(userIdentifier)}/mailFolders/{mailFolderId}/messages/{messageId}/reply"
-                : $"{GetUrlExtension(userIdentifier)}/messages/{messageId}/reply";
+            string urlExtension = $"{Microsoft365UrlHelper.GetEmailUrl(userIdentifier, messageId, mailFolderId)}/reply";
             
-            ExchangeRecipient[] recipients = GetRecipients(to) ?? Array.Empty<ExchangeRecipient>();
-            ExchangeRecipient[]? ccRecipients = (cc != null) ? GetRecipients(cc) : Array.Empty<ExchangeRecipient>();
+            Microsoft365Recipient[] recipients = GetRecipients(to) ?? Array.Empty<Microsoft365Recipient>();
+            Microsoft365Recipient[]? ccRecipients = (cc != null) ? GetRecipients(cc) : Array.Empty<Microsoft365Recipient>();
 
-            ExchangeSendEmailRequest emailMessage = new()
+            Microsoft365SendEmailRequest emailMessage = new()
             {
                 Message = new()
                 {
-                    Body = new MicrosoftEmailBody
+                    Body = new Microsoft365EmailBody
                     {
-                        ContentType = contentType.ToString() ?? MicrosoftBodyType.Text.ToString(),
+                        ContentType = contentType.ToString() ?? Microsoft365BodyType.Text.ToString(),
                         Content = body
                     },
                     Subject = subject,
@@ -127,56 +131,49 @@ namespace Decisions.Microsoft365.Exchange.Steps
             };
             
             JsonContent content = JsonContent.Create(emailMessage);
+            HttpResponseMessage response = GraphRest.HttpResponsePost(urlExtension, content);
 
-            return GraphRest.HttpResponsePost(urlExtension, content).StatusCode.ToString();
+            return response.StatusCode.ToString();
         }
         
         public string SendReplyToAll(string userIdentifier, string? mailFolderId, string messageId,
             string? comment)
         {
-            string urlExtension = (!string.IsNullOrEmpty(mailFolderId))
-                ? $"{GetUrlExtension(userIdentifier)}/mailFolders/{mailFolderId}/messages/{messageId}/replyAll"
-                : $"{GetUrlExtension(userIdentifier)}/messages/{messageId}/replyAll";
+            string urlExtension = $"{Microsoft365UrlHelper.GetEmailUrl(userIdentifier, messageId, mailFolderId)}/replyAll";
             
-            JsonContent content = JsonContent.Create(new ExchangeEmailComment{Comment = comment});
+            JsonContent content = JsonContent.Create(new Microsoft365EmailComment{Comment = comment});
+            HttpResponseMessage response = GraphRest.HttpResponsePost(urlExtension, content);
 
-            return GraphRest.HttpResponsePost(urlExtension, content).StatusCode.ToString();
+            return response.StatusCode.ToString();
         }
         
-        public string ForwardEmail(string userIdentifier, string? mailFolderId, string messageId, string[] to, string comment)
+        public string ForwardEmail(string userIdentifier, string messageId, string? mailFolderId, string[] to, string comment)
         {
-            string urlExtension = (!string.IsNullOrEmpty(mailFolderId))
-                ? $"{GetUrlExtension(userIdentifier)}/mailFolders/{mailFolderId}/messages/{messageId}/forward"
-                : $"{GetUrlExtension(userIdentifier)}/messages/{messageId}/forward";
+            string urlExtension = $"{Microsoft365UrlHelper.GetEmailUrl(userIdentifier, messageId, mailFolderId)}/forward";
 
-            ExchangeRecipient[] recipients = GetRecipients(to);
-
-            ExchangeForwardRequest exchangeForwardRequest = new()
+            Microsoft365Recipient[] recipients = GetRecipients(to);
+            Microsoft365ForwardRequest microsoft365ForwardRequest = new()
             {
                 Comment = comment,
                 ToRecipients = recipients
             };
             
-            JsonContent content = JsonContent.Create(exchangeForwardRequest);
+            JsonContent content = JsonContent.Create(microsoft365ForwardRequest);
+            HttpResponseMessage response = GraphRest.HttpResponsePost(urlExtension, content);
 
-            return GraphRest.HttpResponsePost(urlExtension, content).StatusCode.ToString();
-        }
-
-        private string GetUrlExtension(string userIdentifier)
-        {
-            return $"/users/{userIdentifier}";
+            return response.StatusCode.ToString();
         }
         
-        private ExchangeRecipient[]? GetRecipients(string[] emailAddresses)
+        private Microsoft365Recipient[]? GetRecipients(string[] emailAddresses)
         {
-            List<ExchangeRecipient> recipients = new List<ExchangeRecipient>();
+            List<Microsoft365Recipient> recipients = new List<Microsoft365Recipient>();
             if (emailAddresses.Length > 0)
             {
                 foreach (string emailAddress in emailAddresses)
                 {
-                    ExchangeRecipient recipient = new()
+                    Microsoft365Recipient recipient = new()
                     {
-                        EmailAddress = new ExchangeEmailAddress
+                        EmailAddress = new Microsoft365Address
                         {
                             Address = emailAddress
                         }
@@ -187,11 +184,11 @@ namespace Decisions.Microsoft365.Exchange.Steps
                 return recipients.ToArray();
             }
 
-            recipients.Add(new ExchangeRecipient
+            recipients.Add(new Microsoft365Recipient
             {
-                EmailAddress = new ExchangeEmailAddress
+                EmailAddress = new Microsoft365Address
                 {
-                    Address = String.Empty
+                    Address = string.Empty
                 }
             });
 

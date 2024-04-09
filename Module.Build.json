@@ -7,15 +7,7 @@
 		"ReferenceDlls":
 		[
 			"./Decisions.Microsoft365.Exchange/obj/Microsoft.Graph.dll",
-			"./Decisions.Microsoft365.Exchange/obj/Microsoft.Graph.Core.dll",
-			"./Decisions.Microsoft365.Exchange/obj/Microsoft.Kiota.Abstractions.dll",
-			"./Decisions.Microsoft365.Exchange/obj/Microsoft.Kiota.Authentication.Azure.dll",
-			"./Decisions.Microsoft365.Exchange/obj/Microsoft.Kiota.Http.HttpClientLibrary.dll",
-			"./Decisions.Microsoft365.Exchange/obj/Microsoft.Kiota.Serialization.Json.dll",
-			"./Decisions.Microsoft365.Exchange/obj/Microsoft.Kiota.Serialization.Text.dll",
-			"./Decisions.Microsoft365.Exchange/obj/Microsoft.Kiota.Serialization.Form.dll",
-			"./Decisions.Microsoft365.Exchange/obj/Microsoft.Kiota.Serialization.Multipart.dll",
-			"./Decisions.Microsoft365.Exchange/obj/Std.UriTemplate.dll"
+			"./Decisions.Microsoft365.Exchange/obj/Microsoft.Graph.Core.dll"
 		],
 		"CliDlls": "",
 		"WebPages": "",
@@ -25,7 +17,7 @@
 		"MsSqlScript": "",
 		"CustomImages": ""
     },
-    "Version": "8.19.0",
+    "Version": "8.20.0",
     "ImagePath": "./image.svg",
     "Description": ""
 }

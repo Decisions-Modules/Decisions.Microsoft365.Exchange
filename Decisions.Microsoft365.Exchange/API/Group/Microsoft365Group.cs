@@ -1,10 +1,13 @@
+using System;
+using Decisions.Microsoft365.Exchange.API.People;
+using DecisionsFramework;
 using DecisionsFramework.Design.ConfigurationStorage.Attributes;
 using Newtonsoft.Json;
 
-namespace Decisions.Microsoft365.Exchange.API
+namespace Decisions.Microsoft365.Exchange.API.Group
 {
     [Writable]
-    public class MicrosoftGroup
+    public class Microsoft365Group
     {
         [WritableValue]
         [JsonProperty("@odata.context")]
@@ -124,7 +127,7 @@ namespace Decisions.Microsoft365.Exchange.API
 
         [WritableValue]
         [JsonProperty("serviceProvisioningErrors")]
-        public MicrosoftServiceProvisioningError[]? ServiceProvisioningErrors { get; set; }
+        public Microsoft365ServiceProvisioningError[]? ServiceProvisioningErrors { get; set; }
 
         [WritableValue]
         [JsonProperty("theme")]
@@ -136,11 +139,23 @@ namespace Decisions.Microsoft365.Exchange.API
 
         [WritableValue]
         [JsonProperty("onPremisesProvisioningErrors")]
-        public MicrosoftOnPremisesProvisioningError[]? OnPremisesProvisioningErrors { get; set; }
+        public Microsoft365OnPremisesProvisioningError[]? OnPremisesProvisioningErrors { get; set; }
+        
+        public static Microsoft365Group? JsonDeserialize(string content)
+        {
+            try
+            {
+                return JsonConvert.DeserializeObject<Microsoft365Group>(content);
+            }
+            catch (Exception ex)
+            {
+                throw new BusinessRuleException("Could not deserialize result.", ex);
+            }
+        }
     }
     
     [Writable]
-    public class MicrosoftServiceProvisioningError
+    public class Microsoft365ServiceProvisioningError
     {
         [WritableValue]
         [JsonProperty("createdDateTime")]
@@ -156,7 +171,7 @@ namespace Decisions.Microsoft365.Exchange.API
     }
     
     [Writable]
-    public class MicrosoftOnPremisesProvisioningError
+    public class Microsoft365OnPremisesProvisioningError
     {
         [WritableValue]
         [JsonProperty("category")]

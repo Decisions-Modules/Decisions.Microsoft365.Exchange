@@ -1,10 +1,10 @@
 using DecisionsFramework.Design.ConfigurationStorage.Attributes;
 using Newtonsoft.Json;
 
-namespace Decisions.Microsoft365.Exchange.API
+namespace Decisions.Microsoft365.Exchange.API.People
 {
     [Writable]
-    public class MicrosoftPerson
+    public class Microsoft365Person
     {
         [WritableValue]
         [JsonProperty("birthday")]
@@ -24,7 +24,7 @@ namespace Decisions.Microsoft365.Exchange.API
 
         [WritableValue]
         [JsonProperty("scoredEmailAddresses")]
-        public MicrosoftScoredEmailAddress[]? ScoredEmailAddresses { get; set; }
+        public Microsoft365ScoredEmailAddress[]? ScoredEmailAddresses { get; set; }
 
         [WritableValue]
         [JsonProperty("givenName")]
@@ -56,15 +56,15 @@ namespace Decisions.Microsoft365.Exchange.API
 
         [WritableValue]
         [JsonProperty("personType")]
-        public MicrosoftPersonType? PersonType { get; set; }
+        public Microsoft365PersonType? PersonType { get; set; }
 
         [WritableValue]
         [JsonProperty("phones")]
-        public MicrosoftPhone[]? Phones { get; set; }
+        public Microsoft365Phone[]? Phones { get; set; }
 
         [WritableValue]
         [JsonProperty("postalAddresses")]
-        public MicrosoftExactLocation[]? PostalAddresses { get; set; }
+        public Microsoft365ExactLocation[]? PostalAddresses { get; set; }
 
         [WritableValue]
         [JsonProperty("profession")]
@@ -80,7 +80,7 @@ namespace Decisions.Microsoft365.Exchange.API
 
         [WritableValue]
         [JsonProperty("websites")]
-        public MicrosoftWebsite[]? Websites { get; set; }
+        public Microsoft365Website[]? Websites { get; set; }
 
         [WritableValue]
         [JsonProperty("yomiCompany")]
@@ -88,7 +88,7 @@ namespace Decisions.Microsoft365.Exchange.API
     }
     
     [Writable]
-    public class MicrosoftScoredEmailAddress
+    public class Microsoft365ScoredEmailAddress
     {
         [WritableValue]
         [JsonProperty("address")]
@@ -100,7 +100,7 @@ namespace Decisions.Microsoft365.Exchange.API
     }
     
     [Writable]
-    public class MicrosoftPersonType
+    public class Microsoft365PersonType
     {
         [WritableValue]
         [JsonProperty("class")]
@@ -112,7 +112,7 @@ namespace Decisions.Microsoft365.Exchange.API
     }
     
     [Writable]
-    public class MicrosoftPhone
+    public class Microsoft365Phone
     {
         [WritableValue]
         [JsonProperty("number")]
@@ -124,15 +124,15 @@ namespace Decisions.Microsoft365.Exchange.API
     }
     
     [Writable]
-    public class MicrosoftExactLocation
+    public class Microsoft365ExactLocation
     {
         [WritableValue]
         [JsonProperty("address")]
-        public MicrosoftPhysicalAddress Address { get; set; }
+        public Microsoft365PhysicalAddress Address { get; set; }
 
         [WritableValue]
         [JsonProperty("coordinates")]
-        public MicrosoftOutlookGeoCoordinates Coordinates { get; set; }
+        public Microsoft365GeoCoordinates Coordinates { get; set; }
 
         [WritableValue]
         [JsonProperty("displayName")]
@@ -160,7 +160,7 @@ namespace Decisions.Microsoft365.Exchange.API
     }
     
     [Writable]
-    public class MicrosoftOutlookGeoCoordinates
+    public class Microsoft365GeoCoordinates
     {
         [WritableValue]
         [JsonProperty("accuracy")]
@@ -184,7 +184,7 @@ namespace Decisions.Microsoft365.Exchange.API
     }
     
     [Writable]
-    public class MicrosoftWebsite
+    public class Microsoft365Website
     {
         [WritableValue]
         [JsonProperty("address")]

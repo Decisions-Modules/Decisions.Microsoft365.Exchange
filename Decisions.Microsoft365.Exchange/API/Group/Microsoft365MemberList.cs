@@ -1,11 +1,13 @@
+using System;
 using DecisionsFramework;
 using DecisionsFramework.Design.ConfigurationStorage.Attributes;
+using Microsoft.Graph.Models;
 using Newtonsoft.Json;
 
-namespace Decisions.Microsoft365.Exchange.API
+namespace Decisions.Microsoft365.Exchange.API.Group
 {
     [Writable]
-    public class ExchangeEventList
+    public class Microsoft365MemberList
     {
         [WritableValue]
         [JsonProperty("@odata.context")]
@@ -13,13 +15,13 @@ namespace Decisions.Microsoft365.Exchange.API
 
         [WritableValue]
         [JsonProperty("value")]
-        public MicrosoftEvent[]? Value { get; set; }
+        public DirectoryObject[]? Value { get; set; }
         
-        public static ExchangeEventList? JsonDeserialize(string content)
+        public static Microsoft365MemberList? JsonDeserialize(string content)
         {
             try
             {
-                return JsonConvert.DeserializeObject<ExchangeEventList>(content);
+                return JsonConvert.DeserializeObject<Microsoft365MemberList>(content);
             }
             catch (Exception ex)
             {

@@ -1,10 +1,13 @@
+using System;
+using Decisions.Microsoft365.Exchange.API.Email;
+using DecisionsFramework;
 using DecisionsFramework.Design.ConfigurationStorage.Attributes;
 using Newtonsoft.Json;
 
-namespace Decisions.Microsoft365.Exchange.API
+namespace Decisions.Microsoft365.Exchange.API.People
 {
     [Writable]
-    public class MicrosoftContact
+    public class Microsoft365Contact
     {
         [WritableValue]
         [JsonProperty("@odata.context")]
@@ -152,23 +155,35 @@ namespace Decisions.Microsoft365.Exchange.API
 
         [WritableValue]
         [JsonProperty("emailAddresses")]
-        public MicrosoftEmailAddress[]? EmailAddresses { get; set; }
+        public Microsoft365EmailAddress[]? EmailAddresses { get; set; }
 
         [WritableValue]
         [JsonProperty("homeAddress")]
-        public MicrosoftPhysicalAddress? HomeAddress { get; set; }
+        public Microsoft365PhysicalAddress? HomeAddress { get; set; }
 
         [WritableValue]
         [JsonProperty("businessAddress")]
-        public MicrosoftPhysicalAddress? BusinessAddress { get; set; }
+        public Microsoft365PhysicalAddress? BusinessAddress { get; set; }
 
         [WritableValue]
         [JsonProperty("otherAddress")]
-        public MicrosoftPhysicalAddress? OtherAddress { get; set; }
+        public Microsoft365PhysicalAddress? OtherAddress { get; set; }
+        
+        public static Microsoft365Contact? JsonDeserialize(string content)
+        {
+            try
+            {
+                return JsonConvert.DeserializeObject<Microsoft365Contact>(content);
+            }
+            catch (Exception ex)
+            {
+                throw new BusinessRuleException("Could not deserialize result.", ex);
+            }
+        }
     }
 
     [Writable]
-    public class MicrosoftPhysicalAddress
+    public class Microsoft365PhysicalAddress
     {
         [WritableValue]
         [JsonProperty("city")]

@@ -1,14 +1,14 @@
 using DecisionsFramework.Design.ConfigurationStorage.Attributes;
 using Newtonsoft.Json;
 
-namespace Decisions.Microsoft365.Exchange.API
+namespace Decisions.Microsoft365.Exchange.API.Email
 {
     [Writable]
-    public class ExchangeSendEmailRequest
+    public class Microsoft365SendEmailRequest
     {
         [WritableValue]
         [JsonProperty("message")]
-        public EmailMessage? Message { get; set; }
+        public Microsoft365EmailMessage? Message { get; set; }
 
         [WritableValue]
         [JsonProperty("saveToSentItems")]
@@ -16,7 +16,7 @@ namespace Decisions.Microsoft365.Exchange.API
     }
 
     [Writable]
-    public class EmailMessage
+    public class Microsoft365EmailMessage
     {
         [WritableValue]
         [JsonProperty("subject")]
@@ -24,27 +24,27 @@ namespace Decisions.Microsoft365.Exchange.API
 
         [WritableValue]
         [JsonProperty("body")]
-        public MicrosoftEmailBody? Body { get; set; }
+        public Microsoft365EmailBody? Body { get; set; }
 
         [WritableValue]
         [JsonProperty("toRecipients")]
-        public ExchangeRecipient[]? ToRecipients { get; set; }
+        public Microsoft365Recipient[]? ToRecipients { get; set; }
 
         [WritableValue]
         [JsonProperty("ccRecipients")]
-        public ExchangeRecipient[]? CcRecipients { get; set; }
+        public Microsoft365Recipient[]? CcRecipients { get; set; }
     }
 
     [Writable]
-    public class ExchangeRecipient
+    public class Microsoft365Recipient
     {
         [WritableValue]
         [JsonProperty("emailAddress")]
-        public ExchangeEmailAddress? EmailAddress { get; set; }
+        public Microsoft365Address? EmailAddress { get; set; }
     }
 
     [Writable]
-    public class ExchangeEmailAddress
+    public class Microsoft365Address
     {
         [WritableValue]
         [JsonProperty("address")]

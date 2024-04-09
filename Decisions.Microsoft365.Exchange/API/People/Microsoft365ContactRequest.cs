@@ -1,10 +1,11 @@
+using Decisions.Microsoft365.Exchange.API.Email;
 using DecisionsFramework.Design.ConfigurationStorage.Attributes;
 using Newtonsoft.Json;
 
-namespace Decisions.Microsoft365.Exchange.API
+namespace Decisions.Microsoft365.Exchange.API.People
 {
     [Writable]
-    public class ExchangeContactRequest
+    public class Microsoft365ContactRequest
     {
         [WritableValue]
         [JsonProperty("givenName")]
@@ -16,7 +17,7 @@ namespace Decisions.Microsoft365.Exchange.API
 
         [WritableValue]
         [JsonProperty("emailAddresses")]
-        public MicrosoftEmailAddress[]? EmailAddresses { get; set; }
+        public Microsoft365EmailAddress[]? EmailAddresses { get; set; }
 
         [WritableValue]
         [JsonProperty("businessPhones")]

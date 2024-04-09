@@ -1,21 +1,22 @@
+using System;
 using DecisionsFramework;
 using DecisionsFramework.Design.ConfigurationStorage.Attributes;
 using Newtonsoft.Json;
 
-namespace Decisions.Microsoft365.Exchange.API
+namespace Decisions.Microsoft365.Exchange.API.People
 {
     [Writable]
-    public class ExchangePeopleList
+    public class Microsoft365PeopleList
     {
         [WritableValue]
         [JsonProperty("value")]
-        public MicrosoftPerson[] Value { get; set; }
+        public Microsoft365Person[] Value { get; set; }
         
-        public static ExchangePeopleList? JsonDeserialize(string content)
+        public static Microsoft365PeopleList? JsonDeserialize(string content)
         {
             try
             {
-                return JsonConvert.DeserializeObject<ExchangePeopleList>(content);
+                return JsonConvert.DeserializeObject<Microsoft365PeopleList>(content);
             }
             catch (Exception ex)
             {

@@ -1,11 +1,12 @@
+using System;
 using DecisionsFramework;
 using DecisionsFramework.Design.ConfigurationStorage.Attributes;
 using Newtonsoft.Json;
 
-namespace Decisions.Microsoft365.Exchange.API
+namespace Decisions.Microsoft365.Exchange.API.Calendar
 {
     [Writable]
-    public class ExchangeEmailList
+    public class Microsoft365CalendarList
     {
         [WritableValue]
         [JsonProperty("@odata.context")]
@@ -13,13 +14,13 @@ namespace Decisions.Microsoft365.Exchange.API
 
         [WritableValue]
         [JsonProperty("value")]
-        public MicrosoftMessage[]? Value { get; set; }
+        public Microsoft365Calendar[]? Value { get; set; }
         
-        public static ExchangeEmailList? JsonDeserialize(string content)
+        public static Microsoft365CalendarList? JsonDeserialize(string content)
         {
             try
             {
-                return JsonConvert.DeserializeObject<ExchangeEmailList>(content);
+                return JsonConvert.DeserializeObject<Microsoft365CalendarList>(content);
             }
             catch (Exception ex)
             {

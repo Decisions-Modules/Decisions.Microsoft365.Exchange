@@ -1,10 +1,13 @@
+using System;
+using Decisions.Microsoft365.Exchange.API.Email;
+using DecisionsFramework;
 using DecisionsFramework.Design.ConfigurationStorage.Attributes;
 using Newtonsoft.Json;
 
-namespace Decisions.Microsoft365.Exchange.API
+namespace Decisions.Microsoft365.Exchange.API.Calendar
 {
     [Writable]
-    public class MicrosoftEvent
+    public class Microsoft365Event
     {
         [WritableValue]
         [JsonProperty("@odata.context")]
@@ -140,27 +143,27 @@ namespace Decisions.Microsoft365.Exchange.API
 
         [WritableValue]
         [JsonProperty("responseStatus")]
-        public MicrosoftEventStatus? ResponseStatus { get; set; }
+        public Microsoft365EventStatus? ResponseStatus { get; set; }
 
         [WritableValue]
         [JsonProperty("body")]
-        public MicrosoftEventBody? Body { get; set; }
+        public Microsoft365EventBody? Body { get; set; }
 
         [WritableValue]
         [JsonProperty("start")]
-        public MicrosoftEventTime? Start { get; set; }
+        public Microsoft365EventTime? Start { get; set; }
 
         [WritableValue]
         [JsonProperty("end")]
-        public MicrosoftEventTime? End { get; set; }
+        public Microsoft365EventTime? End { get; set; }
 
         [WritableValue]
         [JsonProperty("location")]
-        public Location? Location { get; set; }
+        public Microsoft365LocationName? Location { get; set; }
 
         [WritableValue]
         [JsonProperty("locations")]
-        public Location[]? Locations { get; set; }
+        public Microsoft365LocationName[]? Locations { get; set; }
 
         [WritableValue]
         [JsonProperty("recurrence")]
@@ -168,19 +171,31 @@ namespace Decisions.Microsoft365.Exchange.API
 
         [WritableValue]
         [JsonProperty("attendees")]
-        public MicrosoftEventAttendee[]? Attendees { get; set; }
+        public Microsoft365EventAttendee[]? Attendees { get; set; }
 
         [WritableValue]
         [JsonProperty("organizer")]
-        public MicrosoftEventOrganizer? Organizer { get; set; }
+        public Microsoft365EventOrganizer? Organizer { get; set; }
 
         [WritableValue]
         [JsonProperty("onlineMeeting")]
         public string? OnlineMeeting { get; set; }
+        
+        public static Microsoft365Event? JsonDeserialize(string content)
+        {
+            try
+            {
+                return JsonConvert.DeserializeObject<Microsoft365Event>(content);
+            }
+            catch (Exception ex)
+            {
+                throw new BusinessRuleException("Could not deserialize result.", ex);
+            }
+        }
     }
 
     [Writable]
-    public class MicrosoftEventAttendee
+    public class Microsoft365EventAttendee
     {
         [WritableValue]
         [JsonProperty("type")]
@@ -188,15 +203,15 @@ namespace Decisions.Microsoft365.Exchange.API
 
         [WritableValue]
         [JsonProperty("status")]
-        public MicrosoftEventStatus? Status { get; set; }
+        public Microsoft365EventStatus? Status { get; set; }
 
         [WritableValue]
         [JsonProperty("emailAddress")]
-        public MicrosoftEmailAddress? EmailAddress { get; set; }
+        public Microsoft365EmailAddress? EmailAddress { get; set; }
     }
 
     [Writable]
-    public class MicrosoftEventStatus
+    public class Microsoft365EventStatus
     {
         [WritableValue]
         [JsonProperty("response")]
@@ -208,7 +223,7 @@ namespace Decisions.Microsoft365.Exchange.API
     }
 
     [Writable]
-    public class MicrosoftEventBody
+    public class Microsoft365EventBody
     {
         [WritableValue]
         [JsonProperty("contentType")]
@@ -220,7 +235,7 @@ namespace Decisions.Microsoft365.Exchange.API
     }
 
     [Writable]
-    public class MicrosoftEventTime
+    public class Microsoft365EventTime
     {
         [WritableValue]
         [JsonProperty("dateTime")]
@@ -232,7 +247,7 @@ namespace Decisions.Microsoft365.Exchange.API
     }
 
     [Writable]
-    public class MicrosoftLocation
+    public class Microsoft365Location
     {
         [WritableValue]
         [JsonProperty("displayName")]
@@ -252,10 +267,10 @@ namespace Decisions.Microsoft365.Exchange.API
     }
 
     [Writable]
-    public class MicrosoftEventOrganizer
+    public class Microsoft365EventOrganizer
     {
         [WritableValue]
         [JsonProperty("emailAddress")]
-        public MicrosoftEmailAddress? EmailAddress { get; set; }
+        public Microsoft365EmailAddress? EmailAddress { get; set; }
     }
 }

@@ -1,10 +1,10 @@
 using DecisionsFramework.Design.ConfigurationStorage.Attributes;
 using Newtonsoft.Json;
 
-namespace Decisions.Microsoft365.Exchange.API
+namespace Decisions.Microsoft365.Exchange.API.Calendar
 {
     [Writable]
-    public class ExchangeUpdateCalendarEvent
+    public class Microsoft365UpdateCalendarEvent
     {
         [WritableValue]
         [JsonProperty("subject")]
@@ -12,27 +12,27 @@ namespace Decisions.Microsoft365.Exchange.API
 
         [WritableValue]
         [JsonProperty("body")]
-        public EventBody? Body { get; set; }
+        public Microsoft365EventBody? Body { get; set; }
 
         [WritableValue]
         [JsonProperty("start")]
-        public DateTimeZone? Start { get; set; }
+        public Microsoft365DateTimeZone? Start { get; set; }
 
         [WritableValue]
         [JsonProperty("end")]
-        public DateTimeZone? End { get; set; }
+        public Microsoft365DateTimeZone? End { get; set; }
         
         [WritableValue]
         [JsonProperty("location")]
-        public Location? Location { get; set; }
+        public Microsoft365LocationName? Location { get; set; }
         
         [WritableValue]
         [JsonProperty("locations")]
-        public Location[]? Locations { get; set; }
+        public Microsoft365LocationName[]? Locations { get; set; }
 
         [WritableValue]
         [JsonProperty("attendees")]
-        public MicrosoftEventAttendee[]? Attendees { get; set; }
+        public Microsoft365EventAttendee[]? Attendees { get; set; }
         
         [WritableValue]
         [JsonProperty("allowNewTimeProposals")]
@@ -40,7 +40,7 @@ namespace Decisions.Microsoft365.Exchange.API
         
         [WritableValue]
         [JsonProperty("recurrence")]
-        public Recurrence? Recurrence { get; set; }
+        public Microsoft365Recurrence? Recurrence { get; set; }
         
         [WritableValue]
         [JsonProperty("reminderMinutesBeforeStart")]

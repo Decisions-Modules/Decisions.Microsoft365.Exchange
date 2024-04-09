@@ -1,85 +1,79 @@
+using System.Net.Http;
 using System.Net.Http.Json;
-using Decisions.Microsoft365.Exchange.API;
+using Decisions.Microsoft365.Exchange.API.People;
 using DecisionsFramework;
 using DecisionsFramework.Design.Flow;
-using Newtonsoft.Json;
 
 namespace Decisions.Microsoft365.Exchange.Steps
 {
     [AutoRegisterMethodsOnClass(true, "Integration/Microsoft365/Exchange/Contacts")]
     public class ContactSteps
     {
-        public string CreateContact(string userIdentifier, string? contactFolderId, ExchangeContactRequest contactRequest)
+        public string CreateContact(string userIdentifier, string? contactFolderId, Microsoft365ContactRequest contactRequest)
         {
-            string urlExtension = $"/users/{userIdentifier}";
-            urlExtension = (!string.IsNullOrEmpty(contactFolderId)) ? $"{urlExtension}/contactFolders/{contactFolderId}/contacts" : $"{urlExtension}/contacts";
+            string urlExtension = Microsoft365UrlHelper.GetContactUrl(userIdentifier, null, contactFolderId, null);
             
             JsonContent content = JsonContent.Create(contactRequest);
+            HttpResponseMessage response = GraphRest.HttpResponsePost(urlExtension, content);
             
-            return GraphRest.HttpResponsePost(urlExtension, content).StatusCode.ToString();
+            return response.StatusCode.ToString();
         }
 
         public string DeleteContact(string userIdentifier, string? contactId)
         {
-            string urlExtension = $"/users/{userIdentifier}/contacts/{contactId}";
+            string urlExtension = Microsoft365UrlHelper.GetContactUrl(userIdentifier, contactId, null, null);
+            HttpResponseMessage response = GraphRest.Delete(urlExtension);
             
-            return GraphRest.Delete(urlExtension).StatusCode.ToString();
+            return response.StatusCode.ToString();
         }
 
-        public MicrosoftContact? ResolveContact(string userIdentifier, string contactId,
+        public Microsoft365Contact? GetContact(string userIdentifier, string contactId,
             string? contactFolderId, string? childFolderId, string? expandQuery)
         {
-            string urlExtension = $"/users/{userIdentifier}";
-            
-            urlExtension = (!string.IsNullOrEmpty(contactFolderId) && !string.IsNullOrEmpty(childFolderId))
-                ? $"{urlExtension}/contactFolders/{contactFolderId}/childFolders/{childFolderId}"
-                : (!string.IsNullOrEmpty(contactFolderId))
-                    ? $"{urlExtension}/contactFolders/{contactFolderId}"
-                    : urlExtension;
-            
-            urlExtension = (!string.IsNullOrEmpty(expandQuery))
-                ? $"{urlExtension}/contacts/{contactId}?$expand={expandQuery}"
-                : $"{urlExtension}/contacts/{contactId}";
-            
+            string urlExtension = Microsoft365UrlHelper.GetContactUrl(userIdentifier, contactId, contactFolderId, childFolderId);
+
+            if (!string.IsNullOrEmpty(expandQuery))
+            {
+                urlExtension = $"?$expand={expandQuery}";
+            }
+
             string result = GraphRest.Get(urlExtension);
             
-            return JsonConvert.DeserializeObject<MicrosoftContact>(result);
+            return Microsoft365Contact.JsonDeserialize(result);
         }
 
-        public ExchangeContactList? ListContacts(string userIdentifier)
+        public Microsoft365ContactList? ListContacts(string userIdentifier)
         {
-            string urlExtension = $"/users/{userIdentifier}/contacts";
-            
+            string urlExtension = Microsoft365UrlHelper.GetContactUrl(userIdentifier, null, null, null);
             string result = GraphRest.Get(urlExtension);
             
-            return ExchangeContactList.JsonDeserialize(result);
+            return Microsoft365ContactList.JsonDeserialize(result);
         }
         
-        public ExchangeContactList? SearchContacts(string userIdentifier, string searchQuery)
+        public Microsoft365ContactList? SearchContacts(string userIdentifier, string searchQuery)
         {
             if (string.IsNullOrEmpty(searchQuery))
             {
                 throw new BusinessRuleException("searchQuery cannot be empty.");
             }
             
-            string urlExtension = $"/users/{userIdentifier}/contacts?$search={searchQuery}";
-            
+            string urlExtension = $"{Microsoft365UrlHelper.GetContactUrl(userIdentifier, null, null, null)}?$search={searchQuery}";
             string result = GraphRest.Get(urlExtension);
-            return ExchangeContactList.JsonDeserialize(result);
+            
+            return Microsoft365ContactList.JsonDeserialize(result);
         }
 
-        public ExchangePeopleList? SearchGlobalContacts(string userIdentifier, string searchQuery)
+        public Microsoft365PeopleList? SearchGlobalContacts(string userIdentifier, string searchQuery)
         {
             if (string.IsNullOrEmpty(searchQuery))
             {
                 throw new BusinessRuleException("searchQuery cannot be empty.");
             }
             
-            string urlExtension = $"/users/{userIdentifier}/people?$search={searchQuery}";
-            
+            string urlExtension = $"{Microsoft365UrlHelper.GetUserUrl(userIdentifier)}/people?$search={searchQuery}";
             string result = GraphRest.Get(urlExtension);
             
-            return ExchangePeopleList.JsonDeserialize(result);
+            return Microsoft365PeopleList.JsonDeserialize(result);
         }
     }
 }
