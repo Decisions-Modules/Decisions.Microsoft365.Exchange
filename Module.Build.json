@@ -2,20 +2,10 @@
     "Resources": {
 		"NoComponents": true,
 		"CoreServicesDlls":[
-			"./Decisions.Exchange365/obj/Decisions.Exchange365.dll"
+			"./Decisions.Microsoft365.Exchange/obj/Decisions.Microsoft365.Exchange.dll"
 		],
 		"ReferenceDlls":
 		[
-			"./Decisions.Exchange365/obj/Microsoft.Graph.dll",
-			"./Decisions.Exchange365/obj/Microsoft.Graph.Core.dll",
-			"./Decisions.Exchange365/obj/Microsoft.Kiota.Abstractions.dll",
-			"./Decisions.Exchange365/obj/Microsoft.Kiota.Authentication.Azure.dll",
-			"./Decisions.Exchange365/obj/Microsoft.Kiota.Http.HttpClientLibrary.dll",
-			"./Decisions.Exchange365/obj/Microsoft.Kiota.Serialization.Json.dll",
-			"./Decisions.Exchange365/obj/Microsoft.Kiota.Serialization.Text.dll",
-			"./Decisions.Exchange365/obj/Microsoft.Kiota.Serialization.Form.dll",
-			"./Decisions.Exchange365/obj/Microsoft.Kiota.Serialization.Multipart.dll",
-			"./Decisions.Exchange365/obj/Std.UriTemplate.dll"
 		],
 		"CliDlls": "",
 		"WebPages": "",
@@ -25,7 +15,12 @@
 		"MsSqlScript": "",
 		"CustomImages": ""
     },
-    "Version": "8.19.0",
-    "ImagePath": "./image.svg",
+	"Dependencies": [{
+			"ModuleName": "../Decisions.Microsoft365.Common/Decisions.Microsoft365.Common.zip",
+			"AutoInstall": true
+		}
+	],
+    "Version": "9.0.0",
+    "ImagePath": "./image.png",
     "Description": ""
 }

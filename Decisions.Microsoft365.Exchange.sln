@@ -1,6 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Decisions.Exchange365", "Decisions.Exchange365\Decisions.Exchange365.csproj", "{64E05579-496E-4502-87A9-574AE30D3413}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Decisions.Microsoft365.Exchange", "Decisions.Microsoft365.Exchange\Decisions.Microsoft365.Exchange.csproj", "{B2DAE5B4-0319-4DFD-88D7-A6399E6ECFF7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -1,1 +1,1 @@
-# Decisions.Exchange365
+# Decisions.Microsoft365.Exchange
