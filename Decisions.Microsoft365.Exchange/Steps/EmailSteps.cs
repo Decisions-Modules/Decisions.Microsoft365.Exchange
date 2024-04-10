@@ -1,7 +1,5 @@
-using System;
-using System.Collections.Generic;
-using System.Net.Http;
 using System.Net.Http.Json;
+using Decisions.Microsoft365.Common;
 using Decisions.Microsoft365.Common.API.Email;
 using DecisionsFramework;
 using DecisionsFramework.Design.Flow;
@@ -16,7 +14,7 @@ namespace Decisions.Microsoft365.Exchange.Steps
             string urlExtension = $"{Microsoft365UrlHelper.GetUserUrl(userIdentifier)}/messages/{messageId}";
             string result = GraphRest.Get(urlExtension);
             
-            return Microsoft365Message.JsonDeserialize(result);
+            return JsonHelper<Microsoft365Message?>.JsonDeserialize(result);
         }
         
         public Microsoft365EmailList? SearchEmails(string userIdentifier, string searchQuery)
@@ -29,7 +27,7 @@ namespace Decisions.Microsoft365.Exchange.Steps
             string urlExtension = $"{Microsoft365UrlHelper.GetUserUrl(userIdentifier)}/messages?$search={searchQuery}";
             string result = GraphRest.Get(urlExtension);
 
-            return Microsoft365EmailList.JsonDeserialize(result);
+            return JsonHelper<Microsoft365EmailList?>.JsonDeserialize(result);
         }
         
         public Microsoft365EmailList? ListEmails(string userIdentifier)
@@ -37,7 +35,7 @@ namespace Decisions.Microsoft365.Exchange.Steps
             string urlExtension = $"{Microsoft365UrlHelper.GetUserUrl(userIdentifier)}/messages";
             string result = GraphRest.Get(urlExtension);
 
-            return Microsoft365EmailList.JsonDeserialize(result);
+            return JsonHelper<Microsoft365EmailList?>.JsonDeserialize(result);
         }
         
         public Microsoft365EmailList ListUnreadEmails(string userIdentifier)
@@ -45,7 +43,7 @@ namespace Decisions.Microsoft365.Exchange.Steps
             string urlExtension = $"{Microsoft365UrlHelper.GetUserUrl(userIdentifier)}/messages";
             string result = GraphRest.Get(urlExtension);
             
-            Microsoft365EmailList? response = Microsoft365EmailList.JsonDeserialize(result);
+            Microsoft365EmailList? response = JsonHelper<Microsoft365EmailList?>.JsonDeserialize(result);
 
             List<Microsoft365Message>? messages = new List<Microsoft365Message>();
             foreach (Microsoft365Message email in response.Value)

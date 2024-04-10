@@ -1,6 +1,6 @@
-using System.Net.Http;
 using System.Net.Http.Json;
 using System.Text;
+using Decisions.Microsoft365.Common;
 using Decisions.Microsoft365.Common.API.Calendar;
 using DecisionsFramework.Design.Flow;
 using Newtonsoft.Json;
@@ -22,7 +22,7 @@ namespace Decisions.Microsoft365.Exchange.Steps
             JsonContent content = JsonContent.Create(microsoft365CalendarEvent);
             string result = GraphRest.Post(urlExtension, content);
             
-            return Microsoft365Event.JsonDeserialize(result);
+            return JsonHelper<Microsoft365Event?>.JsonDeserialize(result);
         }
 
         public string DeleteCalendarEvent(string userIdentifier, string eventId, string? calendarId, string? calendarGroupId)
@@ -39,7 +39,7 @@ namespace Decisions.Microsoft365.Exchange.Steps
             string urlExtension = Microsoft365UrlHelper.GetCalendarEventUrl(userIdentifier, null, calendarId, calendarGroupId);
             string result = GraphRest.Get(urlExtension);
             
-            return Microsoft365EventList.JsonDeserialize(result);
+            return JsonHelper<Microsoft365EventList?>.JsonDeserialize(result);
         }
 
         public Microsoft365Event? UpdateCalendarEvent(string userIdentifier, string eventId, string? calendarId,
@@ -52,7 +52,7 @@ namespace Decisions.Microsoft365.Exchange.Steps
 
             string result = GraphRest.Patch(urlExtension, content);
             
-            return Microsoft365Event.JsonDeserialize(result);
+            return JsonHelper<Microsoft365Event?>.JsonDeserialize(result);
         }
         
         public Microsoft365CalendarList? ListCalendars(string userIdentifier)
@@ -60,7 +60,7 @@ namespace Decisions.Microsoft365.Exchange.Steps
             string urlExtension = $"{Microsoft365UrlHelper.GetUserUrl(userIdentifier)}/calendars";
             string result = GraphRest.Get(urlExtension);
             
-            return Microsoft365CalendarList.JsonDeserialize(result);
+            return JsonHelper<Microsoft365CalendarList?>.JsonDeserialize(result);
         }
     }
 }

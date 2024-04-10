@@ -1,5 +1,5 @@
-using System.Net.Http;
 using System.Net.Http.Json;
+using Decisions.Microsoft365.Common;
 using Decisions.Microsoft365.Common.API.People;
 using DecisionsFramework;
 using DecisionsFramework.Design.Flow;
@@ -39,7 +39,7 @@ namespace Decisions.Microsoft365.Exchange.Steps
 
             string result = GraphRest.Get(urlExtension);
             
-            return Microsoft365Contact.JsonDeserialize(result);
+            return JsonHelper<Microsoft365Contact?>.JsonDeserialize(result);
         }
 
         public Microsoft365ContactList? ListContacts(string userIdentifier)
@@ -47,7 +47,7 @@ namespace Decisions.Microsoft365.Exchange.Steps
             string urlExtension = Microsoft365UrlHelper.GetContactUrl(userIdentifier, null, null, null);
             string result = GraphRest.Get(urlExtension);
             
-            return Microsoft365ContactList.JsonDeserialize(result);
+            return JsonHelper<Microsoft365ContactList?>.JsonDeserialize(result);
         }
         
         public Microsoft365ContactList? SearchContacts(string userIdentifier, string searchQuery)
@@ -60,7 +60,7 @@ namespace Decisions.Microsoft365.Exchange.Steps
             string urlExtension = $"{Microsoft365UrlHelper.GetContactUrl(userIdentifier, null, null, null)}?$search={searchQuery}";
             string result = GraphRest.Get(urlExtension);
             
-            return Microsoft365ContactList.JsonDeserialize(result);
+            return JsonHelper<Microsoft365ContactList?>.JsonDeserialize(result);
         }
 
         public Microsoft365PeopleList? SearchGlobalContacts(string userIdentifier, string searchQuery)
@@ -73,7 +73,7 @@ namespace Decisions.Microsoft365.Exchange.Steps
             string urlExtension = $"{Microsoft365UrlHelper.GetUserUrl(userIdentifier)}/people?$search={searchQuery}";
             string result = GraphRest.Get(urlExtension);
             
-            return Microsoft365PeopleList.JsonDeserialize(result);
+            return JsonHelper<Microsoft365PeopleList?>.JsonDeserialize(result);
         }
     }
 }

@@ -6,8 +6,6 @@
 		],
 		"ReferenceDlls":
 		[
-			"./Decisions.Microsoft365.Exchange/obj/Microsoft.Graph.dll",
-			"./Decisions.Microsoft365.Exchange/obj/Microsoft.Graph.Core.dll"
 		],
 		"CliDlls": "",
 		"WebPages": "",
@@ -18,7 +16,7 @@
 		"CustomImages": ""
     },
 	"Dependencies": [{
-			"ModuleName": "Decisions.Microsoft365.Common",
+			"ModuleName": "../Decisions.Microsoft365.Common/Decisions.Microsoft365.Common.zip",
 			"AutoInstall": true
 		}
 	],

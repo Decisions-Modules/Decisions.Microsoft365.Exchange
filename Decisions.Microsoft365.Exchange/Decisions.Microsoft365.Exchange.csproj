@@ -8,15 +8,14 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="DecisionsSDK" Version="8.19.0" />
-    <PackageReference Include="Microsoft.Graph" Version="5.34.0" />
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-  </ItemGroup>
-
-  <ItemGroup>
     <Reference Include="Decisions.Microsoft365.Common">
       <HintPath>..\..\Decisions.Microsoft365.Common\Decisions.Microsoft365.Common\bin\Debug\net8.0\win-x64\Decisions.Microsoft365.Common.dll</HintPath>
     </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="DecisionsSDK" Version="8.19.0" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
   </ItemGroup>
 
 </Project>

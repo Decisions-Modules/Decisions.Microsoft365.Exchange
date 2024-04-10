@@ -1,6 +1,3 @@
-using System;
-using System.Net.Http;
-using System.Threading.Tasks;
 using Decisions.OAuth;
 using DecisionsFramework;
 using DecisionsFramework.Data.ORMapper;

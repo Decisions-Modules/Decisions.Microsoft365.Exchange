@@ -1,8 +1,6 @@
-using System;
-using System.Collections.Generic;
-using System.Net.Http;
 using System.Net.Http.Json;
 using System.Text;
+using Decisions.Microsoft365.Common;
 using Decisions.Microsoft365.Common.API.Group;
 using DecisionsFramework.Design.Flow;
 using DecisionsFramework.ServiceLayer;
@@ -23,7 +21,7 @@ namespace Decisions.Microsoft365.Exchange.Steps
             string urlExtension = (filterUnified) ? $"{Microsoft365UrlHelper.GetGroupUrl(null)}$filter=groupTypes/any(c:c+eq+'Unified')" : Microsoft365UrlHelper.GetGroupUrl(null);
             string result = GraphRest.Get(urlExtension);
             
-            return Microsoft365GroupList.JsonDeserialize(result);
+            return JsonHelper<Microsoft365GroupList?>.JsonDeserialize(result);
         }
         
         public Microsoft365Group? CreateGroup(string? description, string displayName, string[]? groupTypes,
@@ -47,7 +45,7 @@ namespace Decisions.Microsoft365.Exchange.Steps
             HttpContent content = new StringContent(groupRequest.JsonSerialize(), Encoding.UTF8, "application/json");
             string result = GraphRest.Post(Microsoft365UrlHelper.GetGroupUrl(null), content);
 
-            return Microsoft365Group.JsonDeserialize(result);
+            return JsonHelper<Microsoft365Group?>.JsonDeserialize(result);
         }
         
         public Microsoft365Group? GetGroup(string groupId)
@@ -55,7 +53,7 @@ namespace Decisions.Microsoft365.Exchange.Steps
             string urlExtension = Microsoft365UrlHelper.GetGroupUrl(groupId);
             string result = GraphRest.Get(urlExtension);
 
-            return Microsoft365Group.JsonDeserialize(result);
+            return JsonHelper<Microsoft365Group?>.JsonDeserialize(result);
         }
         
         public string UpdateGroup(string groupId, Microsoft365UpdateGroup group)
@@ -82,7 +80,7 @@ namespace Decisions.Microsoft365.Exchange.Steps
             string urlExtension = $"{Microsoft365UrlHelper.GetGroupUrl(groupId)}/members";
             string result = GraphRest.Get(urlExtension);
             
-            return Microsoft365MemberList.JsonDeserialize(result);
+            return JsonHelper<Microsoft365MemberList?>.JsonDeserialize(result);
         }
         
         public string AddMembers(string groupId, string[] directoryObjectIds)
@@ -119,7 +117,7 @@ namespace Decisions.Microsoft365.Exchange.Steps
             string urlExtension = $"{Microsoft365UrlHelper.GetUserUrl(userIdentifier)}/memberOf";
             string result = GraphRest.Get(urlExtension);
             
-            return Microsoft365GroupCollection.JsonDeserialize(result);
+            return JsonHelper<Microsoft365GroupCollection?>.JsonDeserialize(result);
         }
 
         private string[]? GetUserUrlStrings(string[] users)

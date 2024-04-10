@@ -1,6 +1,6 @@
 namespace Decisions.Microsoft365.Exchange
 {
-    public class Microsoft365UrlHelper
+    public static class Microsoft365UrlHelper
     {
         internal static string GetUserUrl(string userIdentifier)
         {
@@ -54,11 +54,9 @@ namespace Decisions.Microsoft365.Exchange
                 urlExtension = $"{urlExtension}/calendars/{calendarId}";
             }
 
-            urlExtension = (!string.IsNullOrEmpty(eventId))
+            return (!string.IsNullOrEmpty(eventId))
                 ? $"{urlExtension}/events/{eventId}"
                 : $"{urlExtension}/events";
-
-            return urlExtension;
         }
     }
 }
