@@ -20,7 +20,7 @@
 			"AutoInstall": true
 		}
 	],
-    "Version": "9.20",
-    "ImagePath": "./image.png",
+    "Version": "8.20.0",
+    "ImagePath": "./exchange.png",
     "Description": ""
 }
