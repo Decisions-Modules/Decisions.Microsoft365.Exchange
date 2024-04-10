@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Net.Http.Json;
-using Decisions.Microsoft365.Exchange.API.Email;
+using Decisions.Microsoft365.Common.API.Email;
 using DecisionsFramework;
 using DecisionsFramework.Design.Flow;
 

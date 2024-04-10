@@ -1,6 +1,6 @@
 using System.Net.Http;
 using System.Net.Http.Json;
-using Decisions.Microsoft365.Exchange.API.People;
+using Decisions.Microsoft365.Common.API.People;
 using DecisionsFramework;
 using DecisionsFramework.Design.Flow;
 

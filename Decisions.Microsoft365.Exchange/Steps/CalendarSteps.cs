@@ -1,7 +1,7 @@
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Text;
-using Decisions.Microsoft365.Exchange.API.Calendar;
+using Decisions.Microsoft365.Common.API.Calendar;
 using DecisionsFramework.Design.Flow;
 using Newtonsoft.Json;
 

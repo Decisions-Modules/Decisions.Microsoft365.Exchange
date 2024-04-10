@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Text;
-using Decisions.Microsoft365.Exchange.API.Group;
+using Decisions.Microsoft365.Common.API.Group;
 using DecisionsFramework.Design.Flow;
 using DecisionsFramework.ServiceLayer;
 using Newtonsoft.Json;

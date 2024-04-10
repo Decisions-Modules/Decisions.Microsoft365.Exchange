@@ -17,6 +17,11 @@
 		"MsSqlScript": "",
 		"CustomImages": ""
     },
+	"Dependencies": [{
+			"ModuleName": "../../output/modules/Decisions.Microsoft365.Common.zip",
+			"AutoInstall": true
+		}
+	],
     "Version": "8.20.0",
     "ImagePath": "./image.svg",
     "Description": ""
