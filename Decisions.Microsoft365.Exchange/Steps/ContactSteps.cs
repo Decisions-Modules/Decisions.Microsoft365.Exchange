@@ -9,26 +9,27 @@ namespace Decisions.Microsoft365.Exchange.Steps
     [AutoRegisterMethodsOnClass(true, "Integration/Microsoft365/Exchange/Contacts")]
     public class ContactSteps
     {
-        public string CreateContact(string userIdentifier, string? contactFolderId, Microsoft365ContactRequest contactRequest)
+        public string CreateContact(ExchangeSettings? settingsOverride, string userIdentifier,
+            string? contactFolderId, Microsoft365ContactRequest contactRequest)
         {
             string urlExtension = Microsoft365UrlHelper.GetContactUrl(userIdentifier, null, contactFolderId, null);
             
             JsonContent content = JsonContent.Create(contactRequest);
-            HttpResponseMessage response = GraphRest.HttpResponsePost(urlExtension, content);
+            HttpResponseMessage response = GraphRest.HttpResponsePost(settingsOverride, urlExtension, content);
             
             return response.StatusCode.ToString();
         }
 
-        public string DeleteContact(string userIdentifier, string? contactId)
+        public string DeleteContact(ExchangeSettings? settingsOverride, string userIdentifier, string? contactId)
         {
             string urlExtension = Microsoft365UrlHelper.GetContactUrl(userIdentifier, contactId, null, null);
-            HttpResponseMessage response = GraphRest.Delete(urlExtension);
+            HttpResponseMessage response = GraphRest.Delete(settingsOverride, urlExtension);
             
             return response.StatusCode.ToString();
         }
 
-        public Microsoft365Contact? GetContact(string userIdentifier, string contactId,
-            string? contactFolderId, string? childFolderId, string? expandQuery)
+        public Microsoft365Contact? GetContact(ExchangeSettings? settingsOverride, string userIdentifier,
+            string contactId, string? contactFolderId, string? childFolderId, string? expandQuery)
         {
             string urlExtension = Microsoft365UrlHelper.GetContactUrl(userIdentifier, contactId, contactFolderId, childFolderId);
 
@@ -37,20 +38,21 @@ namespace Decisions.Microsoft365.Exchange.Steps
                 urlExtension = $"?$expand={expandQuery}";
             }
 
-            string result = GraphRest.Get(urlExtension);
+            string result = GraphRest.Get(settingsOverride, urlExtension);
             
             return JsonHelper<Microsoft365Contact?>.JsonDeserialize(result);
         }
 
-        public Microsoft365ContactList? ListContacts(string userIdentifier)
+        public Microsoft365ContactList? ListContacts(ExchangeSettings? settingsOverride, string userIdentifier)
         {
             string urlExtension = Microsoft365UrlHelper.GetContactUrl(userIdentifier, null, null, null);
-            string result = GraphRest.Get(urlExtension);
+            string result = GraphRest.Get(settingsOverride, urlExtension);
             
             return JsonHelper<Microsoft365ContactList?>.JsonDeserialize(result);
         }
         
-        public Microsoft365ContactList? SearchContacts(string userIdentifier, string searchQuery)
+        public Microsoft365ContactList? SearchContacts(ExchangeSettings? settingsOverride,
+            string userIdentifier, string searchQuery)
         {
             if (string.IsNullOrEmpty(searchQuery))
             {
@@ -58,12 +60,13 @@ namespace Decisions.Microsoft365.Exchange.Steps
             }
             
             string urlExtension = $"{Microsoft365UrlHelper.GetContactUrl(userIdentifier, null, null, null)}?$search={searchQuery}";
-            string result = GraphRest.Get(urlExtension);
+            string result = GraphRest.Get(settingsOverride, urlExtension);
             
             return JsonHelper<Microsoft365ContactList?>.JsonDeserialize(result);
         }
 
-        public Microsoft365PeopleList? SearchGlobalContacts(string userIdentifier, string searchQuery)
+        public Microsoft365PeopleList? SearchGlobalContacts(ExchangeSettings? settingsOverride,
+            string userIdentifier, string searchQuery)
         {
             if (string.IsNullOrEmpty(searchQuery))
             {
@@ -71,7 +74,7 @@ namespace Decisions.Microsoft365.Exchange.Steps
             }
             
             string urlExtension = $"{Microsoft365UrlHelper.GetUserUrl(userIdentifier)}/people?$search={searchQuery}";
-            string result = GraphRest.Get(urlExtension);
+            string result = GraphRest.Get(settingsOverride, urlExtension);
             
             return JsonHelper<Microsoft365PeopleList?>.JsonDeserialize(result);
         }
