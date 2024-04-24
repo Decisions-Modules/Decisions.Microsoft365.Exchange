@@ -9,15 +9,17 @@ namespace Decisions.Microsoft365.Exchange.Steps
     [AutoRegisterMethodsOnClass(true, "Integration/Microsoft365/Exchange/Email")]
     public class EmailSteps
     {
-        public Microsoft365Message? GetEmail(string userIdentifier, string messageId)
+        public Microsoft365Message? GetEmail(ExchangeSettings? settingsOverride,
+            string userIdentifier, string messageId)
         {
             string urlExtension = $"{Microsoft365UrlHelper.GetUserUrl(userIdentifier)}/messages/{messageId}";
-            string result = GraphRest.Get(urlExtension);
+            string result = GraphRest.Get(settingsOverride, urlExtension);
             
             return JsonHelper<Microsoft365Message?>.JsonDeserialize(result);
         }
         
-        public Microsoft365EmailList? SearchEmails(string userIdentifier, string searchQuery)
+        public Microsoft365EmailList? SearchEmails(ExchangeSettings? settingsOverride,
+            string userIdentifier, string searchQuery)
         {
             if (string.IsNullOrEmpty(searchQuery))
             {
@@ -25,23 +27,23 @@ namespace Decisions.Microsoft365.Exchange.Steps
             }
             
             string urlExtension = $"{Microsoft365UrlHelper.GetUserUrl(userIdentifier)}/messages?$search={searchQuery}";
-            string result = GraphRest.Get(urlExtension);
+            string result = GraphRest.Get(settingsOverride, urlExtension);
 
             return JsonHelper<Microsoft365EmailList?>.JsonDeserialize(result);
         }
         
-        public Microsoft365EmailList? ListEmails(string userIdentifier)
+        public Microsoft365EmailList? ListEmails(ExchangeSettings? settingsOverride, string userIdentifier)
         {
             string urlExtension = $"{Microsoft365UrlHelper.GetUserUrl(userIdentifier)}/messages";
-            string result = GraphRest.Get(urlExtension);
+            string result = GraphRest.Get(settingsOverride, urlExtension);
 
             return JsonHelper<Microsoft365EmailList?>.JsonDeserialize(result);
         }
         
-        public Microsoft365EmailList ListUnreadEmails(string userIdentifier)
+        public Microsoft365EmailList ListUnreadEmails(ExchangeSettings? settingsOverride, string userIdentifier)
         {
             string urlExtension = $"{Microsoft365UrlHelper.GetUserUrl(userIdentifier)}/messages";
-            string result = GraphRest.Get(urlExtension);
+            string result = GraphRest.Get(settingsOverride, urlExtension);
             
             Microsoft365EmailList? response = JsonHelper<Microsoft365EmailList?>.JsonDeserialize(result);
 
@@ -63,18 +65,18 @@ namespace Decisions.Microsoft365.Exchange.Steps
             return unreadEmails;
         }
         
-        public string MarkEmailAsRead(string userIdentifier, string messageId)
+        public string MarkEmailAsRead(ExchangeSettings? settingsOverride, string userIdentifier, string messageId)
         {
             string urlExtension = $"{Microsoft365UrlHelper.GetUserUrl(userIdentifier)}/messages/{messageId}";
             
             JsonContent content = JsonContent.Create(new Microsoft365EmailIsReadRequest{IsRead = true});
-            HttpResponseMessage response = GraphRest.HttpResponsePatch(urlExtension, content);
+            HttpResponseMessage response = GraphRest.HttpResponsePatch(settingsOverride, urlExtension, content);
 
             return response.StatusCode.ToString();
         }
         
-        public string SendEmail(string userIdentifier, string[] to, string[]? cc, string subject, string? body,
-            Microsoft365BodyType? contentType, bool saveToSentItems)
+        public string SendEmail(ExchangeSettings? settingsOverride, string userIdentifier,
+            string[] to, string[]? cc, string subject, string? body, Microsoft365BodyType? contentType, bool saveToSentItems)
         {
             string urlExtension = $"{Microsoft365UrlHelper.GetUserUrl(userIdentifier)}/sendMail";
             
@@ -98,13 +100,13 @@ namespace Decisions.Microsoft365.Exchange.Steps
             };
             
             JsonContent content = JsonContent.Create(emailMessage);
-            HttpResponseMessage response = GraphRest.HttpResponsePost(urlExtension, content);
+            HttpResponseMessage response = GraphRest.HttpResponsePost(settingsOverride, urlExtension, content);
 
             return response.StatusCode.ToString();
         }
         
-        public string SendReply(string userIdentifier, string? mailFolderId, string messageId,
-            string[] to, string[]? cc, string subject, string? body,
+        public string SendReply(ExchangeSettings? settingsOverride, string userIdentifier,
+            string? mailFolderId, string messageId, string[] to, string[]? cc, string subject, string? body,
             Microsoft365BodyType? contentType, bool saveToSentItems)
         {
             string urlExtension = $"{Microsoft365UrlHelper.GetEmailUrl(userIdentifier, messageId, mailFolderId)}/reply";
@@ -129,23 +131,24 @@ namespace Decisions.Microsoft365.Exchange.Steps
             };
             
             JsonContent content = JsonContent.Create(emailMessage);
-            HttpResponseMessage response = GraphRest.HttpResponsePost(urlExtension, content);
+            HttpResponseMessage response = GraphRest.HttpResponsePost(settingsOverride, urlExtension, content);
 
             return response.StatusCode.ToString();
         }
         
-        public string SendReplyToAll(string userIdentifier, string? mailFolderId, string messageId,
-            string? comment)
+        public string SendReplyToAll(ExchangeSettings? settingsOverride, string userIdentifier,
+            string? mailFolderId, string messageId, string? comment)
         {
             string urlExtension = $"{Microsoft365UrlHelper.GetEmailUrl(userIdentifier, messageId, mailFolderId)}/replyAll";
             
             JsonContent content = JsonContent.Create(new Microsoft365EmailComment{Comment = comment});
-            HttpResponseMessage response = GraphRest.HttpResponsePost(urlExtension, content);
+            HttpResponseMessage response = GraphRest.HttpResponsePost(settingsOverride, urlExtension, content);
 
             return response.StatusCode.ToString();
         }
         
-        public string ForwardEmail(string userIdentifier, string messageId, string? mailFolderId, string[] to, string comment)
+        public string ForwardEmail(ExchangeSettings? settingsOverride, string userIdentifier,
+            string messageId, string? mailFolderId, string[] to, string comment)
         {
             string urlExtension = $"{Microsoft365UrlHelper.GetEmailUrl(userIdentifier, messageId, mailFolderId)}/forward";
 
@@ -157,7 +160,7 @@ namespace Decisions.Microsoft365.Exchange.Steps
             };
             
             JsonContent content = JsonContent.Create(microsoft365ForwardRequest);
-            HttpResponseMessage response = GraphRest.HttpResponsePost(urlExtension, content);
+            HttpResponseMessage response = GraphRest.HttpResponsePost(settingsOverride, urlExtension, content);
 
             return response.StatusCode.ToString();
         }
