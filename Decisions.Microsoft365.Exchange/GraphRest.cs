@@ -9,23 +9,23 @@ namespace Decisions.Microsoft365.Exchange
 {
     public class GraphRest
     {
-        public static HttpResponseMessage HttpResponsePost(string urlExtension, HttpContent content)
+        public static HttpResponseMessage HttpResponsePost(ExchangeSettings? settingsOverride, string urlExtension, HttpContent content)
         {
-            return SendHttpRequest(urlExtension, content, HttpMethod.Post);
+            return SendHttpRequest(settingsOverride, urlExtension, content, HttpMethod.Post);
         }
         
-        public static string Post(string urlExtension, HttpContent content)
+        public static string Post(ExchangeSettings? settingsOverride, string urlExtension, HttpContent content)
         {
-            HttpResponseMessage response = HttpResponsePost(urlExtension, content);
+            HttpResponseMessage response = HttpResponsePost(settingsOverride, urlExtension, content);
             Task<string> resultTask = response.Content.ReadAsStringAsync();
             resultTask.Wait();
 
             return resultTask.Result;
         }
         
-        public static string Get(string urlExtension)
+        public static string Get(ExchangeSettings? settingsOverride, string urlExtension)
         {
-            HttpResponseMessage response = SendHttpRequest(urlExtension, null, HttpMethod.Get);
+            HttpResponseMessage response = SendHttpRequest(settingsOverride, urlExtension, null, HttpMethod.Get);
 
             try
             {
@@ -40,31 +40,31 @@ namespace Decisions.Microsoft365.Exchange
             }
         }
         
-        public static HttpResponseMessage HttpResponsePatch(string urlExtension, HttpContent content)
+        public static HttpResponseMessage HttpResponsePatch(ExchangeSettings? settingsOverride, string urlExtension, HttpContent content)
         {
-            return SendHttpRequest(urlExtension, content, HttpMethod.Patch);
+            return SendHttpRequest(settingsOverride, urlExtension, content, HttpMethod.Patch);
         }
 
-        public static string Patch(string urlExtension, HttpContent content)
+        public static string Patch(ExchangeSettings? settingsOverride, string urlExtension, HttpContent content)
         {
-            HttpResponseMessage response = HttpResponsePatch(urlExtension, content);
+            HttpResponseMessage response = HttpResponsePatch(settingsOverride, urlExtension, content);
             Task<string> resultTask = response.Content.ReadAsStringAsync();
             resultTask.Wait();
 
             return resultTask.Result;
         }
         
-        public static HttpResponseMessage Delete(string urlExtension)
+        public static HttpResponseMessage Delete(ExchangeSettings? settingsOverride, string urlExtension)
         {
-            return SendHttpRequest(urlExtension, null, HttpMethod.Delete);
+            return SendHttpRequest(settingsOverride, urlExtension, null, HttpMethod.Delete);
         }
         
-        private static HttpResponseMessage SendHttpRequest(string urlExtension, HttpContent? content,
-            HttpMethod httpMethod)
+        private static HttpResponseMessage SendHttpRequest(ExchangeSettings? settingsOverride, string urlExtension,
+            HttpContent? content, HttpMethod httpMethod)
         {
-            ExchangeSettings settings = ModuleSettingsAccessor<ExchangeSettings>.GetSettings();
+            ExchangeSettings settings = GetSettings(settingsOverride);
             OAuthToken token = new ORM<OAuthToken>().Fetch(settings.TokenId);
-
+            
             string url = $"{settings.GraphUrl}{urlExtension}";
             string tokenHeader = OAuth2Utility.GetOAuth2HeaderValue(token.TokenData, "Bearer");
 
@@ -89,6 +89,23 @@ namespace Decisions.Microsoft365.Exchange
             {
                 throw new BusinessRuleException("The request was unsuccessful.", ex);
             }
+        }
+
+        private static ExchangeSettings GetSettings(ExchangeSettings? settingsOverride)
+        {
+            ExchangeSettings settings = ModuleSettingsAccessor<ExchangeSettings>.GetSettings();
+
+            if (!string.IsNullOrEmpty(settingsOverride?.TokenId))
+            {
+                settings.TokenId = settingsOverride.TokenId;
+            }
+            
+            if (!string.IsNullOrEmpty(settingsOverride?.GraphUrl))
+            {
+                settings.GraphUrl = settingsOverride.GraphUrl;
+            }
+
+            return settings;
         }
     }
 }
