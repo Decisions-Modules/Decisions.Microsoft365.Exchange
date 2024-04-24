@@ -62,11 +62,10 @@ namespace Decisions.Microsoft365.Exchange
         private static HttpResponseMessage SendHttpRequest(ExchangeSettings? settingsOverride, string urlExtension,
             HttpContent? content, HttpMethod httpMethod)
         {
-            ExchangeSettings settings = ModuleSettingsAccessor<ExchangeSettings>.GetSettings();
-            OAuthToken token = new ORM<OAuthToken>().Fetch(!string.IsNullOrEmpty(settingsOverride?.TokenId)
-                ? settingsOverride.TokenId : settings.TokenId);
+            ExchangeSettings settings = GetSettings(settingsOverride);
+            OAuthToken token = new ORM<OAuthToken>().Fetch(settings.TokenId);
             
-            string url = (!string.IsNullOrEmpty(settingsOverride?.GraphUrl) ? settingsOverride.GraphUrl : settings.GraphUrl) + urlExtension;
+            string url = $"{settings.GraphUrl}{urlExtension}";
             string tokenHeader = OAuth2Utility.GetOAuth2HeaderValue(token.TokenData, "Bearer");
 
             HttpClient client = HttpClients.GetHttpClient(HttpClientAuthType.Normal);
@@ -90,6 +89,23 @@ namespace Decisions.Microsoft365.Exchange
             {
                 throw new BusinessRuleException("The request was unsuccessful.", ex);
             }
+        }
+
+        private static ExchangeSettings GetSettings(ExchangeSettings? settingsOverride)
+        {
+            ExchangeSettings settings = ModuleSettingsAccessor<ExchangeSettings>.GetSettings();
+
+            if (!string.IsNullOrEmpty(settingsOverride?.TokenId))
+            {
+                settings.TokenId = settingsOverride.TokenId;
+            }
+            
+            if (!string.IsNullOrEmpty(settingsOverride?.GraphUrl))
+            {
+                settings.GraphUrl = settingsOverride.GraphUrl;
+            }
+
+            return settings;
         }
     }
 }
