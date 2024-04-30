@@ -48,7 +48,7 @@ namespace Decisions.Microsoft365.Exchange.Steps
             Microsoft365EmailList? response = JsonHelper<Microsoft365EmailList?>.JsonDeserialize(result);
 
             List<Microsoft365Message>? messages = new List<Microsoft365Message>();
-            foreach (Microsoft365Message email in response.Value)
+            foreach (Microsoft365Message email in response?.Value!)
             {
                 if (email.IsRead is false or null)
                 {
@@ -152,7 +152,7 @@ namespace Decisions.Microsoft365.Exchange.Steps
         {
             string urlExtension = $"{Microsoft365UrlHelper.GetEmailUrl(userIdentifier, messageId, mailFolderId)}/forward";
 
-            Microsoft365Recipient[] recipients = GetRecipients(to);
+            Microsoft365Recipient[] recipients = GetRecipients(to)!;
             Microsoft365ForwardRequest microsoft365ForwardRequest = new()
             {
                 Comment = comment,
@@ -164,7 +164,7 @@ namespace Decisions.Microsoft365.Exchange.Steps
 
             return response.StatusCode.ToString();
         }
-        
+
         private Microsoft365Recipient[]? GetRecipients(string[] emailAddresses)
         {
             List<Microsoft365Recipient> recipients = new List<Microsoft365Recipient>();
