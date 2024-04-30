@@ -10,7 +10,7 @@ namespace Decisions.Microsoft365.Exchange.Steps
     [AutoRegisterMethodsOnClass(true, "Integration/Microsoft365/Exchange/Calendar")]
     public class CalendarSteps
     {
-        private static readonly JsonSerializerSettings IgnoreNullValues = new()
+        private static JsonSerializerSettings IgnoreNullValues = new()
         {
             NullValueHandling = NullValueHandling.Ignore
         };

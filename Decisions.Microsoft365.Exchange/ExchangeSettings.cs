@@ -41,12 +41,12 @@ namespace Decisions.Microsoft365.Exchange
         }
 
         [ORMField]
-        private string? tokenId;
+        private string tokenId;
 
         [WritableValue]
         [PropertyClassification(new string[] { "Credentials" }, "OAuth Token", 1)]
         [TokenPicker]
-        public string? TokenId
+        public string TokenId
         {
             get => tokenId;
             set
@@ -56,7 +56,7 @@ namespace Decisions.Microsoft365.Exchange
             }
         }
         
-        public event PropertyChangedEventHandler? PropertyChanged;
+        public event PropertyChangedEventHandler PropertyChanged;
 
         private void OnPropertyChanged(string propertyName)
         {
@@ -66,11 +66,6 @@ namespace Decisions.Microsoft365.Exchange
         public ValidationIssue[] GetValidationIssues()
         {
             List<ValidationIssue> issues = new List<ValidationIssue>();
-
-            if (string.IsNullOrEmpty(GraphUrl))
-            {
-                issues.Add(new ValidationIssue("GraphURL cannot be empty."));
-            }
 
             return issues.ToArray();
         }
