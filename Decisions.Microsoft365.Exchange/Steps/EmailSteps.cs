@@ -165,7 +165,7 @@ namespace Decisions.Microsoft365.Exchange.Steps
             return response.StatusCode.ToString();
         }
 
-        protected virtual Microsoft365Recipient[]? GetRecipients(string[] emailAddresses)
+        private Microsoft365Recipient[]? GetRecipients(string[] emailAddresses)
         {
             List<Microsoft365Recipient> recipients = new List<Microsoft365Recipient>();
             if (emailAddresses.Length > 0)
