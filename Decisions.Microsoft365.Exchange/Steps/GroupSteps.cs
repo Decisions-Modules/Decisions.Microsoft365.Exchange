@@ -33,7 +33,7 @@ namespace Decisions.Microsoft365.Exchange.Steps
         {
             if (string.IsNullOrEmpty(mailNickname))
             {
-                throw new BusinessRuleException("mailNickname cannot be null or empty. Please set a unique nickname.");
+                throw new BusinessRuleException("Mail Nickname cannot be null or empty. Please set a unique Mail Nickname.");
             }
             
             mailEnabled ??= false;
