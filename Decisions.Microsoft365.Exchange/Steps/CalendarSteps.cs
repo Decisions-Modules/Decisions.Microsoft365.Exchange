@@ -3,6 +3,7 @@ using System.Text;
 using Decisions.Microsoft365.Common;
 using Decisions.Microsoft365.Common.API.Calendar;
 using DecisionsFramework.Design.Flow;
+using DecisionsFramework.Design.Properties;
 using Newtonsoft.Json;
 
 namespace Decisions.Microsoft365.Exchange.Steps
@@ -15,8 +16,8 @@ namespace Decisions.Microsoft365.Exchange.Steps
             NullValueHandling = NullValueHandling.Ignore
         };
         
-        public Microsoft365Event? CreateCalendarEvent(ExchangeSettings? settingsOverride,
-            Microsoft365CalendarEvent microsoft365CalendarEvent, string userIdentifier, string? calendarId)
+        public Microsoft365Event? CreateCalendarEvent(Microsoft365CalendarEvent microsoft365CalendarEvent, string userIdentifier, string? calendarId,
+            [PropertyClassification(0, "Settings Override", "Settings")] ExchangeSettings? settingsOverride)
         {
             string urlExtension = Microsoft365UrlHelper.GetCalendarEventUrl(userIdentifier, null, calendarId, null);
             
@@ -26,8 +27,8 @@ namespace Decisions.Microsoft365.Exchange.Steps
             return JsonHelper<Microsoft365Event?>.JsonDeserialize(result);
         }
 
-        public string DeleteCalendarEvent(ExchangeSettings? settingsOverride, string userIdentifier, string eventId,
-            string? calendarId, string? calendarGroupId)
+        public string DeleteCalendarEvent(string userIdentifier, string eventId, string? calendarId, string? calendarGroupId,
+            [PropertyClassification(0, "Settings Override", "Settings")] ExchangeSettings? settingsOverride)
         {
             string urlExtension = Microsoft365UrlHelper.GetCalendarEventUrl(userIdentifier, eventId, calendarId, calendarGroupId);
 
@@ -36,8 +37,8 @@ namespace Decisions.Microsoft365.Exchange.Steps
             return response.StatusCode.ToString();
         }
         
-        public Microsoft365EventList? ListCalendarEvents(ExchangeSettings? settingsOverride,
-            string userIdentifier, string? calendarId, string? calendarGroupId)
+        public Microsoft365EventList? ListCalendarEvents(string userIdentifier, string? calendarId, string? calendarGroupId,
+            [PropertyClassification(0, "Settings Override", "Settings")] ExchangeSettings? settingsOverride)
         {
             string urlExtension = Microsoft365UrlHelper.GetCalendarEventUrl(userIdentifier, null, calendarId, calendarGroupId);
             string result = GraphRest.Get(settingsOverride, urlExtension);
@@ -45,9 +46,9 @@ namespace Decisions.Microsoft365.Exchange.Steps
             return JsonHelper<Microsoft365EventList?>.JsonDeserialize(result);
         }
 
-        public Microsoft365Event? UpdateCalendarEvent(ExchangeSettings? settingsOverride,
-            string userIdentifier, string eventId, string? calendarId, string? calendarGroupId,
-            Microsoft365UpdateCalendarEvent calendarEventMicrosoft365Update)
+        public Microsoft365Event? UpdateCalendarEvent(string userIdentifier, string eventId, string? calendarId, string?
+            calendarGroupId, Microsoft365UpdateCalendarEvent calendarEventMicrosoft365Update,
+            [PropertyClassification(0, "Settings Override", "Settings")] ExchangeSettings? settingsOverride)
         {
             string urlExtension = Microsoft365UrlHelper.GetCalendarEventUrl(userIdentifier, eventId, calendarId, calendarGroupId);
             
@@ -59,7 +60,8 @@ namespace Decisions.Microsoft365.Exchange.Steps
             return JsonHelper<Microsoft365Event?>.JsonDeserialize(result);
         }
         
-        public Microsoft365CalendarList? ListCalendars(ExchangeSettings? settingsOverride, string userIdentifier)
+        public Microsoft365CalendarList? ListCalendars(string userIdentifier,
+            [PropertyClassification(0, "Settings Override", "Settings")] ExchangeSettings? settingsOverride)
         {
             string urlExtension = $"{Microsoft365UrlHelper.GetUserUrl(userIdentifier)}/calendars";
             string result = GraphRest.Get(settingsOverride, urlExtension);

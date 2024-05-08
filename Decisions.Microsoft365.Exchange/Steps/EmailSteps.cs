@@ -3,14 +3,15 @@ using Decisions.Microsoft365.Common;
 using Decisions.Microsoft365.Common.API.Email;
 using DecisionsFramework;
 using DecisionsFramework.Design.Flow;
+using DecisionsFramework.Design.Properties;
 
 namespace Decisions.Microsoft365.Exchange.Steps
 {
     [AutoRegisterMethodsOnClass(true, "Integration/Microsoft365/Exchange/Email")]
     public class EmailSteps
     {
-        public Microsoft365Message? GetEmail(ExchangeSettings? settingsOverride,
-            string userIdentifier, string messageId)
+        public Microsoft365Message? GetEmail(string userIdentifier, string messageId,
+            [PropertyClassification(0, "Settings Override", "Settings")] ExchangeSettings? settingsOverride)
         {
             string urlExtension = $"{Microsoft365UrlHelper.GetUserUrl(userIdentifier)}/messages/{messageId}";
             string result = GraphRest.Get(settingsOverride, urlExtension);
@@ -18,8 +19,8 @@ namespace Decisions.Microsoft365.Exchange.Steps
             return JsonHelper<Microsoft365Message?>.JsonDeserialize(result);
         }
         
-        public Microsoft365EmailList? SearchEmails(ExchangeSettings? settingsOverride,
-            string userIdentifier, string searchQuery)
+        public Microsoft365EmailList? SearchEmails(string userIdentifier, string searchQuery,
+            [PropertyClassification(0, "Settings Override", "Settings")] ExchangeSettings? settingsOverride)
         {
             if (string.IsNullOrEmpty(searchQuery))
             {
@@ -32,7 +33,8 @@ namespace Decisions.Microsoft365.Exchange.Steps
             return JsonHelper<Microsoft365EmailList?>.JsonDeserialize(result);
         }
         
-        public Microsoft365EmailList? ListEmails(ExchangeSettings? settingsOverride, string userIdentifier)
+        public Microsoft365EmailList? ListEmails(string userIdentifier,
+            [PropertyClassification(0, "Settings Override", "Settings")] ExchangeSettings? settingsOverride)
         {
             string urlExtension = $"{Microsoft365UrlHelper.GetUserUrl(userIdentifier)}/messages";
             string result = GraphRest.Get(settingsOverride, urlExtension);
@@ -40,7 +42,8 @@ namespace Decisions.Microsoft365.Exchange.Steps
             return JsonHelper<Microsoft365EmailList?>.JsonDeserialize(result);
         }
         
-        public Microsoft365EmailList ListUnreadEmails(ExchangeSettings? settingsOverride, string userIdentifier)
+        public Microsoft365EmailList ListUnreadEmails(string userIdentifier,
+            [PropertyClassification(0, "Settings Override", "Settings")] ExchangeSettings? settingsOverride)
         {
             string urlExtension = $"{Microsoft365UrlHelper.GetUserUrl(userIdentifier)}/messages";
             string result = GraphRest.Get(settingsOverride, urlExtension);
@@ -65,7 +68,8 @@ namespace Decisions.Microsoft365.Exchange.Steps
             return unreadEmails;
         }
         
-        public string MarkEmailAsRead(ExchangeSettings? settingsOverride, string userIdentifier, string messageId)
+        public string MarkEmailAsRead(string userIdentifier, string messageId,
+            [PropertyClassification(0, "Settings Override", "Settings")] ExchangeSettings? settingsOverride)
         {
             string urlExtension = $"{Microsoft365UrlHelper.GetUserUrl(userIdentifier)}/messages/{messageId}";
             
@@ -75,8 +79,9 @@ namespace Decisions.Microsoft365.Exchange.Steps
             return response.StatusCode.ToString();
         }
         
-        public string SendEmail(ExchangeSettings? settingsOverride, string userIdentifier,
-            string[] to, string[]? cc, string subject, string? body, Microsoft365BodyType? contentType, bool saveToSentItems)
+        public string SendEmail(string userIdentifier, string[] to, string[]? cc, string subject, string? body,
+            Microsoft365BodyType? contentType, bool saveToSentItems,
+            [PropertyClassification(0, "Settings Override", "Settings")] ExchangeSettings? settingsOverride)
         {
             string urlExtension = $"{Microsoft365UrlHelper.GetUserUrl(userIdentifier)}/sendMail";
             
@@ -105,9 +110,9 @@ namespace Decisions.Microsoft365.Exchange.Steps
             return response.StatusCode.ToString();
         }
         
-        public string SendReply(ExchangeSettings? settingsOverride, string userIdentifier,
-            string? mailFolderId, string messageId, string[] to, string[]? cc, string subject, string? body,
-            Microsoft365BodyType? contentType, bool saveToSentItems)
+        public string SendReply(string userIdentifier, string? mailFolderId, string messageId, string[] to, string[]? cc,
+            string subject, string? body, Microsoft365BodyType? contentType, bool saveToSentItems,
+            [PropertyClassification(0, "Settings Override", "Settings")] ExchangeSettings? settingsOverride)
         {
             string urlExtension = $"{Microsoft365UrlHelper.GetEmailUrl(userIdentifier, messageId, mailFolderId)}/reply";
             
@@ -136,8 +141,8 @@ namespace Decisions.Microsoft365.Exchange.Steps
             return response.StatusCode.ToString();
         }
         
-        public string SendReplyToAll(ExchangeSettings? settingsOverride, string userIdentifier,
-            string? mailFolderId, string messageId, string? comment)
+        public string SendReplyToAll(string userIdentifier, string? mailFolderId, string messageId, string? comment,
+            [PropertyClassification(0, "Settings Override", "Settings")] ExchangeSettings? settingsOverride)
         {
             string urlExtension = $"{Microsoft365UrlHelper.GetEmailUrl(userIdentifier, messageId, mailFolderId)}/replyAll";
             
@@ -147,8 +152,8 @@ namespace Decisions.Microsoft365.Exchange.Steps
             return response.StatusCode.ToString();
         }
         
-        public string ForwardEmail(ExchangeSettings? settingsOverride, string userIdentifier,
-            string messageId, string? mailFolderId, string[] to, string comment)
+        public string ForwardEmail(string userIdentifier, string messageId, string? mailFolderId, string[] to, string comment,
+            [PropertyClassification(0, "Settings Override", "Settings")] ExchangeSettings? settingsOverride)
         {
             string urlExtension = $"{Microsoft365UrlHelper.GetEmailUrl(userIdentifier, messageId, mailFolderId)}/forward";
 
