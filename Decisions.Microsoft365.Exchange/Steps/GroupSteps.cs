@@ -119,7 +119,8 @@ namespace Decisions.Microsoft365.Exchange.Steps
                 Members = memberList.ToArray()
             };
 
-            JsonContent content = JsonContent.Create(membersRequest);
+            HttpContent content = new StringContent(JsonConvert.SerializeObject(membersRequest, IgnoreNullValues),
+                Encoding.UTF8, "application/json");
             HttpResponseMessage response = GraphRest.HttpResponsePatch(settingsOverride, urlExtension, content);
 
             return response.StatusCode.ToString();

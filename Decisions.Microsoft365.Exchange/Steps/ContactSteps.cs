@@ -3,14 +3,15 @@ using Decisions.Microsoft365.Common;
 using Decisions.Microsoft365.Common.API.People;
 using DecisionsFramework;
 using DecisionsFramework.Design.Flow;
+using DecisionsFramework.Design.Properties;
 
 namespace Decisions.Microsoft365.Exchange.Steps
 {
     [AutoRegisterMethodsOnClass(true, "Integration/Microsoft365/Exchange/Contacts")]
     public class ContactSteps
     {
-        public string CreateContact(ExchangeSettings? settingsOverride, string userIdentifier,
-            string? contactFolderId, Microsoft365ContactRequest contactRequest)
+        public string CreateContact(string userIdentifier, string? contactFolderId, Microsoft365ContactRequest contactRequest,
+            [PropertyClassification(0, "Settings Override", "Settings")] ExchangeSettings? settingsOverride)
         {
             string urlExtension = Microsoft365UrlHelper.GetContactUrl(userIdentifier, null, contactFolderId, null);
             
@@ -20,7 +21,8 @@ namespace Decisions.Microsoft365.Exchange.Steps
             return response.StatusCode.ToString();
         }
 
-        public string DeleteContact(ExchangeSettings? settingsOverride, string userIdentifier, string? contactId)
+        public string DeleteContact(string userIdentifier, string? contactId,
+            [PropertyClassification(0, "Settings Override", "Settings")] ExchangeSettings? settingsOverride)
         {
             string urlExtension = Microsoft365UrlHelper.GetContactUrl(userIdentifier, contactId, null, null);
             HttpResponseMessage response = GraphRest.Delete(settingsOverride, urlExtension);
@@ -28,8 +30,8 @@ namespace Decisions.Microsoft365.Exchange.Steps
             return response.StatusCode.ToString();
         }
 
-        public Microsoft365Contact? GetContact(ExchangeSettings? settingsOverride, string userIdentifier,
-            string contactId, string? contactFolderId, string? childFolderId, string? expandQuery)
+        public Microsoft365Contact? GetContact(string userIdentifier, string contactId, string? contactFolderId, string? childFolderId, string? expandQuery,
+            [PropertyClassification(0, "Settings Override", "Settings")] ExchangeSettings? settingsOverride)
         {
             string urlExtension = Microsoft365UrlHelper.GetContactUrl(userIdentifier, contactId, contactFolderId, childFolderId);
 
@@ -43,7 +45,8 @@ namespace Decisions.Microsoft365.Exchange.Steps
             return JsonHelper<Microsoft365Contact?>.JsonDeserialize(result);
         }
 
-        public Microsoft365ContactList? ListContacts(ExchangeSettings? settingsOverride, string userIdentifier)
+        public Microsoft365ContactList? ListContacts(string userIdentifier,
+            [PropertyClassification(0, "Settings Override", "Settings")] ExchangeSettings? settingsOverride)
         {
             string urlExtension = Microsoft365UrlHelper.GetContactUrl(userIdentifier, null, null, null);
             string result = GraphRest.Get(settingsOverride, urlExtension);
@@ -51,8 +54,8 @@ namespace Decisions.Microsoft365.Exchange.Steps
             return JsonHelper<Microsoft365ContactList?>.JsonDeserialize(result);
         }
         
-        public Microsoft365ContactList? SearchContacts(ExchangeSettings? settingsOverride,
-            string userIdentifier, string searchQuery)
+        public Microsoft365ContactList? SearchContacts(string userIdentifier, string searchQuery,
+            [PropertyClassification(0, "Settings Override", "Settings")] ExchangeSettings? settingsOverride)
         {
             if (string.IsNullOrEmpty(searchQuery))
             {
@@ -65,8 +68,8 @@ namespace Decisions.Microsoft365.Exchange.Steps
             return JsonHelper<Microsoft365ContactList?>.JsonDeserialize(result);
         }
 
-        public Microsoft365PeopleList? SearchGlobalContacts(ExchangeSettings? settingsOverride,
-            string userIdentifier, string searchQuery)
+        public Microsoft365PeopleList? SearchGlobalContacts(string userIdentifier, string searchQuery,
+            [PropertyClassification(0, "Settings Override", "Settings")] ExchangeSettings? settingsOverride)
         {
             if (string.IsNullOrEmpty(searchQuery))
             {
