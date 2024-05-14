@@ -19,7 +19,7 @@ namespace Decisions.Microsoft365.Exchange.Steps
             return JsonHelper<Microsoft365Message?>.JsonDeserialize(result);
         }
         
-        public Microsoft365EmailList? SearchEmails(string userIdentifier, string searchQuery,
+        public Microsoft365Message?[] SearchEmails(string userIdentifier, string searchQuery, int? maxPageCount,
             [PropertyClassification(0, "Settings Override", "Settings")] ExchangeSettings? settingsOverride)
         {
             if (string.IsNullOrEmpty(searchQuery))
@@ -27,45 +27,91 @@ namespace Decisions.Microsoft365.Exchange.Steps
                 throw new BusinessRuleException("searchQuery cannot be empty.");
             }
             
+            int pageCount = (int)((maxPageCount > 0) ? maxPageCount : 1);
             string urlExtension = $"{Microsoft365UrlHelper.GetUserUrl(userIdentifier)}/messages?$search={searchQuery}";
             string result = GraphRest.Get(settingsOverride, urlExtension);
 
-            return JsonHelper<Microsoft365EmailList?>.JsonDeserialize(result);
-        }
-        
-        public Microsoft365EmailList? ListEmails(string userIdentifier,
-            [PropertyClassification(0, "Settings Override", "Settings")] ExchangeSettings? settingsOverride)
-        {
-            string urlExtension = $"{Microsoft365UrlHelper.GetUserUrl(userIdentifier)}/messages";
-            string result = GraphRest.Get(settingsOverride, urlExtension);
-
-            return JsonHelper<Microsoft365EmailList?>.JsonDeserialize(result);
-        }
-        
-        public Microsoft365EmailList ListUnreadEmails(string userIdentifier,
-            [PropertyClassification(0, "Settings Override", "Settings")] ExchangeSettings? settingsOverride)
-        {
-            string urlExtension = $"{Microsoft365UrlHelper.GetUserUrl(userIdentifier)}/messages";
-            string result = GraphRest.Get(settingsOverride, urlExtension);
+            List<Microsoft365EmailList?> emailLists = new List<Microsoft365EmailList?>();
+            emailLists?.Add(JsonHelper<Microsoft365EmailList?>.JsonDeserialize(result));
             
-            Microsoft365EmailList? response = JsonHelper<Microsoft365EmailList?>.JsonDeserialize(result);
+            Microsoft365EmailList? tempEmailList = emailLists.First();
+            for (int i = 0; i <= pageCount - 1 && !string.IsNullOrEmpty(tempEmailList.OdataNextLink); i++)
+            {
+                tempEmailList = ODataHelper<Microsoft365EmailList?>.GetNextPage(settingsOverride, tempEmailList.OdataNextLink);
+                emailLists.Add(tempEmailList);
+            }
 
             List<Microsoft365Message>? messages = new List<Microsoft365Message>();
-            foreach (Microsoft365Message email in response?.Value!)
+            foreach (Microsoft365EmailList? emailList in emailLists)
             {
-                if (email.IsRead is false or null)
+                foreach (Microsoft365Message email in emailList?.Value!)
                 {
                     messages.Add(email);
                 }
             }
 
-            Microsoft365EmailList? unreadEmails = new Microsoft365EmailList
-            {
-                OdataContext = response.OdataContext,
-                Value = messages.ToArray()
-            };
+            return messages.ToArray();
+        }
+        
+        public Microsoft365Message?[] ListEmails(string userIdentifier, int? maxPageCount,
+            [PropertyClassification(0, "Settings Override", "Settings")] ExchangeSettings? settingsOverride)
+        {
+            int pageCount = (int)((maxPageCount > 0) ? maxPageCount : 1);
+            string urlExtension = $"{Microsoft365UrlHelper.GetUserUrl(userIdentifier)}/messages";
+            string result = GraphRest.Get(settingsOverride, urlExtension);
+
+            List<Microsoft365EmailList?> emailLists = new List<Microsoft365EmailList?>();
+            emailLists?.Add(JsonHelper<Microsoft365EmailList?>.JsonDeserialize(result));
             
-            return unreadEmails;
+            Microsoft365EmailList? tempEmailList = emailLists.First();
+            for (int i = 0; i <= pageCount - 1 && !string.IsNullOrEmpty(tempEmailList.OdataNextLink); i++)
+            {
+                tempEmailList = ODataHelper<Microsoft365EmailList?>.GetNextPage(settingsOverride, tempEmailList.OdataNextLink);
+                emailLists.Add(tempEmailList);
+            }
+            
+            List<Microsoft365Message>? messages = new List<Microsoft365Message>();
+            foreach (Microsoft365EmailList? emailList in emailLists)
+            {
+                foreach (Microsoft365Message email in emailList?.Value!)
+                {
+                    messages.Add(email);
+                }
+            }
+
+            return messages.ToArray();
+        }
+        
+        public Microsoft365Message?[] ListUnreadEmails(string userIdentifier, int? maxPageCount,
+            [PropertyClassification(0, "Settings Override", "Settings")] ExchangeSettings? settingsOverride)
+        {
+            int pageCount = (int)((maxPageCount > 0) ? maxPageCount : 1);
+            string urlExtension = $"{Microsoft365UrlHelper.GetUserUrl(userIdentifier)}/messages";
+            string result = GraphRest.Get(settingsOverride, urlExtension);
+            
+            List<Microsoft365EmailList?> emailLists = new List<Microsoft365EmailList?>();
+            emailLists?.Add(JsonHelper<Microsoft365EmailList?>.JsonDeserialize(result));
+            
+            Microsoft365EmailList? tempEmailList = emailLists.First();
+            for (int i = 0; i <= pageCount - 1 && !string.IsNullOrEmpty(tempEmailList.OdataNextLink); i++)
+            {
+                tempEmailList = ODataHelper<Microsoft365EmailList?>.GetNextPage(settingsOverride, tempEmailList.OdataNextLink);
+                emailLists.Add(tempEmailList);
+            }
+
+            List<Microsoft365Message>? messages = new List<Microsoft365Message>();
+            foreach (Microsoft365EmailList? emailList in emailLists)
+            {
+                foreach (Microsoft365Message email in emailList?.Value!)
+                {
+                    if (email.IsRead is false or null)
+                    {
+                        messages.Add(email);
+                    }
+                }
+            }
+            
+            return messages.ToArray();
         }
         
         public string MarkEmailAsRead(string userIdentifier, string messageId,
