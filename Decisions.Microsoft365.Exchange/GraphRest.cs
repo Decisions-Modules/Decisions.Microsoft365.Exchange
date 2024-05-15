@@ -11,7 +11,7 @@ namespace Decisions.Microsoft365.Exchange
     {
         public static HttpResponseMessage HttpResponsePost(ExchangeSettings? settingsOverride, string urlExtension, HttpContent content)
         {
-            return SendHttpRequest(settingsOverride, urlExtension, content, HttpMethod.Post);
+            return CreateHttpRequest(settingsOverride, urlExtension, content, HttpMethod.Post);
         }
         
         public static string Post(ExchangeSettings? settingsOverride, string urlExtension, HttpContent content)
@@ -25,7 +25,7 @@ namespace Decisions.Microsoft365.Exchange
         
         public static string Get(ExchangeSettings? settingsOverride, string urlExtension)
         {
-            HttpResponseMessage response = SendHttpRequest(settingsOverride, urlExtension, null, HttpMethod.Get);
+            HttpResponseMessage response = CreateHttpRequest(settingsOverride, urlExtension, null, HttpMethod.Get);
 
             try
             {
@@ -42,7 +42,7 @@ namespace Decisions.Microsoft365.Exchange
         
         public static HttpResponseMessage HttpResponsePatch(ExchangeSettings? settingsOverride, string urlExtension, HttpContent content)
         {
-            return SendHttpRequest(settingsOverride, urlExtension, content, HttpMethod.Patch);
+            return CreateHttpRequest(settingsOverride, urlExtension, content, HttpMethod.Patch);
         }
 
         public static string Patch(ExchangeSettings? settingsOverride, string urlExtension, HttpContent content)
@@ -56,16 +56,15 @@ namespace Decisions.Microsoft365.Exchange
         
         public static HttpResponseMessage Delete(ExchangeSettings? settingsOverride, string urlExtension)
         {
-            return SendHttpRequest(settingsOverride, urlExtension, null, HttpMethod.Delete);
+            return CreateHttpRequest(settingsOverride, urlExtension, null, HttpMethod.Delete);
         }
-        
-        private static HttpResponseMessage SendHttpRequest(ExchangeSettings? settingsOverride, string urlExtension,
+
+        internal static HttpResponseMessage SendHttpRequest(ExchangeSettings? settingsOverride, string url,
             HttpContent? content, HttpMethod httpMethod)
         {
             ExchangeSettings settings = GetSettings(settingsOverride);
             OAuthToken token = new ORM<OAuthToken>().Fetch(settings.TokenId);
             
-            string url = $"{settings.GraphUrl}{urlExtension}";
             string tokenHeader = OAuth2Utility.GetOAuth2HeaderValue(token.TokenData, "Bearer");
 
             HttpClient client = HttpClients.GetHttpClient(HttpClientAuthType.Normal);
@@ -89,6 +88,12 @@ namespace Decisions.Microsoft365.Exchange
             {
                 throw new BusinessRuleException("The request was unsuccessful.", ex);
             }
+        }
+        
+        private static HttpResponseMessage CreateHttpRequest(ExchangeSettings? settingsOverride, string urlExtension,
+            HttpContent? content, HttpMethod httpMethod)
+        {
+            return SendHttpRequest(settingsOverride, $"{GetSettings(settingsOverride).GraphUrl}{urlExtension}", content, httpMethod);
         }
 
         private static ExchangeSettings GetSettings(ExchangeSettings? settingsOverride)
