@@ -3,6 +3,7 @@ using System.Runtime.Serialization;
 using DecisionsFramework;
 using DecisionsFramework.Data.ORMapper;
 using DecisionsFramework.Design.ConfigurationStorage.Attributes;
+using DecisionsFramework.Design.Flow;
 using DecisionsFramework.Design.Properties;
 using DecisionsFramework.Design.Properties.Attributes;
 using DecisionsFramework.ServiceLayer;
@@ -12,18 +13,28 @@ using DecisionsFramework.ServiceLayer.Services.Accounts;
 using DecisionsFramework.ServiceLayer.Services.Administration;
 using DecisionsFramework.ServiceLayer.Services.Folder;
 using DecisionsFramework.ServiceLayer.Utilities;
+using DecisionsFramework.Utilities.Data.ObjectComparison;
+using Newtonsoft.Json;
 
 namespace Decisions.Microsoft365.Exchange
 {
     [ORMEntity("exchange_settings")]
     [Writable]
-    public class ExchangeSettings : AbstractModuleSettings, INotifyPropertyChanged, IValidationSource
+    public class ExchangeSettings : AbstractModuleSettings, INotifyPropertyChanged, IValidationSource, ICreateChildEntityInFolder
     {
         public ExchangeSettings()
         {
             this.EntityName = "Exchange Settings";
         }
         
+        [SkipInComparison]
+        [PropertyHidden]
+        [JsonProperty]
+        public virtual Flow Flow
+        {
+            get; set;
+        }
+
         [ORMField]
         private string graphUrl = "https://graph.microsoft.com/v1.0";
 
@@ -62,6 +73,7 @@ namespace Decisions.Microsoft365.Exchange
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
+        
 
         public ValidationIssue[] GetValidationIssues()
         {
@@ -101,5 +113,7 @@ namespace Decisions.Microsoft365.Exchange
 
             return actions.ToArray();
         }
+        
+        public string CreateChildEntityInFolderId { get; set; }
     }
 }
