@@ -20,7 +20,7 @@
 			"AutoInstall": true
 		}
 	],
-    "Version": "9.0.0",
+    "Version": "9.2.0",
     "ImagePath": "./image.png",
     "Description": "The Microsoft 365 Exchange module utilizes tools to manage calendar events, emails, contacts, and groups within Microsoft workspaces."
 }
