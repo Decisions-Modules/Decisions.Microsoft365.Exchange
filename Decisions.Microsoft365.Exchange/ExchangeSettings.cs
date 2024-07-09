@@ -20,19 +20,11 @@ namespace Decisions.Microsoft365.Exchange
 {
     [ORMEntity("exchange_settings")]
     [Writable]
-    public class ExchangeSettings : AbstractModuleSettings, INotifyPropertyChanged, IValidationSource, ICreateChildEntityInFolder
+    public class ExchangeSettings : AbstractModuleSettings, INotifyPropertyChanged, IValidationSource
     {
         public ExchangeSettings()
         {
             this.EntityName = "Exchange Settings";
-        }
-        
-        [SkipInComparison]
-        [PropertyHidden]
-        [JsonProperty]
-        public virtual Flow Flow
-        {
-            get; set;
         }
 
         [ORMField]
@@ -113,7 +105,5 @@ namespace Decisions.Microsoft365.Exchange
 
             return actions.ToArray();
         }
-        
-        public string CreateChildEntityInFolderId { get; set; }
     }
 }
