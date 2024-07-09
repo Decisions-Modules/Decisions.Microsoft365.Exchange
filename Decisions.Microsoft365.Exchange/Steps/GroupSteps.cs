@@ -19,17 +19,17 @@ namespace Decisions.Microsoft365.Exchange.Steps
         };
         
         public Microsoft365GroupList? ListGroups(bool filterUnified,
-            [PropertyClassification(0, "Settings Override", "Settings")] ExchangeSettings? settingsOverride = null)
+            [PropertyClassification(0, "Settings Override", "Settings")] InputExchangeSettings? settingsOverride = null)
         {
             string urlExtension = (filterUnified) ? $"{Microsoft365UrlHelper.GetGroupUrl(null)}$filter=groupTypes/any(c:c+eq+'Unified')" : Microsoft365UrlHelper.GetGroupUrl(null);
-            string result = GraphRest.Get(settingsOverride, urlExtension);
+            string result = GraphRest.Get(new ExchangeSettings(){TokenId = settingsOverride.TokenId, GraphUrl = settingsOverride.GraphUrl}, urlExtension);
             
             return JsonHelper<Microsoft365GroupList?>.JsonDeserialize(result);
         }
         
         public Microsoft365Group? CreateGroup(string? description, string displayName, string[]? groupTypes,
             bool? mailEnabled, string mailNickname, bool? securityEnabled, string[]? ownerIds, string[]? memberIds,
-            [PropertyClassification(0, "Settings Override", "Settings")] ExchangeSettings? settingsOverride)
+            [PropertyClassification(0, "Settings Override", "Settings")] InputExchangeSettings? settingsOverride)
         {
             if (string.IsNullOrEmpty(mailNickname))
             {
@@ -56,55 +56,55 @@ namespace Decisions.Microsoft365.Exchange.Steps
             };
             
             HttpContent content = new StringContent(groupRequest.JsonSerialize(), Encoding.UTF8, "application/json");
-            string result = GraphRest.Post(settingsOverride, Microsoft365UrlHelper.GetGroupUrl(null), content);
+            string result = GraphRest.Post(new ExchangeSettings(){TokenId = settingsOverride.TokenId, GraphUrl = settingsOverride.GraphUrl}, Microsoft365UrlHelper.GetGroupUrl(null), content);
 
             return JsonHelper<Microsoft365Group?>.JsonDeserialize(result);
         }
         
         public Microsoft365Group? GetGroup(string groupId,
-            [PropertyClassification(0, "Settings Override", "Settings")] ExchangeSettings? settingsOverride)
+            [PropertyClassification(0, "Settings Override", "Settings")] InputExchangeSettings? settingsOverride)
         {
             string urlExtension = Microsoft365UrlHelper.GetGroupUrl(groupId);
-            string result = GraphRest.Get(settingsOverride, urlExtension);
+            string result = GraphRest.Get(new ExchangeSettings(){TokenId = settingsOverride.TokenId, GraphUrl = settingsOverride.GraphUrl}, urlExtension);
 
             return JsonHelper<Microsoft365Group?>.JsonDeserialize(result);
         }
         
         public string UpdateGroup(string groupId, Microsoft365UpdateGroup group,
-            [PropertyClassification(0, "Settings Override", "Settings")] ExchangeSettings? settingsOverride)
+            [PropertyClassification(0, "Settings Override", "Settings")] InputExchangeSettings? settingsOverride)
         {
             string urlExtension = Microsoft365UrlHelper.GetGroupUrl(groupId);
 
             // Some objects can only be patched individually, so separate requests will be made.
-            LesserGroupUpdates(settingsOverride, urlExtension, group);
+            LesserGroupUpdates(new ExchangeSettings(){TokenId = settingsOverride.TokenId, GraphUrl = settingsOverride.GraphUrl}, urlExtension, group);
             
             HttpContent content = new StringContent(JsonConvert.SerializeObject(group, IgnoreNullValues),
                 Encoding.UTF8, "application/json");
-            HttpResponseMessage response = GraphRest.HttpResponsePatch(settingsOverride, urlExtension, content);
+            HttpResponseMessage response = GraphRest.HttpResponsePatch(new ExchangeSettings(){TokenId = settingsOverride.TokenId, GraphUrl = settingsOverride.GraphUrl}, urlExtension, content);
             
             return response.StatusCode.ToString();
         }
         
         public string DeleteGroup(string groupId,
-            [PropertyClassification(0, "Settings Override", "Settings")] ExchangeSettings? settingsOverride)
+            [PropertyClassification(0, "Settings Override", "Settings")] InputExchangeSettings? settingsOverride)
         {
             string urlExtension = Microsoft365UrlHelper.GetGroupUrl(groupId);
-            HttpResponseMessage response = GraphRest.Delete(settingsOverride, urlExtension);
+            HttpResponseMessage response = GraphRest.Delete(new ExchangeSettings(){TokenId = settingsOverride.TokenId, GraphUrl = settingsOverride.GraphUrl}, urlExtension);
             
             return response.StatusCode.ToString();
         }
         
         public Microsoft365MemberList? ListMembers(string groupId,
-            [PropertyClassification(0, "Settings Override", "Settings")] ExchangeSettings? settingsOverride)
+            [PropertyClassification(0, "Settings Override", "Settings")] InputExchangeSettings? settingsOverride)
         {
             string urlExtension = $"{Microsoft365UrlHelper.GetGroupUrl(groupId)}/members";
-            string result = GraphRest.Get(settingsOverride, urlExtension);
+            string result = GraphRest.Get(new ExchangeSettings(){TokenId = settingsOverride.TokenId, GraphUrl = settingsOverride.GraphUrl}, urlExtension);
             
             return JsonHelper<Microsoft365MemberList?>.JsonDeserialize(result);
         }
         
         public string AddMembers(string groupId, string[] directoryObjectIds,
-            [PropertyClassification(0, "Settings Override", "Settings")] ExchangeSettings? settingsOverride)
+            [PropertyClassification(0, "Settings Override", "Settings")] InputExchangeSettings? settingsOverride)
         {
             string urlExtension = Microsoft365UrlHelper.GetGroupUrl(groupId);
 
@@ -121,25 +121,25 @@ namespace Decisions.Microsoft365.Exchange.Steps
 
             HttpContent content = new StringContent(JsonConvert.SerializeObject(membersRequest, IgnoreNullValues),
                 Encoding.UTF8, "application/json");
-            HttpResponseMessage response = GraphRest.HttpResponsePatch(settingsOverride, urlExtension, content);
+            HttpResponseMessage response = GraphRest.HttpResponsePatch(new ExchangeSettings(){TokenId = settingsOverride.TokenId, GraphUrl = settingsOverride.GraphUrl}, urlExtension, content);
 
             return response.StatusCode.ToString();
         }
         
         public string RemoveMember(string groupId, string directoryObjectId,
-            [PropertyClassification(0, "Settings Override", "Settings")] ExchangeSettings? settingsOverride)
+            [PropertyClassification(0, "Settings Override", "Settings")] InputExchangeSettings? settingsOverride)
         {
             string urlExtension = $"{Microsoft365UrlHelper.GetGroupUrl(groupId)}/members/{directoryObjectId}/$ref";
-            HttpResponseMessage response = GraphRest.Delete(settingsOverride, urlExtension);
+            HttpResponseMessage response = GraphRest.Delete(new ExchangeSettings(){TokenId = settingsOverride.TokenId, GraphUrl = settingsOverride.GraphUrl}, urlExtension);
             
             return response.StatusCode.ToString();
         }
         
         public Microsoft365GroupCollection? ListMemberOf(string userIdentifier,
-            [PropertyClassification(0, "Settings Override", "Settings")] ExchangeSettings? settingsOverride)
+            [PropertyClassification(0, "Settings Override", "Settings")] InputExchangeSettings? settingsOverride)
         {
             string urlExtension = $"{Microsoft365UrlHelper.GetUserUrl(userIdentifier)}/memberOf";
-            string result = GraphRest.Get(settingsOverride, urlExtension);
+            string result = GraphRest.Get(new ExchangeSettings(){TokenId = settingsOverride.TokenId, GraphUrl = settingsOverride.GraphUrl}, urlExtension);
             
             return JsonHelper<Microsoft365GroupCollection?>.JsonDeserialize(result);
         }
