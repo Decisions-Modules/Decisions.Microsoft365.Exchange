@@ -6,7 +6,7 @@ using DecisionsFramework.Design.Flow;
 using DecisionsFramework.Design.Properties;
 
 namespace Decisions.Microsoft365.Exchange.Steps
-{
+{    
     public class ContactSteps
     {
         public string CreateContact(string userIdentifier, string? contactFolderId, Microsoft365ContactRequest contactRequest,
