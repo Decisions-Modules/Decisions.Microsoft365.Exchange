@@ -10,9 +10,11 @@
 		"CliDlls": "",
 		"WebPages": "",
 		"InstallScript": "",
-		"SqlScripts": "",
-		"ObjectsToImport": "",
-		"MsSqlScript": "",
+		"SqlScripts": null,
+		"MsSqlScript": ["./SQLScripts/MSSQL/*.sql"],
+		"AzureScript": ["./SQLScripts/AZURE/*.sql"],
+		"PostgresScript": ["./SQLScripts/POSTGRES/*.sql"],
+		"ObjectsToImport": "",		
 		"CustomImages": ""
     },
 	"Dependencies": [{
