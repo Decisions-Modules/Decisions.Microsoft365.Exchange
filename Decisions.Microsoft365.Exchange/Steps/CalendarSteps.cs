@@ -7,7 +7,7 @@ using DecisionsFramework.Design.Properties;
 using Newtonsoft.Json;
 
 namespace Decisions.Microsoft365.Exchange.Steps
-{
+{    
     public class CalendarSteps
     {
         private static readonly JsonSerializerSettings IgnoreNullValues = new()
