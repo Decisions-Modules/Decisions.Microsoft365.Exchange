@@ -22,7 +22,7 @@ public class ExchangeCalenderSteps
             string urlExtension = Microsoft365UrlHelper.GetCalendarEventUrl(userIdentifier, null, calendarId, null);
             
             JsonContent content = JsonContent.Create(microsoft365CalendarEvent);
-            string result = GraphRest.Post(new ExchangeSettings(){TokenId = settingsOverride.TokenId, GraphUrl = settingsOverride.GraphUrl}, urlExtension, content);
+            string result = GraphRest.Post(new ExchangeSettings(){TokenId = settingsOverride?.TokenId, GraphUrl = settingsOverride?.GraphUrl}, urlExtension, content);
             
             return JsonHelper<Microsoft365Event?>.JsonDeserialize(result);
         }
@@ -32,7 +32,7 @@ public class ExchangeCalenderSteps
         {
             string urlExtension = Microsoft365UrlHelper.GetCalendarEventUrl(userIdentifier, eventId, calendarId, calendarGroupId);
 
-            HttpResponseMessage response = GraphRest.Delete(new ExchangeSettings(){TokenId = settingsOverride.TokenId, GraphUrl = settingsOverride.GraphUrl}, urlExtension);
+            HttpResponseMessage response = GraphRest.Delete(new ExchangeSettings(){TokenId = settingsOverride?.TokenId, GraphUrl = settingsOverride?.GraphUrl}, urlExtension);
 
             return response.StatusCode.ToString();
         }
@@ -41,7 +41,7 @@ public class ExchangeCalenderSteps
             [PropertyClassification(0, "Settings Override", "Settings")] InputExchangeSettings? settingsOverride)
         {
             string urlExtension = Microsoft365UrlHelper.GetCalendarEventUrl(userIdentifier, null, calendarId, calendarGroupId);
-            string result = GraphRest.Get(new ExchangeSettings(){TokenId = settingsOverride.TokenId, GraphUrl = settingsOverride.GraphUrl}, urlExtension);
+            string result = GraphRest.Get(new ExchangeSettings(){TokenId = settingsOverride?.TokenId, GraphUrl = settingsOverride?.GraphUrl}, urlExtension);
             
             return JsonHelper<Microsoft365EventList?>.JsonDeserialize(result);
         }
@@ -55,7 +55,7 @@ public class ExchangeCalenderSteps
             HttpContent content = new StringContent(JsonConvert.SerializeObject(calendarEventMicrosoft365Update, IgnoreNullValues),
                 Encoding.UTF8, "application/json");
 
-            string result = GraphRest.Patch(new ExchangeSettings(){TokenId = settingsOverride.TokenId, GraphUrl = settingsOverride.GraphUrl}, urlExtension, content);
+            string result = GraphRest.Patch(new ExchangeSettings(){TokenId = settingsOverride?.TokenId, GraphUrl = settingsOverride?.GraphUrl}, urlExtension, content);
             
             return JsonHelper<Microsoft365Event?>.JsonDeserialize(result);
         }
@@ -64,7 +64,7 @@ public class ExchangeCalenderSteps
             [PropertyClassification(0, "Settings Override", "Settings")] InputExchangeSettings? settingsOverride)
         {
             string urlExtension = $"{Microsoft365UrlHelper.GetUserUrl(userIdentifier)}/calendars";
-            string result = GraphRest.Get(new ExchangeSettings(){TokenId = settingsOverride.TokenId, GraphUrl = settingsOverride.GraphUrl}, urlExtension);
+            string result = GraphRest.Get(new ExchangeSettings(){TokenId = settingsOverride?.TokenId, GraphUrl = settingsOverride?.GraphUrl}, urlExtension);
             
             return JsonHelper<Microsoft365CalendarList?>.JsonDeserialize(result);
         }
