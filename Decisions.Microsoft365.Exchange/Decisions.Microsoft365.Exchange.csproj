@@ -14,7 +14,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="DecisionsSDK" Version="8.19.0" />
+    <PackageReference Include="DecisionsSDK" Version="9.1.0" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
   </ItemGroup>
 

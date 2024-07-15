@@ -23,7 +23,7 @@ namespace Decisions.Microsoft365.Exchange
         {
             this.EntityName = "Exchange Settings";
         }
-        
+
         [ORMField]
         private string graphUrl = "https://graph.microsoft.com/v1.0";
 
@@ -62,6 +62,7 @@ namespace Decisions.Microsoft365.Exchange
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
+        
 
         public ValidationIssue[] GetValidationIssues()
         {
