@@ -44,6 +44,7 @@ public class InputExchangeSettings: ICreateChildEntityInFolder
 
     private string createChildEntityInFolderId;
 
+    [PropertyHidden]
     public string CreateChildEntityInFolderId
     {
         get => createChildEntityInFolderId;
