@@ -15,7 +15,7 @@ public class ExchangeEmailSteps
             [PropertyClassification(0, "Settings Override", "Settings")] InputExchangeSettings? settingsOverride)
         {
             string urlExtension = $"{Microsoft365UrlHelper.GetUserUrl(userIdentifier)}/messages/{messageId}";
-            string result = GraphRest.Get(new ExchangeSettings(){TokenId = settingsOverride?.TokenId, GraphUrl = settingsOverride?.GraphUrl}, urlExtension);
+            string result = GraphRest.Get(Microsoft365Utility.GetExchangeSettings(settingsOverride), urlExtension);
             
             return JsonHelper<Microsoft365Message?>.JsonDeserialize(result);
         }
@@ -30,7 +30,7 @@ public class ExchangeEmailSteps
             
             int pageCount = (int)((maxPageCount > 0) ? maxPageCount : 1);
             string urlExtension = $"{Microsoft365UrlHelper.GetUserUrl(userIdentifier)}/messages?$search={searchQuery}";
-            string result = GraphRest.Get(new ExchangeSettings(){TokenId = settingsOverride?.TokenId, GraphUrl = settingsOverride?.GraphUrl}, urlExtension);
+            string result = GraphRest.Get(Microsoft365Utility.GetExchangeSettings(settingsOverride), urlExtension);
 
             List<Microsoft365EmailList?> emailLists = new List<Microsoft365EmailList?>();
             emailLists?.Add(JsonHelper<Microsoft365EmailList?>.JsonDeserialize(result));
@@ -38,7 +38,7 @@ public class ExchangeEmailSteps
             Microsoft365EmailList? tempEmailList = emailLists.First();
             for (int i = 0; i <= pageCount - 1 && !string.IsNullOrEmpty(tempEmailList.OdataNextLink); i++)
             {
-                tempEmailList = ODataHelper<Microsoft365EmailList?>.GetNextPage(new ExchangeSettings(){TokenId = settingsOverride?.TokenId, GraphUrl = settingsOverride?.GraphUrl}, tempEmailList.OdataNextLink);
+                tempEmailList = ODataHelper<Microsoft365EmailList?>.GetNextPage(Microsoft365Utility.GetExchangeSettings(settingsOverride), tempEmailList.OdataNextLink);
                 emailLists.Add(tempEmailList);
             }
 
@@ -59,7 +59,7 @@ public class ExchangeEmailSteps
         {
             int pageCount = (int)((maxPageCount > 0) ? maxPageCount : 1);
             string urlExtension = $"{Microsoft365UrlHelper.GetUserUrl(userIdentifier)}/messages";
-            string result = GraphRest.Get(new ExchangeSettings(){TokenId = settingsOverride?.TokenId, GraphUrl = settingsOverride?.GraphUrl}, urlExtension);
+            string result = GraphRest.Get(Microsoft365Utility.GetExchangeSettings(settingsOverride), urlExtension);
 
             List<Microsoft365EmailList?> emailLists = new List<Microsoft365EmailList?>();
             emailLists?.Add(JsonHelper<Microsoft365EmailList?>.JsonDeserialize(result));
@@ -67,7 +67,7 @@ public class ExchangeEmailSteps
             Microsoft365EmailList? tempEmailList = emailLists.First();
             for (int i = 0; i <= pageCount - 1 && !string.IsNullOrEmpty(tempEmailList.OdataNextLink); i++)
             {
-                tempEmailList = ODataHelper<Microsoft365EmailList?>.GetNextPage(new ExchangeSettings(){TokenId = settingsOverride?.TokenId, GraphUrl = settingsOverride?.GraphUrl}, tempEmailList.OdataNextLink);
+                tempEmailList = ODataHelper<Microsoft365EmailList?>.GetNextPage(Microsoft365Utility.GetExchangeSettings(settingsOverride), tempEmailList.OdataNextLink);
                 emailLists.Add(tempEmailList);
             }
             
@@ -88,7 +88,7 @@ public class ExchangeEmailSteps
         {
             int pageCount = (int)((maxPageCount > 0) ? maxPageCount : 1);
             string urlExtension = $"{Microsoft365UrlHelper.GetUserUrl(userIdentifier)}/messages";
-            string result = GraphRest.Get(new ExchangeSettings(){TokenId = settingsOverride?.TokenId, GraphUrl = settingsOverride?.GraphUrl}, urlExtension);
+            string result = GraphRest.Get(Microsoft365Utility.GetExchangeSettings(settingsOverride), urlExtension);
             
             List<Microsoft365EmailList?> emailLists = new List<Microsoft365EmailList?>();
             emailLists?.Add(JsonHelper<Microsoft365EmailList?>.JsonDeserialize(result));
@@ -96,7 +96,7 @@ public class ExchangeEmailSteps
             Microsoft365EmailList? tempEmailList = emailLists.First();
             for (int i = 0; i <= pageCount - 1 && !string.IsNullOrEmpty(tempEmailList.OdataNextLink); i++)
             {
-                tempEmailList = ODataHelper<Microsoft365EmailList?>.GetNextPage(new ExchangeSettings(){TokenId = settingsOverride?.TokenId, GraphUrl = settingsOverride?.GraphUrl}, tempEmailList.OdataNextLink);
+                tempEmailList = ODataHelper<Microsoft365EmailList?>.GetNextPage(Microsoft365Utility.GetExchangeSettings(settingsOverride), tempEmailList.OdataNextLink);
                 emailLists.Add(tempEmailList);
             }
 
@@ -121,7 +121,7 @@ public class ExchangeEmailSteps
             string urlExtension = $"{Microsoft365UrlHelper.GetUserUrl(userIdentifier)}/messages/{messageId}";
             
             JsonContent content = JsonContent.Create(new Microsoft365EmailIsReadRequest{IsRead = true});
-            HttpResponseMessage response = GraphRest.HttpResponsePatch(new ExchangeSettings(){TokenId = settingsOverride?.TokenId, GraphUrl = settingsOverride?.GraphUrl}, urlExtension, content);
+            HttpResponseMessage response = GraphRest.HttpResponsePatch(Microsoft365Utility.GetExchangeSettings(settingsOverride), urlExtension, content);
 
             return response.StatusCode.ToString();
         }
@@ -152,7 +152,7 @@ public class ExchangeEmailSteps
             };
             
             JsonContent content = JsonContent.Create(emailMessage);
-            HttpResponseMessage response = GraphRest.HttpResponsePost(new ExchangeSettings(){TokenId = settingsOverride?.TokenId, GraphUrl = settingsOverride?.GraphUrl}, urlExtension, content);
+            HttpResponseMessage response = GraphRest.HttpResponsePost(Microsoft365Utility.GetExchangeSettings(settingsOverride), urlExtension, content);
 
             return response.StatusCode.ToString();
         }
@@ -183,7 +183,7 @@ public class ExchangeEmailSteps
             };
             
             JsonContent content = JsonContent.Create(emailMessage);
-            HttpResponseMessage response = GraphRest.HttpResponsePost(new ExchangeSettings(){TokenId = settingsOverride?.TokenId, GraphUrl = settingsOverride?.GraphUrl}, urlExtension, content);
+            HttpResponseMessage response = GraphRest.HttpResponsePost(Microsoft365Utility.GetExchangeSettings(settingsOverride), urlExtension, content);
 
             return response.StatusCode.ToString();
         }
@@ -194,7 +194,7 @@ public class ExchangeEmailSteps
             string urlExtension = $"{Microsoft365UrlHelper.GetEmailUrl(userIdentifier, messageId, mailFolderId)}/replyAll";
             
             JsonContent content = JsonContent.Create(new Microsoft365EmailComment{Comment = comment});
-            HttpResponseMessage response = GraphRest.HttpResponsePost(new ExchangeSettings(){TokenId = settingsOverride?.TokenId, GraphUrl = settingsOverride?.GraphUrl}, urlExtension, content);
+            HttpResponseMessage response = GraphRest.HttpResponsePost(Microsoft365Utility.GetExchangeSettings(settingsOverride), urlExtension, content);
 
             return response.StatusCode.ToString();
         }
@@ -212,7 +212,7 @@ public class ExchangeEmailSteps
             };
             
             JsonContent content = JsonContent.Create(microsoft365ForwardRequest);
-            HttpResponseMessage response = GraphRest.HttpResponsePost(new ExchangeSettings(){TokenId = settingsOverride?.TokenId, GraphUrl = settingsOverride?.GraphUrl}, urlExtension, content);
+            HttpResponseMessage response = GraphRest.HttpResponsePost(Microsoft365Utility.GetExchangeSettings(settingsOverride), urlExtension, content);
 
             return response.StatusCode.ToString();
         }
