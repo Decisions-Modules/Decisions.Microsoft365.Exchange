@@ -65,7 +65,7 @@ namespace Decisions.Microsoft365.Exchange
             ExchangeSettings settings = GetSettings(settingsOverride);
             OAuthToken token = new ORM<OAuthToken>().Fetch(settings.TokenId);
             
-            string tokenHeader = OAuth2Utility.GetOAuth2HeaderValue(token?.TokenData, "Bearer");
+            string tokenHeader = OAuth2Utility.GetOAuth2HeaderValue(token.TokenData, "Bearer");
 
             HttpClient client = HttpClients.GetHttpClient(HttpClientAuthType.Normal);
 
