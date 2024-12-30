@@ -5,7 +5,7 @@ using DecisionsFramework.Design.Properties.Attributes;
 
 namespace Decisions.Microsoft365.Exchange;
 
-public class InputExchangeSettings: ICreateChildEntityInFolder
+public class InputExchangeSettings: IEntityPickerLocation
 {
     private string graphUrl = "https://graph.microsoft.com/v1.0";
 
