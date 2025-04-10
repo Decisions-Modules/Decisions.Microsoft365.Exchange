@@ -188,6 +188,23 @@ public class ExchangeEmailSteps
             return response.StatusCode.ToString();
         }
         
+        public string AddCategoriesToEmail(string userIdentifier, string messageId, string? mailFolderId, string[]? categories,
+            [PropertyClassification(0, "Settings Override", "Settings")] InputExchangeSettings? settingsOverride)
+        {
+            string urlExtension = $"{Microsoft365UrlHelper.GetEmailUrl(userIdentifier, messageId, mailFolderId)}";
+
+            var addOrUpdateCategories = new
+            {
+                categories = categories
+            };
+            
+            JsonContent content = JsonContent.Create(addOrUpdateCategories);
+            
+            HttpResponseMessage response = GraphRest.HttpResponsePatch(Microsoft365Utility.GetExchangeSettings(settingsOverride), urlExtension, content);
+
+            return response.StatusCode.ToString();
+        }
+        
         public string SendReplyToAll(string userIdentifier, string? mailFolderId, string messageId, string? comment,
             [PropertyClassification(0, "Settings Override", "Settings")] InputExchangeSettings? settingsOverride)
         {
