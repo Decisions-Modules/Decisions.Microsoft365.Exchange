@@ -42,15 +42,15 @@ public class InputExchangeSettings: IEntityPickerLocation
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 
-    private string createChildEntityInFolderId;
+    private string entityPickerFolderId;
 
     [PropertyHidden(hiddenInMapping: true)]
-    public string CreateChildEntityInFolderId
+    public string EntityPickerFolderId
     {
-        get => createChildEntityInFolderId;
+        get => entityPickerFolderId;
         set
         {
-            createChildEntityInFolderId = value;
+            entityPickerFolderId = value;
         }
     }
 }
