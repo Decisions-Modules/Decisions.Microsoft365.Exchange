@@ -2,6 +2,7 @@ using System.Net.Http.Json;
 using Decisions.Microsoft365.Common;
 using Decisions.Microsoft365.Common.API.Email;
 using DecisionsFramework;
+using DecisionsFramework.Data.DataTypes;
 using DecisionsFramework.Design.Flow;
 using DecisionsFramework.Design.Properties;
 
@@ -125,14 +126,25 @@ namespace Decisions.Microsoft365.Exchange.Steps
             return response.StatusCode.ToString();
         }
         
+        [ExcludeMethodOnAutoRegister]
         public string SendEmail(string userIdentifier, string[] to, string[]? cc, string subject, string? body,
             Microsoft365BodyType? contentType, bool saveToSentItems,
             [PropertyClassification(0, "Settings Override", "Settings")] ExchangeSettings? settingsOverride)
+        {
+            return SendEmailWithAttachments(userIdentifier, to, cc, subject, body, contentType, saveToSentItems, settingsOverride, null);
+        }
+        
+        [AutoRegisterMethod("Send Email")]
+        public string SendEmailWithAttachments(string userIdentifier, string[] to, string[]? cc, string subject, string? body,
+            Microsoft365BodyType? contentType, bool saveToSentItems,
+            [PropertyClassification(0, "Settings Override", "Settings")] ExchangeSettings? settingsOverride, FileData[]? attachments)
         {
             string urlExtension = $"{Microsoft365UrlHelper.GetUserUrl(userIdentifier)}/sendMail";
             
             Microsoft365Recipient[] recipients = GetRecipients(to) ?? Array.Empty<Microsoft365Recipient>();
             Microsoft365Recipient[]? ccRecipients = (cc != null) ? GetRecipients(cc) : Array.Empty<Microsoft365Recipient>();
+            Microsoft365Attachment[] messageAttachments = attachments != null ? CreateAttachments(attachments) : Array.Empty<Microsoft365Attachment>();
+
 
             Microsoft365SendEmailRequest emailMessage = new()
             {
@@ -145,7 +157,8 @@ namespace Decisions.Microsoft365.Exchange.Steps
                     },
                     Subject = subject,
                     ToRecipients = recipients,
-                    CcRecipients = ccRecipients
+                    CcRecipients = ccRecipients,
+                    Attachments = messageAttachments
                 },
                 SaveToSentItems = saveToSentItems
             };
@@ -245,6 +258,26 @@ namespace Decisions.Microsoft365.Exchange.Steps
             });
 
             return recipients.ToArray();
+        }
+        
+        private static Microsoft365Attachment[] CreateAttachments(FileData[]? files)
+        {
+            List<Microsoft365Attachment> attachments = new();
+
+            if (files is { Length: > 0 })
+            {
+                foreach (FileData file in files)
+                {
+                    attachments.Add(new Microsoft365Attachment
+                    {
+                        ODataType = "#microsoft.graph.fileAttachment",
+                        Name = file.FileName,
+                        ContentBytes = Convert.ToBase64String(file.Contents),
+                    });
+                }
+            }
+
+            return attachments.ToArray();
         }
     }
 }
