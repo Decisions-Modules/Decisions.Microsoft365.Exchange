@@ -277,6 +277,29 @@ public class ExchangeEmailSteps
 
             return recipients.ToArray();
         }
+        
+        [AutoRegisterMethod("Get Email Attachments by Id")]
+        public FileData[] GetEmailAttachmentsById(string userIdentifier, string messageId,
+            [PropertyClassification(0, "Settings Override", "Settings")] InputExchangeSettings? settingsOverride)
+        {
+            string urlExtension = $"{Microsoft365UrlHelper.GetUserUrl(userIdentifier)}/messages/{messageId}/attachments";
+            string result = GraphRest.Get(Microsoft365Utility.GetExchangeSettings(settingsOverride), urlExtension);
+            var response = JsonHelper<Microsoft365AttachmentsResponse?>.JsonDeserialize(result);
+
+            if (response is { Value.Length: 0 })
+            {
+                return Array.Empty<FileData>();   
+            }
+
+            return response?.Value?
+                .Where(a => a.ODataType?.EndsWith("fileAttachment") == true &&
+                            a.ContentBytes != null)
+                .Select(a => new FileData
+                {
+                    FileName = a.Name ?? "attachment",
+                    Contents = a.ContentBytes
+                }).ToArray() ?? Array.Empty<FileData>();
+        }
 
         private static Microsoft365Attachment[] CreateAttachments(FileData[]? files)
         {
