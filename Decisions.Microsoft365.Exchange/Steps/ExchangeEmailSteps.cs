@@ -14,310 +14,347 @@ public class ExchangeEmailSteps
 {
     public Microsoft365Message? GetEmail(string userIdentifier, string messageId,
             [PropertyClassification(0, "Settings Override", "Settings")] InputExchangeSettings? settingsOverride)
+    {
+        string urlExtension = $"{Microsoft365UrlHelper.GetUserUrl(userIdentifier)}/messages/{messageId}";
+        string result = GraphRest.Get(Microsoft365Utility.GetExchangeSettings(settingsOverride), urlExtension);
+        
+        return JsonHelper<Microsoft365Message?>.JsonDeserialize(result);
+    }
+    
+    public Microsoft365Message?[] SearchEmails(string userIdentifier, string searchQuery, int? maxPageCount,
+        [PropertyClassification(0, "Settings Override", "Settings")] InputExchangeSettings? settingsOverride)
+    {
+        if (string.IsNullOrEmpty(searchQuery))
         {
-            string urlExtension = $"{Microsoft365UrlHelper.GetUserUrl(userIdentifier)}/messages/{messageId}";
-            string result = GraphRest.Get(Microsoft365Utility.GetExchangeSettings(settingsOverride), urlExtension);
-            
-            return JsonHelper<Microsoft365Message?>.JsonDeserialize(result);
+            throw new BusinessRuleException("searchQuery cannot be empty.");
         }
         
-        public Microsoft365Message?[] SearchEmails(string userIdentifier, string searchQuery, int? maxPageCount,
-            [PropertyClassification(0, "Settings Override", "Settings")] InputExchangeSettings? settingsOverride)
+        int pageCount = (int)((maxPageCount > 0) ? maxPageCount : 1);
+        string urlExtension = $"{Microsoft365UrlHelper.GetUserUrl(userIdentifier)}/messages?$search={searchQuery}";
+        string result = GraphRest.Get(Microsoft365Utility.GetExchangeSettings(settingsOverride), urlExtension);
+
+        List<Microsoft365EmailList?> emailLists = new List<Microsoft365EmailList?>();
+        emailLists?.Add(JsonHelper<Microsoft365EmailList?>.JsonDeserialize(result));
+        
+        Microsoft365EmailList? tempEmailList = emailLists.First();
+        for (int i = 0; i <= pageCount - 1 && !string.IsNullOrEmpty(tempEmailList.OdataNextLink); i++)
         {
-            if (string.IsNullOrEmpty(searchQuery))
-            {
-                throw new BusinessRuleException("searchQuery cannot be empty.");
-            }
-            
-            int pageCount = (int)((maxPageCount > 0) ? maxPageCount : 1);
-            string urlExtension = $"{Microsoft365UrlHelper.GetUserUrl(userIdentifier)}/messages?$search={searchQuery}";
-            string result = GraphRest.Get(Microsoft365Utility.GetExchangeSettings(settingsOverride), urlExtension);
+            tempEmailList = ODataHelper<Microsoft365EmailList?>.GetNextPage(Microsoft365Utility.GetExchangeSettings(settingsOverride), tempEmailList.OdataNextLink);
+            emailLists.Add(tempEmailList);
+        }
 
-            List<Microsoft365EmailList?> emailLists = new List<Microsoft365EmailList?>();
-            emailLists?.Add(JsonHelper<Microsoft365EmailList?>.JsonDeserialize(result));
-            
-            Microsoft365EmailList? tempEmailList = emailLists.First();
-            for (int i = 0; i <= pageCount - 1 && !string.IsNullOrEmpty(tempEmailList.OdataNextLink); i++)
+        List<Microsoft365Message>? messages = new List<Microsoft365Message>();
+        foreach (Microsoft365EmailList? emailList in emailLists)
+        {
+            foreach (Microsoft365Message email in emailList?.Value!)
             {
-                tempEmailList = ODataHelper<Microsoft365EmailList?>.GetNextPage(Microsoft365Utility.GetExchangeSettings(settingsOverride), tempEmailList.OdataNextLink);
-                emailLists.Add(tempEmailList);
+                messages.Add(email);
             }
+        }
 
-            List<Microsoft365Message>? messages = new List<Microsoft365Message>();
-            foreach (Microsoft365EmailList? emailList in emailLists)
+        return messages.ToArray();
+    }
+    
+    public Microsoft365Message?[] ListEmails(string userIdentifier, int? maxPageCount,
+        [PropertyClassification(0, "Settings Override", "Settings")] InputExchangeSettings? settingsOverride)
+    {
+        int pageCount = (int)((maxPageCount > 0) ? maxPageCount : 1);
+        string urlExtension = $"{Microsoft365UrlHelper.GetUserUrl(userIdentifier)}/messages";
+        string result = GraphRest.Get(Microsoft365Utility.GetExchangeSettings(settingsOverride), urlExtension);
+
+        List<Microsoft365EmailList?> emailLists = new List<Microsoft365EmailList?>();
+        emailLists?.Add(JsonHelper<Microsoft365EmailList?>.JsonDeserialize(result));
+        
+        Microsoft365EmailList? tempEmailList = emailLists.First();
+        for (int i = 0; i <= pageCount - 1 && !string.IsNullOrEmpty(tempEmailList.OdataNextLink); i++)
+        {
+            tempEmailList = ODataHelper<Microsoft365EmailList?>.GetNextPage(Microsoft365Utility.GetExchangeSettings(settingsOverride), tempEmailList.OdataNextLink);
+            emailLists.Add(tempEmailList);
+        }
+        
+        List<Microsoft365Message>? messages = new List<Microsoft365Message>();
+        foreach (Microsoft365EmailList? emailList in emailLists)
+        {
+            foreach (Microsoft365Message email in emailList?.Value!)
             {
-                foreach (Microsoft365Message email in emailList?.Value!)
+                messages.Add(email);
+            }
+        }
+
+        return messages.ToArray();
+    }
+    
+    public Microsoft365Message?[] ListUnreadEmails(string userIdentifier, int? maxPageCount,
+        [PropertyClassification(0, "Settings Override", "Settings")] InputExchangeSettings? settingsOverride)
+    {
+        int pageCount = (int)((maxPageCount > 0) ? maxPageCount : 1);
+        string urlExtension = $"{Microsoft365UrlHelper.GetUserUrl(userIdentifier)}/messages";
+        string result = GraphRest.Get(Microsoft365Utility.GetExchangeSettings(settingsOverride), urlExtension);
+        
+        List<Microsoft365EmailList?> emailLists = new List<Microsoft365EmailList?>();
+        emailLists?.Add(JsonHelper<Microsoft365EmailList?>.JsonDeserialize(result));
+        
+        Microsoft365EmailList? tempEmailList = emailLists.First();
+        for (int i = 0; i <= pageCount - 1 && !string.IsNullOrEmpty(tempEmailList.OdataNextLink); i++)
+        {
+            tempEmailList = ODataHelper<Microsoft365EmailList?>.GetNextPage(Microsoft365Utility.GetExchangeSettings(settingsOverride), tempEmailList.OdataNextLink);
+            emailLists.Add(tempEmailList);
+        }
+
+        List<Microsoft365Message>? messages = new List<Microsoft365Message>();
+        foreach (Microsoft365EmailList? emailList in emailLists)
+        {
+            foreach (Microsoft365Message email in emailList?.Value!)
+            {
+                if (email.IsRead is false or null)
                 {
                     messages.Add(email);
                 }
             }
-
-            return messages.ToArray();
         }
         
-        public Microsoft365Message?[] ListEmails(string userIdentifier, int? maxPageCount,
-            [PropertyClassification(0, "Settings Override", "Settings")] InputExchangeSettings? settingsOverride)
-        {
-            int pageCount = (int)((maxPageCount > 0) ? maxPageCount : 1);
-            string urlExtension = $"{Microsoft365UrlHelper.GetUserUrl(userIdentifier)}/messages";
-            string result = GraphRest.Get(Microsoft365Utility.GetExchangeSettings(settingsOverride), urlExtension);
-
-            List<Microsoft365EmailList?> emailLists = new List<Microsoft365EmailList?>();
-            emailLists?.Add(JsonHelper<Microsoft365EmailList?>.JsonDeserialize(result));
-            
-            Microsoft365EmailList? tempEmailList = emailLists.First();
-            for (int i = 0; i <= pageCount - 1 && !string.IsNullOrEmpty(tempEmailList.OdataNextLink); i++)
-            {
-                tempEmailList = ODataHelper<Microsoft365EmailList?>.GetNextPage(Microsoft365Utility.GetExchangeSettings(settingsOverride), tempEmailList.OdataNextLink);
-                emailLists.Add(tempEmailList);
-            }
-            
-            List<Microsoft365Message>? messages = new List<Microsoft365Message>();
-            foreach (Microsoft365EmailList? emailList in emailLists)
-            {
-                foreach (Microsoft365Message email in emailList?.Value!)
-                {
-                    messages.Add(email);
-                }
-            }
-
-            return messages.ToArray();
-        }
+        return messages.ToArray();
+    }
+    
+    public string MarkEmailAsRead(string userIdentifier, string messageId,
+        [PropertyClassification(0, "Settings Override", "Settings")] InputExchangeSettings? settingsOverride)
+    {
+        string urlExtension = $"{Microsoft365UrlHelper.GetUserUrl(userIdentifier)}/messages/{messageId}";
         
-        public Microsoft365Message?[] ListUnreadEmails(string userIdentifier, int? maxPageCount,
-            [PropertyClassification(0, "Settings Override", "Settings")] InputExchangeSettings? settingsOverride)
-        {
-            int pageCount = (int)((maxPageCount > 0) ? maxPageCount : 1);
-            string urlExtension = $"{Microsoft365UrlHelper.GetUserUrl(userIdentifier)}/messages";
-            string result = GraphRest.Get(Microsoft365Utility.GetExchangeSettings(settingsOverride), urlExtension);
-            
-            List<Microsoft365EmailList?> emailLists = new List<Microsoft365EmailList?>();
-            emailLists?.Add(JsonHelper<Microsoft365EmailList?>.JsonDeserialize(result));
-            
-            Microsoft365EmailList? tempEmailList = emailLists.First();
-            for (int i = 0; i <= pageCount - 1 && !string.IsNullOrEmpty(tempEmailList.OdataNextLink); i++)
-            {
-                tempEmailList = ODataHelper<Microsoft365EmailList?>.GetNextPage(Microsoft365Utility.GetExchangeSettings(settingsOverride), tempEmailList.OdataNextLink);
-                emailLists.Add(tempEmailList);
-            }
+        JsonContent content = JsonContent.Create(new Microsoft365EmailIsReadRequest{IsRead = true});
+        HttpResponseMessage response = GraphRest.HttpResponsePatch(Microsoft365Utility.GetExchangeSettings(settingsOverride), urlExtension, content);
 
-            List<Microsoft365Message>? messages = new List<Microsoft365Message>();
-            foreach (Microsoft365EmailList? emailList in emailLists)
+        return response.StatusCode.ToString();
+    }
+    
+    [ExcludeMethodOnAutoRegister]
+    public string SendEmail(string userIdentifier, string[] to, string[]? cc, string subject, string? body,
+        Microsoft365BodyType? contentType, bool saveToSentItems,
+        [PropertyClassification(0, "Settings Override", "Settings")]
+        InputExchangeSettings? settingsOverride)
+    {
+        return SendEmailWithAttachments(userIdentifier, to, cc, subject, body, contentType, saveToSentItems, settingsOverride, null);
+    }
+    
+    [AutoRegisterMethod("Send Email")]
+    public string SendEmailWithAttachments(string userIdentifier, string[] to, string[]? cc, string subject, string? body,
+        Microsoft365BodyType? contentType, bool saveToSentItems,
+        [PropertyClassification(0, "Settings Override", "Settings")] InputExchangeSettings? settingsOverride, FileData[]? attachments)
+    {
+        string urlExtension = $"{Microsoft365UrlHelper.GetUserUrl(userIdentifier)}/sendMail";
+        
+        Microsoft365Recipient[] recipients = GetRecipients(to) ?? Array.Empty<Microsoft365Recipient>();
+        Microsoft365Recipient[]? ccRecipients = (cc != null) ? GetRecipients(cc) : Array.Empty<Microsoft365Recipient>();
+        Microsoft365Attachment[] messageAttachments = attachments != null ? CreateAttachments(attachments) : Array.Empty<Microsoft365Attachment>();
+
+        Microsoft365SendEmailRequest emailMessage = new()
+        {
+            Message = new()
             {
-                foreach (Microsoft365Message email in emailList?.Value!)
+                Body = new Microsoft365EmailBody
                 {
-                    if (email.IsRead is false or null)
+                    ContentType = contentType.ToString() ?? Microsoft365BodyType.Text.ToString(),
+                    Content = body
+                },
+                Subject = subject,
+                ToRecipients = recipients,
+                CcRecipients = ccRecipients,
+                Attachments = messageAttachments
+            },
+            SaveToSentItems = saveToSentItems,
+        };
+        
+        JsonContent content = JsonContent.Create(emailMessage);
+        HttpResponseMessage response = GraphRest.HttpResponsePost(Microsoft365Utility.GetExchangeSettings(settingsOverride), urlExtension, content);
+
+        return response.StatusCode.ToString();
+    }
+    
+    public string SendReply(string userIdentifier, string? mailFolderId, string messageId, string[] to, string[]? cc,
+        string subject, string? body, Microsoft365BodyType? contentType, bool saveToSentItems,
+        [PropertyClassification(0, "Settings Override", "Settings")] InputExchangeSettings? settingsOverride)
+    {
+        string urlExtension = $"{Microsoft365UrlHelper.GetEmailUrl(userIdentifier, messageId, mailFolderId)}/reply";
+        
+        Microsoft365Recipient[] recipients = GetRecipients(to) ?? Array.Empty<Microsoft365Recipient>();
+        Microsoft365Recipient[]? ccRecipients = (cc != null) ? GetRecipients(cc) : Array.Empty<Microsoft365Recipient>();
+
+        Microsoft365SendEmailRequest emailMessage = new()
+        {
+            Message = new()
+            {
+                Body = new Microsoft365EmailBody
+                {
+                    ContentType = contentType.ToString() ?? Microsoft365BodyType.Text.ToString(),
+                    Content = body
+                },
+                Subject = subject,
+                ToRecipients = recipients,
+                CcRecipients = ccRecipients
+            },
+            SaveToSentItems = saveToSentItems
+        };
+        
+        JsonContent content = JsonContent.Create(emailMessage);
+        HttpResponseMessage response = GraphRest.HttpResponsePost(Microsoft365Utility.GetExchangeSettings(settingsOverride), urlExtension, content);
+
+        return response.StatusCode.ToString();
+    }
+    
+    public string AddCategoriesToEmail(string userIdentifier, string messageId, string? mailFolderId, string[]? categories,
+        [PropertyClassification(0, "Settings Override", "Settings")] InputExchangeSettings? settingsOverride)
+    {
+        string urlExtension = $"{Microsoft365UrlHelper.GetEmailUrl(userIdentifier, messageId, mailFolderId)}";
+
+        var addOrUpdateCategories = new
+        {
+            categories = categories
+        };
+        
+        JsonContent content = JsonContent.Create(addOrUpdateCategories);
+        
+        HttpResponseMessage response = GraphRest.HttpResponsePatch(Microsoft365Utility.GetExchangeSettings(settingsOverride), urlExtension, content);
+
+        return response.StatusCode.ToString();
+    }
+    
+    public string SendReplyToAll(string userIdentifier, string? mailFolderId, string messageId, string? comment,
+        [PropertyClassification(0, "Settings Override", "Settings")] InputExchangeSettings? settingsOverride)
+    {
+        string urlExtension = $"{Microsoft365UrlHelper.GetEmailUrl(userIdentifier, messageId, mailFolderId)}/replyAll";
+        
+        JsonContent content = JsonContent.Create(new Microsoft365EmailComment{Comment = comment});
+        HttpResponseMessage response = GraphRest.HttpResponsePost(Microsoft365Utility.GetExchangeSettings(settingsOverride), urlExtension, content);
+
+        return response.StatusCode.ToString();
+    }
+    
+    public string ForwardEmail(string userIdentifier, string messageId, string? mailFolderId, string[] to, string comment,
+        [PropertyClassification(0, "Settings Override", "Settings")] InputExchangeSettings? settingsOverride)
+    {
+        string urlExtension = $"{Microsoft365UrlHelper.GetEmailUrl(userIdentifier, messageId, mailFolderId)}/forward";
+
+        Microsoft365Recipient[] recipients = GetRecipients(to)!;
+        Microsoft365ForwardRequest microsoft365ForwardRequest = new()
+        {
+            Comment = comment,
+            ToRecipients = recipients
+        };
+        
+        JsonContent content = JsonContent.Create(microsoft365ForwardRequest);
+        HttpResponseMessage response = GraphRest.HttpResponsePost(Microsoft365Utility.GetExchangeSettings(settingsOverride), urlExtension, content);
+
+        return response.StatusCode.ToString();
+    }
+
+    private Microsoft365Recipient[]? GetRecipients(string[] emailAddresses)
+    {
+        List<Microsoft365Recipient> recipients = new List<Microsoft365Recipient>();
+        if (emailAddresses.Length > 0)
+        {
+            foreach (string emailAddress in emailAddresses)
+            {
+                Microsoft365Recipient recipient = new()
+                {
+                    EmailAddress = new Microsoft365Address
                     {
-                        messages.Add(email);
+                        Address = emailAddress
                     }
-                }
+                };
+                recipients.Add(recipient);
             }
             
-            return messages.ToArray();
-        }
-        
-        public string MarkEmailAsRead(string userIdentifier, string messageId,
-            [PropertyClassification(0, "Settings Override", "Settings")] InputExchangeSettings? settingsOverride)
-        {
-            string urlExtension = $"{Microsoft365UrlHelper.GetUserUrl(userIdentifier)}/messages/{messageId}";
-            
-            JsonContent content = JsonContent.Create(new Microsoft365EmailIsReadRequest{IsRead = true});
-            HttpResponseMessage response = GraphRest.HttpResponsePatch(Microsoft365Utility.GetExchangeSettings(settingsOverride), urlExtension, content);
-
-            return response.StatusCode.ToString();
-        }
-        
-        [ExcludeMethodOnAutoRegister]
-        public string SendEmail(string userIdentifier, string[] to, string[]? cc, string subject, string? body,
-            Microsoft365BodyType? contentType, bool saveToSentItems,
-            [PropertyClassification(0, "Settings Override", "Settings")]
-            InputExchangeSettings? settingsOverride)
-        {
-            return SendEmailWithAttachments(userIdentifier, to, cc, subject, body, contentType, saveToSentItems, settingsOverride, null);
-        }
-        
-        [AutoRegisterMethod("Send Email")]
-        public string SendEmailWithAttachments(string userIdentifier, string[] to, string[]? cc, string subject, string? body,
-            Microsoft365BodyType? contentType, bool saveToSentItems,
-            [PropertyClassification(0, "Settings Override", "Settings")] InputExchangeSettings? settingsOverride, FileData[]? attachments)
-        {
-            string urlExtension = $"{Microsoft365UrlHelper.GetUserUrl(userIdentifier)}/sendMail";
-            
-            Microsoft365Recipient[] recipients = GetRecipients(to) ?? Array.Empty<Microsoft365Recipient>();
-            Microsoft365Recipient[]? ccRecipients = (cc != null) ? GetRecipients(cc) : Array.Empty<Microsoft365Recipient>();
-            Microsoft365Attachment[] messageAttachments = attachments != null ? CreateAttachments(attachments) : Array.Empty<Microsoft365Attachment>();
-
-            Microsoft365SendEmailRequest emailMessage = new()
-            {
-                Message = new()
-                {
-                    Body = new Microsoft365EmailBody
-                    {
-                        ContentType = contentType.ToString() ?? Microsoft365BodyType.Text.ToString(),
-                        Content = body
-                    },
-                    Subject = subject,
-                    ToRecipients = recipients,
-                    CcRecipients = ccRecipients,
-                    Attachments = messageAttachments
-                },
-                SaveToSentItems = saveToSentItems,
-            };
-            
-            JsonContent content = JsonContent.Create(emailMessage);
-            HttpResponseMessage response = GraphRest.HttpResponsePost(Microsoft365Utility.GetExchangeSettings(settingsOverride), urlExtension, content);
-
-            return response.StatusCode.ToString();
-        }
-        
-        public string SendReply(string userIdentifier, string? mailFolderId, string messageId, string[] to, string[]? cc,
-            string subject, string? body, Microsoft365BodyType? contentType, bool saveToSentItems,
-            [PropertyClassification(0, "Settings Override", "Settings")] InputExchangeSettings? settingsOverride)
-        {
-            string urlExtension = $"{Microsoft365UrlHelper.GetEmailUrl(userIdentifier, messageId, mailFolderId)}/reply";
-            
-            Microsoft365Recipient[] recipients = GetRecipients(to) ?? Array.Empty<Microsoft365Recipient>();
-            Microsoft365Recipient[]? ccRecipients = (cc != null) ? GetRecipients(cc) : Array.Empty<Microsoft365Recipient>();
-
-            Microsoft365SendEmailRequest emailMessage = new()
-            {
-                Message = new()
-                {
-                    Body = new Microsoft365EmailBody
-                    {
-                        ContentType = contentType.ToString() ?? Microsoft365BodyType.Text.ToString(),
-                        Content = body
-                    },
-                    Subject = subject,
-                    ToRecipients = recipients,
-                    CcRecipients = ccRecipients
-                },
-                SaveToSentItems = saveToSentItems
-            };
-            
-            JsonContent content = JsonContent.Create(emailMessage);
-            HttpResponseMessage response = GraphRest.HttpResponsePost(Microsoft365Utility.GetExchangeSettings(settingsOverride), urlExtension, content);
-
-            return response.StatusCode.ToString();
-        }
-        
-        public string AddCategoriesToEmail(string userIdentifier, string messageId, string? mailFolderId, string[]? categories,
-            [PropertyClassification(0, "Settings Override", "Settings")] InputExchangeSettings? settingsOverride)
-        {
-            string urlExtension = $"{Microsoft365UrlHelper.GetEmailUrl(userIdentifier, messageId, mailFolderId)}";
-
-            var addOrUpdateCategories = new
-            {
-                categories = categories
-            };
-            
-            JsonContent content = JsonContent.Create(addOrUpdateCategories);
-            
-            HttpResponseMessage response = GraphRest.HttpResponsePatch(Microsoft365Utility.GetExchangeSettings(settingsOverride), urlExtension, content);
-
-            return response.StatusCode.ToString();
-        }
-        
-        public string SendReplyToAll(string userIdentifier, string? mailFolderId, string messageId, string? comment,
-            [PropertyClassification(0, "Settings Override", "Settings")] InputExchangeSettings? settingsOverride)
-        {
-            string urlExtension = $"{Microsoft365UrlHelper.GetEmailUrl(userIdentifier, messageId, mailFolderId)}/replyAll";
-            
-            JsonContent content = JsonContent.Create(new Microsoft365EmailComment{Comment = comment});
-            HttpResponseMessage response = GraphRest.HttpResponsePost(Microsoft365Utility.GetExchangeSettings(settingsOverride), urlExtension, content);
-
-            return response.StatusCode.ToString();
-        }
-        
-        public string ForwardEmail(string userIdentifier, string messageId, string? mailFolderId, string[] to, string comment,
-            [PropertyClassification(0, "Settings Override", "Settings")] InputExchangeSettings? settingsOverride)
-        {
-            string urlExtension = $"{Microsoft365UrlHelper.GetEmailUrl(userIdentifier, messageId, mailFolderId)}/forward";
-
-            Microsoft365Recipient[] recipients = GetRecipients(to)!;
-            Microsoft365ForwardRequest microsoft365ForwardRequest = new()
-            {
-                Comment = comment,
-                ToRecipients = recipients
-            };
-            
-            JsonContent content = JsonContent.Create(microsoft365ForwardRequest);
-            HttpResponseMessage response = GraphRest.HttpResponsePost(Microsoft365Utility.GetExchangeSettings(settingsOverride), urlExtension, content);
-
-            return response.StatusCode.ToString();
-        }
-
-        private Microsoft365Recipient[]? GetRecipients(string[] emailAddresses)
-        {
-            List<Microsoft365Recipient> recipients = new List<Microsoft365Recipient>();
-            if (emailAddresses.Length > 0)
-            {
-                foreach (string emailAddress in emailAddresses)
-                {
-                    Microsoft365Recipient recipient = new()
-                    {
-                        EmailAddress = new Microsoft365Address
-                        {
-                            Address = emailAddress
-                        }
-                    };
-                    recipients.Add(recipient);
-                }
-                
-                return recipients.ToArray();
-            }
-
-            recipients.Add(new Microsoft365Recipient
-            {
-                EmailAddress = new Microsoft365Address
-                {
-                    Address = string.Empty
-                }
-            });
-
             return recipients.ToArray();
         }
-        
-        [AutoRegisterMethod("Get Email Attachments by Id")]
-        public FileData[] GetEmailAttachmentsById(string userIdentifier, string messageId,
-            [PropertyClassification(0, "Settings Override", "Settings")] InputExchangeSettings? settingsOverride)
-        {
-            string urlExtension = $"{Microsoft365UrlHelper.GetUserUrl(userIdentifier)}/messages/{messageId}/attachments";
-            string result = GraphRest.Get(Microsoft365Utility.GetExchangeSettings(settingsOverride), urlExtension);
-            var response = JsonHelper<Microsoft365AttachmentsResponse?>.JsonDeserialize(result);
 
-            if (response is { Value.Length: 0 })
+        recipients.Add(new Microsoft365Recipient
+        {
+            EmailAddress = new Microsoft365Address
             {
-                return Array.Empty<FileData>();   
+                Address = string.Empty
             }
+        });
 
-            return response?.Value?
-                .Where(a => a.ODataType?.EndsWith("fileAttachment") == true &&
-                            a.ContentBytes != null)
-                .Select(a => new FileData
-                {
-                    FileName = a.Name ?? "attachment",
-                    Contents = a.ContentBytes
-                }).ToArray() ?? Array.Empty<FileData>();
-        }
+        return recipients.ToArray();
+    }
+    
+    [AutoRegisterMethod("Get Email Attachments by Id")]
+    public FileData[] GetEmailAttachmentsById(string userIdentifier, string messageId,
+        [PropertyClassification(0, "Settings Override", "Settings")] InputExchangeSettings? settingsOverride)
+    {
+        string urlExtension = $"{Microsoft365UrlHelper.GetUserUrl(userIdentifier)}/messages/{messageId}/attachments";
+        string result = GraphRest.Get(Microsoft365Utility.GetExchangeSettings(settingsOverride), urlExtension);
+        var response = JsonHelper<Microsoft365AttachmentsResponse?>.JsonDeserialize(result);
 
-        private static Microsoft365Attachment[] CreateAttachments(FileData[]? files)
+        if (response is { Value.Length: 0 })
         {
-            List<Microsoft365Attachment> attachments = new();
+            return Array.Empty<FileData>();   
+        }
+        
+        List<FileData> attachmentList = new List<FileData>();
 
-            if (files is { Length: > 0 })
+        foreach (var attachment in response?.Value)
+        {
+            string rawName = attachment.Name ?? "attachment";
+            string safeName = SanitizeFileName(rawName);
+            
+            if (attachment.ODataType?.EndsWith("fileAttachment") == true && attachment.ContentBytes != null)
             {
-                foreach (FileData file in files)
+                attachmentList.Add(new FileData
                 {
-                    attachments.Add(new Microsoft365Attachment
+                    FileName = safeName,
+                    Contents = attachment.ContentBytes
+                });
+            }
+            else if (attachment.ODataType?.EndsWith("itemAttachment") == true)
+            {
+                string mimeContent = GraphRest.Get(Microsoft365Utility.GetExchangeSettings(settingsOverride), $"{urlExtension}/{attachment.Id}/$value");
+
+                if (!string.IsNullOrEmpty(mimeContent))
+                {
+                    attachmentList.Add(new FileData
                     {
-                        ODataType = "#microsoft.graph.fileAttachment",
-                        Name = file.FileName,
-                        ContentBytes = Convert.ToBase64String(file.Contents),
+                        FileName = $"{safeName}.eml",
+                        Contents = System.Text.Encoding.UTF8.GetBytes(mimeContent)
                     });
                 }
             }
-            
-            return attachments.ToArray();
         }
+        
+        return attachmentList.ToArray();
+    }
+
+    private static Microsoft365Attachment[] CreateAttachments(FileData[]? files)
+    {
+        List<Microsoft365Attachment> attachments = new();
+
+        if (files is { Length: > 0 })
+        {
+            foreach (FileData file in files)
+            {
+                attachments.Add(new Microsoft365Attachment
+                {
+                    ODataType = "#microsoft.graph.fileAttachment",
+                    Name = file.FileName,
+                    ContentBytes = Convert.ToBase64String(file.Contents),
+                });
+            }
+        }
+        
+        return attachments.ToArray();
+    }
+    
+    private string SanitizeFileName(string fileName)
+    {
+        if (string.IsNullOrWhiteSpace(fileName)) return "attachment";
+    
+        // Remove invalid filesystem characters
+        char[] invalidChars = Path.GetInvalidFileNameChars();
+        foreach (char c in invalidChars)
+        {
+            fileName = fileName.Replace(c, '-');
+        }
+    
+        return fileName.Trim();
+    }
 }
